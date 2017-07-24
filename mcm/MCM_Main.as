@@ -2,7 +2,6 @@
 	
 	import flash.display.MovieClip;
 	import flash.events.Event;
-	//import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	import flash.utils.getQualifiedClassName;
@@ -14,7 +13,9 @@
 		private var done:Boolean = false;
 		
 		private var MainMenu:MovieClip;
+		private var savedMenuProperties:Object = new Object();;
 		private var mcmMenu:MCM_Menu = new mcm.MCM_Menu();
+		private var mcmCodeObj:Object = new Object();
 		
 		public function MCM_Main() {
 			log("MCM loaded.");
@@ -22,12 +23,16 @@
 				addEventListener(Event.ENTER_FRAME, enterFrameHandler);
 			} else {
 				log("Not running in-game.");
-				addChild(mcmMenu)
+				addChild(mcmMenu);
 			}
 		}
 		
 		private function makeChanges():void {
 			MainMenu = stage.getChildAt(0)["Menu_mc"];
+			
+			savedMenuProperties.LoadPanelBackground_X = MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.x;
+			savedMenuProperties.LoadPanelBackground_Y = MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.y;
+			savedMenuProperties.LoadPanelBackground_Height = MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.height;
 			
 			MainMenu["MainPanel_mc"].List_mc.entryList.unshift({
 				"text":"MOD CONFIG",
@@ -36,23 +41,29 @@
 			MainMenu["MainPanel_mc"].List_mc.InvalidateData();
 			MainMenu.addEventListener("BSScrollingList::itemPress", itemPressedHandler);
 			
-			//traceObj(MainMenu["MainPanel_mc"].List_mc.entryList);
-			
-			//			MainMenu.addEventListener(MouseEvent.MOUSE_OVER,mouseover);
+			traceObj(MainMenu["MainPanel_mc"].List_mc.entryList);
 			
             log("Successfully injected into MainMenu.");
+			
+			if (stage.getChildAt(0)["mcm"]) {
+				mcmCodeObj = stage.getChildAt(0)["mcm"];
+				log("MCM native code object registered.");
+			} else {
+				log("FATAL: MCM native code object not available.");
+			}
 		}
-		
-		
-		//function mouseover(param1: MouseEvent){
-		//	mcmMenu.configPanel_mc.hint_tf.text = param1.target.parent.parent.name + " : "+param1.target.parent.name + " : "+ param1.target.name;
-		//}
 		
 		private function itemPressedHandler(e:Event):void {
 			switch (MainMenu.MainPanel_mc.List_mc.selectedEntry.index) {
 				case 100:
 					// Mod Config
 					log("Mod config selected.");
+					
+					// TEST
+					//log("Get Global Value [GameHour]: " + mcmCodeObj.GetGlobalValue("Fallout4.esm|38"));
+					//mcmCodeObj.SetGlobalValue("Fallout4.esm|38", Number(0));	// Set gamehour to 0
+					//mcmCodeObj.CallGlobalFunction("Debug", "MessageBox", "Hello world!!!");
+					//mcmCodeObj.CallQuestFunction("HoloTime.esp|F99", "GiveItems");
 					
 					MainMenu.MainPanel_mc.visible = false;
 					MainMenu.currentState = MainMenu.HELP_STATE;
@@ -70,9 +81,13 @@
 					MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.y = -250;
 					MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.height = mcmMenu.configPanel_mc.height;
 					
-					MainMenu.setChildIndex(MainMenu.ConfirmPanel_mc,0);
-					
 					MainMenu.ShowSecondPanelBackground(true, true);
+					break;
+					
+				default:
+					MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.x = savedMenuProperties.LoadPanelBackground_X;
+					MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.y = savedMenuProperties.LoadPanelBackground_Y;
+					MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.height = savedMenuProperties.LoadPanelBackground_Height;
 					break;
 			}
 		}
