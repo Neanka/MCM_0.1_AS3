@@ -16,13 +16,12 @@ package mcm {
 		public var configPanel_mc:mcm.ConfigPanel;
 		public var HelpPanel_mc:mcm.LeftPanel;
 		public var ButtonHintBar_mc: Shared.AS3.BSButtonHintBar;
-		public var mods: Array;
 		
 		public function MCM_Menu() {
-			mods = new Array();
 			super();
 			addEventListener(BSScrollingList1.LIST_ITEMS_CREATED, listcreated);
 			addEventListener(BSScrollingList1.SELECTION_CHANGE, selectionchanged);
+			addEventListener(BSScrollingList1.ITEM_PRESS, this.onListItemPress);
 		}
 		
 		function listcreated(param1: Event){
@@ -59,21 +58,28 @@ package mcm {
 		}
 		
 		function selectionchanged(param1: Event){
-			log(param1.target.name + " selectionchanged");
 			switch (param1.target.name){
 				case "HelpList_mc":
 					this.configPanel_mc.configList_mc.selectedIndex = -1;
-					this.configPanel_mc.configList_mc.entryList = mods[this.HelpPanel_mc.HelpList_mc.selectedIndex]["content"];
+					this.configPanel_mc.configList_mc.entryList = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj["content"];
 					this.configPanel_mc.configList_mc.InvalidateData();
 					this.configPanel_mc.configList_mc.selectedIndex = 0;
 					break;
 				case "configList_mc":
-				if (this.configPanel_mc.configList_mc.selectedIndex > -1) {
-					//this.configPanel_mc.hint_tf.text = this.configPanel_mc.configList_mc.entryList[this.configPanel_mc.configList_mc.selectedIndex].help;
-					stage.focus = this.configPanel_mc.configList_mc;
+					if (this.configPanel_mc.configList_mc.selectedIndex > -1) {
+						this.configPanel_mc.hint_tf.text = this.configPanel_mc.configList_mc.entryList[this.configPanel_mc.configList_mc.selectedIndex].help;
+						stage.focus = this.configPanel_mc.configList_mc;
 					}
 					break;
 				default:
+			}
+		}
+		
+        private function onListItemPress(_arg_1:Event)
+        {
+			if (_arg_1.target == this.configPanel_mc.configList_mc)
+			{
+				(this.configPanel_mc.configList_mc as OptionsList).onListItemPressed();
 			}
 		}
 		
@@ -85,18 +91,58 @@ package mcm {
 
 		private function decodeJSON(e:Event):void {
 			var dataObj:Object= com.adobe.serialization.json.JSON.decode(e.target.data) as Object;
-			traceObj(dataObj);
-			mods.push(dataObj);
 			this.HelpPanel_mc.HelpList_mc.entryList.push({
+				dataobj: processDataObj(dataObj),
 				text: dataObj["modName"]
 			})
 			this.HelpPanel_mc.HelpList_mc.InvalidateData();
-
 
 			
 			this.HelpPanel_mc.HelpList_mc.selectedIndex = 0;
 			
 
+		}
+		
+		private function processDataObj(dataObj: Object) : Object {
+			var tempObj: Object = dataObj;
+			for (var num in tempObj["content"]){
+				switch (tempObj["content"][num]["type"]){
+					case "checkbox":
+						tempObj["content"][num].movieType = 2;
+						break;
+					case "stepper":
+						tempObj["content"][num].movieType = 1;
+						break;
+					case "slider":
+						tempObj["content"][num].movieType = 0;
+						break;
+					default:
+						tempObj["content"][num].movieType = 2;
+						break;
+				}
+				
+				switch (tempObj["content"][num]["action"]){
+					case "GameSettingBool":
+						try 
+						{
+							tempObj["content"][num].value = root.f4se.plugins.def_plugin.GetGSBool(tempObj["content"][num]["id"]);
+						}
+						catch(e:Error)
+						{
+							tempObj["content"][num].value = 0;
+							trace("Failed to GetGSBool");
+						}
+
+					default:
+
+						break;
+				}
+
+				//traceObj(tempObj["content"][num]);
+				
+			}
+			
+			return tempObj;
 		}
 		
 		

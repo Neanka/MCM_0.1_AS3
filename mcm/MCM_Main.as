@@ -2,7 +2,7 @@
 	
 	import flash.display.MovieClip;
 	import flash.events.Event;
-	import flash.events.MouseEvent;
+	//import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	import flash.utils.getQualifiedClassName;
@@ -36,17 +36,17 @@
 			MainMenu["MainPanel_mc"].List_mc.InvalidateData();
 			MainMenu.addEventListener("BSScrollingList::itemPress", itemPressedHandler);
 			
-			traceObj(MainMenu["MainPanel_mc"].List_mc.entryList);
+			//traceObj(MainMenu["MainPanel_mc"].List_mc.entryList);
 			
-						MainMenu.addEventListener(MouseEvent.MOUSE_OVER,mouseover);
+			//			MainMenu.addEventListener(MouseEvent.MOUSE_OVER,mouseover);
 			
             log("Successfully injected into MainMenu.");
 		}
 		
 		
-		function mouseover(param1: MouseEvent){
-			mcmMenu.configPanel_mc.hint_tf.text = param1.target.parent.parent.name + " : "+param1.target.parent.name + " : "+ param1.target.name;
-		}
+		//function mouseover(param1: MouseEvent){
+		//	mcmMenu.configPanel_mc.hint_tf.text = param1.target.parent.parent.name + " : "+param1.target.parent.name + " : "+ param1.target.name;
+		//}
 		
 		private function itemPressedHandler(e:Event):void {
 			switch (MainMenu.MainPanel_mc.List_mc.selectedEntry.index) {

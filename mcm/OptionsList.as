@@ -43,6 +43,21 @@ package mcm
         public function onValueChange(_arg_1:Event)
         {
             EntriesA[_arg_1.target.itemIndex].value = _arg_1.target.value;
+			switch (EntriesA[_arg_1.target.itemIndex].action) {
+				case "GameSettingBool":
+					try 
+					{
+						root.f4se.plugins.def_plugin.SetGSBool(EntriesA[_arg_1.target.itemIndex].id,EntriesA[_arg_1.target.itemIndex].value);
+					}
+					catch(e:Error)
+					{
+						trace("Failed to SetGSBool");
+					}
+					break;
+				default:
+				
+					break;
+			}
         }
 
         override protected function SetEntry(_arg_1:BSScrollingListEntry, _arg_2:Object)
