@@ -81,6 +81,8 @@
 					MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.y = -250;
 					MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.height = mcmMenu.configPanel_mc.height;
 					
+					MainMenu.setChildIndex(MainMenu.ConfirmPanel_mc,0);
+					
 					MainMenu.ShowSecondPanelBackground(true, true);
 					break;
 					
