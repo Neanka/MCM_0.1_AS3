@@ -24,7 +24,7 @@
 				this.configList_mc["componentInspectorSetting"] = true;
 			} catch (e: Error) {}
 			this.configList_mc.listEntryClass = "mcm.SettingsOptionItem";//mcm.ConfigListEntry
-			this.configList_mc.numListItems = 16;
+			this.configList_mc.numListItems = 15;
 			this.configList_mc.restoreListIndex = false;
 			this.configList_mc.textOption = "None";
 			this.configList_mc.verticalSpacing = 0;

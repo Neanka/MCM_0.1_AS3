@@ -11,13 +11,15 @@ package mcm
     import flash.ui.Keyboard;
     import flash.events.KeyboardEvent;
     import flash.geom.Rectangle;
+	import flash.text.TextField;
 
     public class Option_Scrollbar extends MovieClip 
     {
 
         public static const VALUE_CHANGE:String = "mcmOption_Scrollbar::VALUE_CHANGE";
 
-        public var Track_mc:MovieClip;
+        public var val_tf:TextField;
+		public var Track_mc:MovieClip;
         public var Thumb_mc:MovieClip;
         public var LeftArrow_mc:MovieClip;
         public var RightArrow_mc:MovieClip;
@@ -81,6 +83,7 @@ package mcm
             this.fValue = Math.min(Math.max(_arg_1, this.fMinValue), this.fMaxValue);
             var _local_2:* = ((this.fValue - this.fMinValue) / (this.fMaxValue - this.fMinValue));
             this.Thumb_mc.x = (this.fMinThumbX + (_local_2 * (this.fMaxThumbX - this.fMinThumbX)));
+			val_tf.text = String(this.fValue);
         }
 
         public function Decrement()
@@ -97,12 +100,12 @@ package mcm
 
         public function HandleKeyboardInput(_arg_1:KeyboardEvent)
         {
-            if ((((_arg_1.keyCode == Keyboard.LEFT)) && ((this.value > 0))))
+            if ((((_arg_1.keyCode == Keyboard.LEFT)) && ((this.value > this.fMinValue))))
             {
                 this.Decrement();
             } else
             {
-                if ((((_arg_1.keyCode == Keyboard.RIGHT)) && ((this.value < 1))))
+                if ((((_arg_1.keyCode == Keyboard.RIGHT)) && ((this.value < this.fMaxValue))))
                 {
                     this.Increment();
                 };
@@ -123,7 +126,10 @@ package mcm
                 {
                     if (_arg_1.target == this.BarCatcher_mc)
                     {
-                        this.value = ((_arg_1.currentTarget.mouseX / this.BarCatcher_mc.width) * (this.fMaxValue - this.fMinValue));
+						var atemp:Number = ((_arg_1.currentTarget.mouseX / this.BarCatcher_mc.width) * (this.fMaxValue - this.fMinValue));
+						atemp = Math.round(atemp / StepSize) * StepSize;
+						this.value = atemp;
+                        //this.value = ((_arg_1.currentTarget.mouseX / this.BarCatcher_mc.width) * (this.fMaxValue - this.fMinValue));
                         dispatchEvent(new Event(VALUE_CHANGE, true, true));
                     };
                 };
@@ -140,7 +146,10 @@ package mcm
         private function onThumbMouseMove(_arg_1:MouseEvent)
         {
             var _local_2:* = (this.Thumb_mc.x - this.fMinThumbX);
-            this.value = ((_local_2 / (this.fMaxThumbX - this.fMinThumbX)) * (this.fMaxValue - this.fMinValue));
+			var atemp:Number = ((_local_2 / (this.fMaxThumbX - this.fMinThumbX)) * (this.fMaxValue - this.fMinValue));
+			atemp = Math.round(atemp / StepSize) * StepSize;
+			this.value = atemp;
+			
             dispatchEvent(new Event(VALUE_CHANGE, true, true));
         }
 

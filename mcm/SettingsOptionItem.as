@@ -13,11 +13,18 @@ package mcm
     import Shared.GlobalFunc;
     import flash.events.KeyboardEvent;
     import flash.events.Event;
+	import flash.display.LineScaleMode;
+	import flash.text.TextLineMetrics;
 
     public class SettingsOptionItem extends BSScrollingListEntry 
     {
 
         public static const VALUE_CHANGE:String = "mcmSettingsOptionItem::value_change";
+		public static const MOVIETYPE_SCROLLBAR:int = 0;
+		public static const MOVIETYPE_STEPPER:int = 1;
+		public static const MOVIETYPE_CB:int = 2;
+		public static const MOVIETYPE_SECTION:int = 3;
+		public static const MOVIETYPE_EMPTY_LINE:int = 4;
 
         private var OptionItem:MovieClip;
         private var uiMovieType:uint;
@@ -51,19 +58,26 @@ package mcm
                 removeChild(this.OptionItem);
                 this.OptionItem = null;
             };
+			this.textField.x = 20;
+			//this.height = 28;
             switch (this.uiMovieType)
             {
-                case 0:
+                case MOVIETYPE_SCROLLBAR:
                     this.OptionItem = new mcm.Option_Scrollbar();
                     break;
-                case 1:
+                case MOVIETYPE_STEPPER:
                     this.OptionItem = new mcm.Option_OptionStepper();
                     break;
-                case 2:
+                case MOVIETYPE_CB:
                     this.OptionItem = new mcm.Option_Checkbox();
                     break;
+                case MOVIETYPE_SECTION:
+                    this.OptionItem = new mcm.Option_Section();
+					this.textField.x = 5;
+					//this.height = 48;
+                    break;
 				default:
-					this.OptionItem = new mcm.Option_Checkbox();
+					this.OptionItem = new MovieClip();
 					break;
             };
             addChild(this.OptionItem);
@@ -125,6 +139,9 @@ package mcm
                 case 2:
                     _local_1 = (((this.OptionItem as mcm.Option_Checkbox).checked) ? 1 : 0);
                     break;
+				default:
+					_local_1 = 0;
+					break;
             };
             return (_local_1);
         }
@@ -142,14 +159,27 @@ package mcm
                 case 2:
                     (this.OptionItem as mcm.Option_Checkbox).checked = (((_arg_1 == 1)) ? true : false);
                     return;
+				default:
+
+					break;
             };
         }
 
         public function SetOptionStepperOptions(_arg_1:Array)
         {
-            if (this.uiMovieType == 1)
+            if (this.uiMovieType == MOVIETYPE_STEPPER)
             {
                 (this.OptionItem as mcm.Option_OptionStepper).options = _arg_1;
+            };
+        }
+		
+        public function SetOptionSlider(minvalue:Number, maxvalue:Number, step:Number)
+        {
+            if (this.uiMovieType == MOVIETYPE_SCROLLBAR)
+            {
+                (this.OptionItem as mcm.Option_Scrollbar).MinValue = minvalue;
+				(this.OptionItem as mcm.Option_Scrollbar).MaxValue = maxvalue;
+				(this.OptionItem as mcm.Option_Scrollbar).StepSize = step;
             };
         }
 
@@ -157,6 +187,19 @@ package mcm
         {
             var _local_3:ColorTransform;
             super.SetEntryText(_arg_1, _arg_2);
+			if (this.uiMovieType == MOVIETYPE_SECTION) 
+				{
+					this.border.alpha = 0;
+					this.textField.textColor = 0xFFFFFF;
+					this.repositionSectionBar();
+					return;
+				}
+			if (this.uiMovieType == MOVIETYPE_EMPTY_LINE) 
+				{
+					this.border.alpha = 0;
+					GlobalFunc.SetText(this.textField, " ", true);
+					return;
+				}
             if (this.border != null)
             {
                 this.border.alpha = ((this.selected) ? GlobalFunc.SELECTED_RECT_ALPHA : 0);
@@ -167,13 +210,23 @@ package mcm
             };
             if (this.OptionItem != null)
             {
-                _local_3 = this.OptionItem.transform.colorTransform;
-                _local_3.redOffset = ((this.selected) ? -255 : 0);
-                _local_3.greenOffset = ((this.selected) ? -255 : 0);
-                _local_3.blueOffset = ((this.selected) ? -255 : 0);
-                this.OptionItem.transform.colorTransform = _local_3;
+				_local_3 = this.OptionItem.transform.colorTransform;
+				_local_3.redOffset = ((this.selected) ? -255 : 0);
+				_local_3.greenOffset = ((this.selected) ? -255 : 0);
+				_local_3.blueOffset = ((this.selected) ? -255 : 0);
+				this.OptionItem.transform.colorTransform = _local_3;	
             };
+
         }
+		
+		private function repositionSectionBar()
+		{
+			var _local_1:TextLineMetrics = this.textField.getLineMetrics(0);
+			this.OptionItem.graphics.lineStyle(3, 0xFFFFFF, 1, true, LineScaleMode.NONE);			
+			this.OptionItem.graphics.moveTo(_local_1.width - 535, 14);
+			this.OptionItem.graphics.lineTo(150, 14);
+			this.OptionItem.graphics.lineTo(150, 20);
+		}
 
         public function onItemPressed()
         {

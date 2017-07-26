@@ -378,7 +378,7 @@
 			return (this.iMaxScrollPosition);
 		}
 		public function set scrollPosition(aiNewPosition:uint){
-			if (((((!((aiNewPosition == this.iScrollPosition))) && ((aiNewPosition >= 0)))) && ((aiNewPosition <= this.iMaxScrollPosition)))){
+			if (((!(aiNewPosition == this.iScrollPosition)) && (aiNewPosition >= 0)) && (aiNewPosition <= this.iMaxScrollPosition)){
 				this.updateScrollPosition(aiNewPosition);
 			};
 		}

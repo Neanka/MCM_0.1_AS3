@@ -47,6 +47,7 @@
 			
 			if (stage.getChildAt(0)["mcm"]) {
 				mcmCodeObj = stage.getChildAt(0)["mcm"];
+				mcmMenu.mcmCodeObj = mcmCodeObj;
 				log("MCM native code object registered.");
 			} else {
 				log("FATAL: MCM native code object not available.");

@@ -6,13 +6,14 @@
 package mcm
 {
     import Shared.AS3.BSScrollingList1;
+	import fl.controls.Slider;
     import flash.events.KeyboardEvent;
     import flash.display.MovieClip;
     import flash.events.Event;
     import Shared.AS3.BSScrollingListEntry;
     import flash.ui.Keyboard;
 
-    public class OptionsList extends BSScrollingList1
+    public class OptionsList extends mcm.ItemList
     {
 
         private var bAllowValueOverwrite:Boolean;
@@ -73,6 +74,10 @@ package mcm
                     {
                         _local_3.SetOptionStepperOptions(_arg_2.options);
                     };
+                    if (_arg_2.maxvalue != undefined)
+                    {
+                        _local_3.SetOptionSlider(_arg_2.minvalue,_arg_2.maxvalue,_arg_2.step);
+                    };
                     _local_3.ID = _arg_2.ID;
                     _local_3.value = _arg_2.value;
                     _local_3.hudColorUpdate = _arg_2.hudColorUpdate;
@@ -98,6 +103,14 @@ package mcm
                 };
             };
         }
+		
+		override protected function onItemPress(){
+			if (((!this.bDisableInput) && (!this.bDisableSelection)) && (!(this.iSelectedIndex == -1))){
+				dispatchEvent(new Event(ITEM_PRESS, true, true));
+			} else {
+				dispatchEvent(new Event(LIST_PRESS, true, true));
+			};
+		}
 
         override public function onKeyDown(_arg_1:KeyboardEvent)
         {
@@ -105,7 +118,7 @@ package mcm
             if (!bDisableInput)
             {
                 super.onKeyDown(_arg_1);
-                if ((((!((this.selectedEntry == null)))) && ((((_arg_1.keyCode == Keyboard.LEFT)) || ((_arg_1.keyCode == Keyboard.RIGHT))))))
+                if ((!(this.selectedEntry == null)) && ((_arg_1.keyCode == Keyboard.LEFT) || (_arg_1.keyCode == Keyboard.RIGHT)))
                 {
                     _local_2 = GetClipByIndex(this.selectedEntry.clipIndex);
                     if (_local_2 != null)
@@ -116,6 +129,84 @@ package mcm
                 };
             };
         }
+		
+		/*override public function onEntryRollover(event:Event){
+			if (EntriesA[(event.currentTarget as BSScrollingListEntry).itemIndex].movieType == mcm.SettingsOptionItem.MOVIETYPE_SECTION || EntriesA[(event.currentTarget as BSScrollingListEntry).itemIndex].movieType == mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE){
+				return;
+			}
+			var prevSelection:*;
+			this.bMouseDrivenNav = true;
+			if ((!(this.bDisableInput)) && (!(this.bDisableSelection))){
+				prevSelection = this.iSelectedIndex;
+				this.doSetSelectedIndex((event.currentTarget as BSScrollingListEntry).itemIndex);
+				if (prevSelection != this.iSelectedIndex){
+					dispatchEvent(new Event(PLAY_FOCUS_SOUND, true, true));
+				};
+			};
+		}*/
+		
+		override public function moveSelectionUp(){
+			var iprevFilterMatch:Number;
+			if ((!(this.bDisableSelection)) || (this.bAllowSelectionDisabledListNav)){
+				if (this.selectedIndex > 0){
+					var i: int = this.selectedIndex;
+					while (i>0) 
+					{
+						iprevFilterMatch = this._filterer.GetPrevFilterMatch(i);
+						switch (EntriesA[iprevFilterMatch].movieType)
+						{
+							case mcm.SettingsOptionItem.MOVIETYPE_SECTION:
+							case mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE:
+								
+								break;
+							default:
+								if (iprevFilterMatch != int.MAX_VALUE){
+									this.selectedIndex = iprevFilterMatch;
+									this.bMouseDrivenNav = false;
+									dispatchEvent(new Event(PLAY_FOCUS_SOUND, true, true));
+									return;
+								};
+								break;
+						}
+						i--;
+					}
+				};
+			} else {
+				this.scrollPosition = (this.scrollPosition - 1);
+			};
+		}
+		
+		override public function moveSelectionDown(){
+			var inextFilterMatch:Number;
+            if ((!(this.bDisableSelection)) || (this.bAllowSelectionDisabledListNav)){
+				if (this.selectedIndex < (this.EntriesA.length - 1)){
+					
+					var i: int = this.selectedIndex;
+					while (i<this.EntriesA.length - 1) 
+					{
+						inextFilterMatch = this._filterer.GetNextFilterMatch(i);
+						switch (EntriesA[inextFilterMatch].movieType)
+						{
+							case mcm.SettingsOptionItem.MOVIETYPE_SECTION:
+							case mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE:
+								
+								break;
+							default:
+								if (inextFilterMatch != int.MAX_VALUE){
+									this.selectedIndex = inextFilterMatch;
+									this.bMouseDrivenNav = false;
+									dispatchEvent(new Event(PLAY_FOCUS_SOUND, true, true));
+									return;
+								};
+								break;
+						}
+						i++;
+					}
+				};
+			} else {
+				this.scrollPosition = (this.scrollPosition + 1);
+			};
+		}
 
 
     }

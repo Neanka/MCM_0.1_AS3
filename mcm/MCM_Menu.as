@@ -6,6 +6,7 @@ package mcm {
 	import flash.net.URLRequest;
 	import flash.utils.getQualifiedClassName;
 	import com.adobe.serialization.json.*;
+	import Shared.GlobalFunc;
 	
 	/**
 	 * ...
@@ -16,6 +17,7 @@ package mcm {
 		public var configPanel_mc:mcm.ConfigPanel;
 		public var HelpPanel_mc:mcm.LeftPanel;
 		public var ButtonHintBar_mc: Shared.AS3.BSButtonHintBar;
+		public var mcmCodeObj:Object = new Object();
 		
 		public function MCM_Menu() {
 			super();
@@ -58,16 +60,24 @@ package mcm {
 		}
 		
 		function selectionchanged(param1: Event){
-			switch (param1.target.name){
-				case "HelpList_mc":
+			switch (param1.target){
+				case this.HelpPanel_mc.HelpList_mc:
 					this.configPanel_mc.configList_mc.selectedIndex = -1;
 					this.configPanel_mc.configList_mc.entryList = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj["content"];
 					this.configPanel_mc.configList_mc.InvalidateData();
 					this.configPanel_mc.configList_mc.selectedIndex = 0;
 					break;
-				case "configList_mc":
+				case this.configPanel_mc.configList_mc:
 					if (this.configPanel_mc.configList_mc.selectedIndex > -1) {
-						this.configPanel_mc.hint_tf.text = this.configPanel_mc.configList_mc.entryList[this.configPanel_mc.configList_mc.selectedIndex].help;
+						if (this.configPanel_mc.configList_mc.entryList[this.configPanel_mc.configList_mc.selectedIndex].help) 
+						{
+							GlobalFunc.SetText(this.configPanel_mc.hint_tf, this.configPanel_mc.configList_mc.entryList[this.configPanel_mc.configList_mc.selectedIndex].help, true);
+						}
+						else
+						{
+							GlobalFunc.SetText(this.configPanel_mc.hint_tf, " ", true);
+						}
+
 						stage.focus = this.configPanel_mc.configList_mc;
 					}
 					break;
@@ -79,7 +89,7 @@ package mcm {
         {
 			if (_arg_1.target == this.configPanel_mc.configList_mc)
 			{
-				(this.configPanel_mc.configList_mc as OptionsList).onListItemPressed();
+				(this.configPanel_mc.configList_mc as mcm.OptionsList).onListItemPressed();
 			}
 		}
 		
@@ -108,16 +118,22 @@ package mcm {
 			for (var num in tempObj["content"]){
 				switch (tempObj["content"][num]["type"]){
 					case "checkbox":
-						tempObj["content"][num].movieType = 2;
+						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_CB;
 						break;
 					case "stepper":
-						tempObj["content"][num].movieType = 1;
+						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_STEPPER;
 						break;
 					case "slider":
-						tempObj["content"][num].movieType = 0;
+						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_SCROLLBAR;
+						break;
+					case "section":
+						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_SECTION;
+						break;
+					case "empty":
+						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE;
 						break;
 					default:
-						tempObj["content"][num].movieType = 2;
+						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_CB;
 						break;
 				}
 				
