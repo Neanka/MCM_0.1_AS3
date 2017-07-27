@@ -55,11 +55,47 @@ package mcm
 						trace("Failed to SetGSBool");
 					}
 					break;
+				case "GlobalValue":
+					try 
+					{
+						parent.parent.mcmCodeObj.SetGlobalValue(EntriesA[_arg_1.target.itemIndex].actionparams,Number(EntriesA[_arg_1.target.itemIndex].value));
+					}
+					catch(e:Error)
+					{
+						trace("Failed to SetGlobalValue");
+					}
+					break;
 				default:
 				
 					break;
 			}
+			if (EntriesA[_arg_1.target.itemIndex].groupcontrol) 
+			{
+				if (EntriesA[_arg_1.target.itemIndex].value == 1) 
+				{
+					trace("checked");
+					addfilterflag(EntriesA[_arg_1.target.itemIndex].groupcontrol);
+				}
+				else 
+				{
+					trace("unchecked");
+					removefilterflag(EntriesA[_arg_1.target.itemIndex].groupcontrol);
+				}
+			}
         }
+		
+		public function setfilterflag(iFilterFlag: Number):*{
+			this.filterer.itemFilter = Math.pow(2,iFilterFlag);			
+			InvalidateData();
+		}
+		public function addfilterflag(iFilterFlag: Number):*{
+			this.filterer.itemFilter = this.filterer.itemFilter | Math.pow(2,iFilterFlag);			
+			InvalidateData();
+		}
+		public function removefilterflag(iFilterFlag: Number):*{
+			this.filterer.itemFilter = this.filterer.itemFilter & ~Math.pow(2,iFilterFlag);			
+			InvalidateData();
+		}
 
         override protected function SetEntry(_arg_1:BSScrollingListEntry, _arg_2:Object)
         {

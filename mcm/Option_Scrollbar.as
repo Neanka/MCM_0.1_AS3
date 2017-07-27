@@ -34,6 +34,7 @@ package mcm
         private var fStepSize:Number = 0.05;
         private var iStartDragThumb:int;
         private var fStartValue:Number;
+		private var fOldValue:Number;
 
         public function Option_Scrollbar()
         {
@@ -127,9 +128,8 @@ package mcm
                     if (_arg_1.target == this.BarCatcher_mc)
                     {
 						var atemp:Number = ((_arg_1.currentTarget.mouseX / this.BarCatcher_mc.width) * (this.fMaxValue - this.fMinValue));
-						atemp = Math.round(atemp / StepSize) * StepSize;
+						atemp = Math.round(atemp / fStepSize) * fStepSize;
 						this.value = atemp;
-                        //this.value = ((_arg_1.currentTarget.mouseX / this.BarCatcher_mc.width) * (this.fMaxValue - this.fMinValue));
                         dispatchEvent(new Event(VALUE_CHANGE, true, true));
                     };
                 };
@@ -138,19 +138,21 @@ package mcm
 
         private function onThumbMouseDown(_arg_1:MouseEvent)
         {
-            this.Thumb_mc.startDrag(false, new Rectangle(0, this.Thumb_mc.y, (this.fMaxThumbX - this.fMinThumbX), 0));
+            this.Thumb_mc.startDrag(false, new Rectangle(3, this.Thumb_mc.y, (this.fMaxThumbX - this.fMinThumbX)+3, 0));
             stage.addEventListener(MouseEvent.MOUSE_UP, this.onThumbMouseUp);
             stage.addEventListener(MouseEvent.MOUSE_MOVE, this.onThumbMouseMove);
         }
 
         private function onThumbMouseMove(_arg_1:MouseEvent)
         {
-            var _local_2:* = (this.Thumb_mc.x - this.fMinThumbX);
-			var atemp:Number = ((_local_2 / (this.fMaxThumbX - this.fMinThumbX)) * (this.fMaxValue - this.fMinValue));
-			atemp = Math.round(atemp / StepSize) * StepSize;
-			this.value = atemp;
-			
-            dispatchEvent(new Event(VALUE_CHANGE, true, true));
+			this.fOldValue = this.fValue;
+			var offset:* = (this.Thumb_mc.x - this.fMinThumbX);
+            var newValue: Number = this.fMinValue+Math.round((offset / fStepSize / (this.fMaxThumbX - this.fMinThumbX)) * (this.fMaxValue - this.fMinValue)) * fStepSize;
+			if (newValue != this.fOldValue) 
+			{
+				this.value = newValue;
+			    dispatchEvent(new Event(VALUE_CHANGE, true, true));
+			}
         }
 
         private function onThumbMouseUp(_arg_1:MouseEvent)

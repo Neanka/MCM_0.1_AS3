@@ -64,6 +64,7 @@ package mcm {
 				case this.HelpPanel_mc.HelpList_mc:
 					this.configPanel_mc.configList_mc.selectedIndex = -1;
 					this.configPanel_mc.configList_mc.entryList = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj["content"];
+					this.configPanel_mc.configList_mc.filterer.itemFilter = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj["filterFlagControl"];
 					this.configPanel_mc.configList_mc.InvalidateData();
 					this.configPanel_mc.configList_mc.selectedIndex = 0;
 					break;
@@ -78,7 +79,7 @@ package mcm {
 							GlobalFunc.SetText(this.configPanel_mc.hint_tf, " ", true);
 						}
 
-						stage.focus = this.configPanel_mc.configList_mc;
+						stage.focus = this.configPanel_mc.configList_mc; // temp string
 					}
 					break;
 				default:
@@ -115,6 +116,7 @@ package mcm {
 		
 		private function processDataObj(dataObj: Object) : Object {
 			var tempObj: Object = dataObj;
+			tempObj.filterFlagControl = uint.MAX_VALUE;
 			for (var num in tempObj["content"]){
 				switch (tempObj["content"][num]["type"]){
 					case "checkbox":
@@ -133,7 +135,7 @@ package mcm {
 						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE;
 						break;
 					default:
-						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_CB;
+						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE;
 						break;
 				}
 				
@@ -148,10 +150,30 @@ package mcm {
 							tempObj["content"][num].value = 0;
 							trace("Failed to GetGSBool");
 						}
-
-					default:
-
 						break;
+					case "GlobalValue":
+						try 
+						{
+							tempObj["content"][num].value = mcmCodeObj.GetGlobalValue(tempObj["content"][num]["actionparams"]);
+						}
+						catch(e:Error)
+						{
+							tempObj["content"][num].value = 0;
+							trace("Failed to GetGlobalValue");
+						}
+						break;
+					default:
+						tempObj["content"][num].value = 5; // temp value just for test
+						break;
+				}
+				
+				if (tempObj["content"][num]["groupcondition"]) 
+				{
+					tempObj["content"][num].filterFlag = Math.pow(2, int(tempObj["content"][num]["groupcondition"]));
+				}
+				else 
+				{
+					tempObj["content"][num].filterFlag = 1;
 				}
 
 				//traceObj(tempObj["content"][num]);
