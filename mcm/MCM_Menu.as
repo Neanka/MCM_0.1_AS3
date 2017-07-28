@@ -167,12 +167,48 @@ package mcm {
 						break;
 				}
 				
-				if (tempObj["content"][num]["groupcondition"]) 
+				if (tempObj["content"][num]["groupСondition"]) 
 				{
-					tempObj["content"][num].filterFlag = Math.pow(2, int(tempObj["content"][num]["groupcondition"]));
+					switch (getQualifiedClassName(tempObj["content"][num]["groupСondition"])) 
+					{
+						case "int":
+							tempObj["content"][num].filterOperator = "OR";
+							tempObj["content"][num].filterFlag = Math.pow(2, int(tempObj["content"][num]["groupСondition"]));
+							break;
+						case "Array":
+							tempObj["content"][num].filterOperator = "OR";
+							tempObj["content"][num].filterFlag = 0;
+							for (var j in tempObj["content"][num]["groupСondition"]){
+								tempObj["content"][num].filterFlag += Math.pow(2, int(tempObj["content"][num]["groupСondition"][j]));
+							}							
+							break;
+						case "Object":
+							if (tempObj["content"][num]["groupСondition"]["AND"]) 
+							{
+								tempObj["content"][num].filterOperator = "AND";
+								tempObj["content"][num].filterFlag = 0;
+								for (var k in tempObj["content"][num]["groupСondition"]["AND"]){
+									tempObj["content"][num].filterFlag += Math.pow(2, int(tempObj["content"][num]["groupСondition"]["AND"][k]));
+								}								
+							}
+							else if (tempObj["content"][num]["groupСondition"]["OR"]) 
+							{
+								tempObj["content"][num].filterOperator = "OR";
+								tempObj["content"][num].filterFlag = 0;
+								for (var m in tempObj["content"][num]["groupСondition"]["OR"]){
+									tempObj["content"][num].filterFlag += Math.pow(2, int(tempObj["content"][num]["groupСondition"]["OR"][m]));
+								}	
+							}	
+							break;
+						default:
+							tempObj["content"][num].filterOperator = "OR";
+							tempObj["content"][num].filterFlag = 1;
+							break;
+					}
 				}
 				else 
 				{
+					tempObj["content"][num].filterOperator = "OR";
 					tempObj["content"][num].filterFlag = 1;
 				}
 

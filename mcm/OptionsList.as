@@ -85,7 +85,7 @@ package mcm
         }
 		
 		public function setfilterflag(iFilterFlag: Number):*{
-			this.filterer.itemFilter = Math.pow(2,iFilterFlag);			
+			this.filterer.itemFilter = Math.pow(2,iFilterFlag);			// move math.pow
 			InvalidateData();
 		}
 		public function addfilterflag(iFilterFlag: Number):*{

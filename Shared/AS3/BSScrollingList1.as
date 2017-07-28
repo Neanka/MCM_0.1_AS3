@@ -29,7 +29,7 @@
 		public var ScrollDown:MovieClip;
 		protected var EntriesA:Array;
 		protected var EntryHolder_mc:MovieClip;
-		protected var _filterer:ListFilterer;
+		protected var _filterer:ListFiltererEx;
 		protected var iSelectedIndex:int;
 		protected var iSelectedClipIndex:int;
 		protected var bRestoreListIndex:Boolean;
@@ -55,8 +55,8 @@
 			super();
 			this.m_scroll_amount = 1;
 			this.EntriesA = new Array();
-			this._filterer = new ListFilterer();
-			addEventListener(ListFilterer.FILTER_CHANGE, this.onFilterChange);
+			this._filterer = new ListFiltererEx();
+			addEventListener(ListFiltererEx.FILTER_CHANGE, this.onFilterChange);
 			this.strTextOption = TEXT_OPTION_NONE;
 			this.fVerticalSpacing = 0;
 			this.uiNumListItems = 0;
@@ -252,7 +252,7 @@
 				ientryCt++;
 			};
 		}
-		public function get filterer():ListFilterer{
+		public function get filterer():ListFiltererEx{
 			return (this._filterer);
 		}
 		public function get itemsShown():uint{
@@ -273,7 +273,7 @@
 		public function set selectedClipIndex(aiNewIndex:int){
 			this.doSetSelectedIndex(this.GetEntryFromClipIndex(aiNewIndex));
 		}
-		public function set filterer(newFilter:ListFilterer){
+		public function set filterer(newFilter:ListFiltererEx){
 			this._filterer = newFilter;
 		}
 		public function get shownItemsHeight():Number{
