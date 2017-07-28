@@ -167,36 +167,36 @@ package mcm {
 						break;
 				}
 				
-				if (tempObj["content"][num]["groupСondition"]) 
+				if (tempObj["content"][num]["groupCondition"]) 
 				{
-					switch (getQualifiedClassName(tempObj["content"][num]["groupСondition"])) 
+					switch (getQualifiedClassName(tempObj["content"][num]["groupCondition"])) 
 					{
 						case "int":
 							tempObj["content"][num].filterOperator = "OR";
-							tempObj["content"][num].filterFlag = Math.pow(2, int(tempObj["content"][num]["groupСondition"]));
+							tempObj["content"][num].filterFlag = Math.pow(2, int(tempObj["content"][num]["groupCondition"]));
 							break;
 						case "Array":
 							tempObj["content"][num].filterOperator = "OR";
 							tempObj["content"][num].filterFlag = 0;
-							for (var j in tempObj["content"][num]["groupСondition"]){
-								tempObj["content"][num].filterFlag += Math.pow(2, int(tempObj["content"][num]["groupСondition"][j]));
+							for (var j in tempObj["content"][num]["groupCondition"]){
+								tempObj["content"][num].filterFlag += Math.pow(2, int(tempObj["content"][num]["groupCondition"][j]));
 							}							
 							break;
 						case "Object":
-							if (tempObj["content"][num]["groupСondition"]["AND"]) 
+							if (tempObj["content"][num]["groupCondition"]["AND"]) 
 							{
 								tempObj["content"][num].filterOperator = "AND";
 								tempObj["content"][num].filterFlag = 0;
-								for (var k in tempObj["content"][num]["groupСondition"]["AND"]){
-									tempObj["content"][num].filterFlag += Math.pow(2, int(tempObj["content"][num]["groupСondition"]["AND"][k]));
+								for (var k in tempObj["content"][num]["groupCondition"]["AND"]){
+									tempObj["content"][num].filterFlag += Math.pow(2, int(tempObj["content"][num]["groupCondition"]["AND"][k]));
 								}								
 							}
-							else if (tempObj["content"][num]["groupСondition"]["OR"]) 
+							else if (tempObj["content"][num]["groupCondition"]["OR"]) 
 							{
 								tempObj["content"][num].filterOperator = "OR";
 								tempObj["content"][num].filterFlag = 0;
-								for (var m in tempObj["content"][num]["groupСondition"]["OR"]){
-									tempObj["content"][num].filterFlag += Math.pow(2, int(tempObj["content"][num]["groupСondition"]["OR"][m]));
+								for (var m in tempObj["content"][num]["groupCondition"]["OR"]){
+									tempObj["content"][num].filterFlag += Math.pow(2, int(tempObj["content"][num]["groupCondition"]["OR"][m]));
 								}	
 							}	
 							break;
