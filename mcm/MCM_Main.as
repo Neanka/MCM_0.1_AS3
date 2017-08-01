@@ -14,7 +14,7 @@
 		
 		private var MainMenu:MovieClip;
 		private var savedMenuProperties:Object = new Object();;
-		private var mcmMenu:MCM_Menu = new mcm.MCM_Menu();
+		public var mcmMenu:MCM_Menu = new mcm.MCM_Menu();
 		private var mcmCodeObj:Object = new Object();
 		
 		public function MCM_Main() {

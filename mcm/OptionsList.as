@@ -166,21 +166,6 @@ package mcm
             };
         }
 		
-		/*override public function onEntryRollover(event:Event){
-			if (EntriesA[(event.currentTarget as BSScrollingListEntry).itemIndex].movieType == mcm.SettingsOptionItem.MOVIETYPE_SECTION || EntriesA[(event.currentTarget as BSScrollingListEntry).itemIndex].movieType == mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE){
-				return;
-			}
-			var prevSelection:*;
-			this.bMouseDrivenNav = true;
-			if ((!(this.bDisableInput)) && (!(this.bDisableSelection))){
-				prevSelection = this.iSelectedIndex;
-				this.doSetSelectedIndex((event.currentTarget as BSScrollingListEntry).itemIndex);
-				if (prevSelection != this.iSelectedIndex){
-					dispatchEvent(new Event(PLAY_FOCUS_SOUND, true, true));
-				};
-			};
-		}*/
-		
 		override public function moveSelectionUp(){
 			var iprevFilterMatch:Number;
 			if ((!(this.bDisableSelection)) || (this.bAllowSelectionDisabledListNav)){

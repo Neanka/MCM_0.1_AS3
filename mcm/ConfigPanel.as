@@ -12,6 +12,7 @@
 		public var HelpPanelBackground_mc:MovieClip;
 		public var HelpPanelBrackets_mc:MovieClip;
 		public var hint_tf: TextField;
+		public var DD_popup_mc:mcm.DD_popup_window;
 		
 		public function ConfigPanel() {
             Extensions.enabled = true;
@@ -35,6 +36,7 @@
 				return;
 			}
 		}
+		
 	}
 	
 }

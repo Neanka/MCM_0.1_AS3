@@ -18,12 +18,18 @@ package mcm {
 		public var HelpPanel_mc:mcm.LeftPanel;
 		public var ButtonHintBar_mc: Shared.AS3.BSButtonHintBar;
 		public var mcmCodeObj:Object = new Object();
+		private static var _instance: mcm.MCM_Menu;
 		
 		public function MCM_Menu() {
 			super();
+			MCM_Menu._instance = this;
 			addEventListener(BSScrollingList1.LIST_ITEMS_CREATED, listcreated);
 			addEventListener(BSScrollingList1.SELECTION_CHANGE, selectionchanged);
 			addEventListener(BSScrollingList1.ITEM_PRESS, this.onListItemPress);
+		}
+		
+		public static function get instance(): MCM_Menu {
+			return _instance;
 		}
 		
 		function listcreated(param1: Event){
@@ -91,6 +97,9 @@ package mcm {
 			if (_arg_1.target == this.configPanel_mc.configList_mc)
 			{
 				(this.configPanel_mc.configList_mc as mcm.OptionsList).onListItemPressed();
+			} else if (_arg_1.target == this.configPanel_mc.DD_popup_mc.DD_popup_list_mc) 
+			{
+				this.configPanel_mc.DD_popup_mc.Close(false);	
 			}
 		}
 		
@@ -133,6 +142,9 @@ package mcm {
 						break;
 					case "empty":
 						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE;
+						break;
+					case "dropdown":
+						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_DROPDOWN;
 						break;
 					default:
 						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE;

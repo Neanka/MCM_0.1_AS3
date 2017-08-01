@@ -25,6 +25,7 @@ package mcm
 		public static const MOVIETYPE_CB:int = 2;
 		public static const MOVIETYPE_SECTION:int = 3;
 		public static const MOVIETYPE_EMPTY_LINE:int = 4;
+		public static const MOVIETYPE_DROPDOWN:int = 5;
 
         private var OptionItem:MovieClip;
         private var uiMovieType:uint;
@@ -41,6 +42,7 @@ package mcm
             addEventListener(mcm.Option_Checkbox.VALUE_CHANGE, this.onValueChange);
             addEventListener(mcm.Option_OptionStepper.VALUE_CHANGE, this.onValueChange);
             addEventListener(mcm.Option_Scrollbar.VALUE_CHANGE, this.onValueChange);
+			addEventListener(mcm.Option_DropDown.VALUE_CHANGE, this.onValueChange);
             Extensions.enabled = true;
             TextFieldEx.setTextAutoSize(textField, "shrink");
         }
@@ -75,6 +77,9 @@ package mcm
                     this.OptionItem = new mcm.Option_Section();
 					this.textField.x = 5;
 					//this.height = 48;
+                    break;
+                case MOVIETYPE_DROPDOWN:
+                    this.OptionItem = new mcm.Option_DropDown();
                     break;
 				default:
 					this.OptionItem = new MovieClip();
@@ -130,15 +135,18 @@ package mcm
             var _local_1:Number;
             switch (this.uiMovieType)
             {
-                case 0:
+                case MOVIETYPE_SCROLLBAR:
                     _local_1 = (this.OptionItem as mcm.Option_Scrollbar).value;
                     break;
-                case 1:
+                case MOVIETYPE_STEPPER:
                     _local_1 = (this.OptionItem as mcm.Option_OptionStepper).index;
                     break;
-                case 2:
+                case MOVIETYPE_CB:
                     _local_1 = (((this.OptionItem as mcm.Option_Checkbox).checked) ? 1 : 0);
                     break;
+                case MOVIETYPE_DROPDOWN:
+                    _local_1 = (this.OptionItem as mcm.Option_DropDown).index;
+                    break;				
 				default:
 					_local_1 = 0;
 					break;
@@ -150,14 +158,17 @@ package mcm
         {
             switch (this.uiMovieType)
             {
-                case 0:
+                case MOVIETYPE_SCROLLBAR:
                     (this.OptionItem as mcm.Option_Scrollbar).value = _arg_1;
                     return;
-                case 1:
+                case MOVIETYPE_STEPPER:
                     (this.OptionItem as mcm.Option_OptionStepper).index = _arg_1;
                     return;
-                case 2:
+                case MOVIETYPE_CB:
                     (this.OptionItem as mcm.Option_Checkbox).checked = (((_arg_1 == 1)) ? true : false);
+                    return;
+                case MOVIETYPE_DROPDOWN:
+                    (this.OptionItem as mcm.Option_DropDown).index = _arg_1;
                     return;
 				default:
 
@@ -170,6 +181,9 @@ package mcm
             if (this.uiMovieType == MOVIETYPE_STEPPER)
             {
                 (this.OptionItem as mcm.Option_OptionStepper).options = _arg_1;
+            } else if (this.uiMovieType == MOVIETYPE_DROPDOWN)
+            {
+                (this.OptionItem as mcm.Option_DropDown).options = _arg_1;
             };
         }
 		
@@ -234,11 +248,14 @@ package mcm
             {
                 switch (this.uiMovieType)
                 {
-                    case 1:
+                    case MOVIETYPE_STEPPER:
                         (this.OptionItem as mcm.Option_OptionStepper).onItemPressed();
                         return;
-                    case 2:
+                    case MOVIETYPE_CB:
                         (this.OptionItem as mcm.Option_Checkbox).onItemPressed();
+                        return;
+                    case MOVIETYPE_DROPDOWN:
+                        (this.OptionItem as mcm.Option_DropDown).onItemPressed();
                         return;
                 };
             };
@@ -250,14 +267,17 @@ package mcm
             {
                 switch (this.uiMovieType)
                 {
-                    case 0:
+                    case MOVIETYPE_SCROLLBAR:
                         (this.OptionItem as mcm.Option_Scrollbar).HandleKeyboardInput(_arg_1);
                         return;
-                    case 1:
+                    case MOVIETYPE_STEPPER:
                         (this.OptionItem as mcm.Option_OptionStepper).HandleKeyboardInput(_arg_1);
                         return;
-                    case 2:
+                    case MOVIETYPE_CB:
                         (this.OptionItem as mcm.Option_Checkbox).HandleKeyboardInput(_arg_1);
+                        return;
+                    case MOVIETYPE_DROPDOWN:
+                        (this.OptionItem as mcm.Option_DropDown).HandleKeyboardInput(_arg_1);
                         return;
                 };
             };
