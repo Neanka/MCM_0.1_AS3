@@ -7,6 +7,7 @@ package mcm
 {
     import Shared.AS3.BSScrollingListEntry;
     import flash.display.MovieClip;
+	import flash.text.TextFormat;
     import scaleform.gfx.Extensions;
     import scaleform.gfx.TextFieldEx;
     import flash.geom.ColorTransform;
@@ -22,10 +23,13 @@ package mcm
         public static const VALUE_CHANGE:String = "mcmSettingsOptionItem::value_change";
 		public static const MOVIETYPE_SCROLLBAR:int = 0;
 		public static const MOVIETYPE_STEPPER:int = 1;
-		public static const MOVIETYPE_CB:int = 2;
+		public static const MOVIETYPE_SWITCHER:int = 2;
 		public static const MOVIETYPE_SECTION:int = 3;
 		public static const MOVIETYPE_EMPTY_LINE:int = 4;
 		public static const MOVIETYPE_DROPDOWN:int = 5;
+		public static const MOVIETYPE_TEXT:int = 6;
+		public static const MOVIETYPE_BUTTON:int = 7;
+
 
         private var OptionItem:MovieClip;
         private var uiMovieType:uint;
@@ -39,7 +43,7 @@ package mcm
             this.uiID = uint.MAX_VALUE;
             this.bHUDColorUpdate = false;
             this.bPipboyColorUpdate = false;
-            addEventListener(mcm.Option_Checkbox.VALUE_CHANGE, this.onValueChange);
+            addEventListener(mcm.Option_Switcher.VALUE_CHANGE, this.onValueChange);
             addEventListener(mcm.Option_OptionStepper.VALUE_CHANGE, this.onValueChange);
             addEventListener(mcm.Option_Scrollbar.VALUE_CHANGE, this.onValueChange);
 			addEventListener(mcm.Option_DropDown.VALUE_CHANGE, this.onValueChange);
@@ -70,16 +74,18 @@ package mcm
                 case MOVIETYPE_STEPPER:
                     this.OptionItem = new mcm.Option_OptionStepper();
                     break;
-                case MOVIETYPE_CB:
-                    this.OptionItem = new mcm.Option_Checkbox();
+                case MOVIETYPE_SWITCHER:
+                    this.OptionItem = new mcm.Option_Switcher();
                     break;
                 case MOVIETYPE_SECTION:
                     this.OptionItem = new mcm.Option_Section();
 					this.textField.x = 5;
-					//this.height = 48;
                     break;
                 case MOVIETYPE_DROPDOWN:
                     this.OptionItem = new mcm.Option_DropDown();
+                    break;
+                case MOVIETYPE_TEXT:
+                    this.OptionItem = new mcm.Option_Text();
                     break;
 				default:
 					this.OptionItem = new MovieClip();
@@ -141,8 +147,8 @@ package mcm
                 case MOVIETYPE_STEPPER:
                     _local_1 = (this.OptionItem as mcm.Option_OptionStepper).index;
                     break;
-                case MOVIETYPE_CB:
-                    _local_1 = (((this.OptionItem as mcm.Option_Checkbox).checked) ? 1 : 0);
+                case MOVIETYPE_SWITCHER:
+                    _local_1 = (((this.OptionItem as mcm.Option_Switcher).checked) ? 1 : 0);
                     break;
                 case MOVIETYPE_DROPDOWN:
                     _local_1 = (this.OptionItem as mcm.Option_DropDown).index;
@@ -164,8 +170,8 @@ package mcm
                 case MOVIETYPE_STEPPER:
                     (this.OptionItem as mcm.Option_OptionStepper).index = _arg_1;
                     return;
-                case MOVIETYPE_CB:
-                    (this.OptionItem as mcm.Option_Checkbox).checked = (((_arg_1 == 1)) ? true : false);
+                case MOVIETYPE_SWITCHER:
+                    (this.OptionItem as mcm.Option_Switcher).checked = (((_arg_1 == 1)) ? true : false);
                     return;
                 case MOVIETYPE_DROPDOWN:
                     (this.OptionItem as mcm.Option_DropDown).index = _arg_1;
@@ -200,20 +206,30 @@ package mcm
         override public function SetEntryText(_arg_1:Object, _arg_2:String)
         {
             var _local_3:ColorTransform;
+			TextFieldEx.setTextAutoSize(textField, "fit");
             super.SetEntryText(_arg_1, _arg_2);
-			if (this.uiMovieType == MOVIETYPE_SECTION) 
-				{
+			switch (this.uiMovieType) 
+			{
+				case MOVIETYPE_SECTION:
 					this.border.alpha = 0;
 					this.textField.textColor = 0xFFFFFF;
 					this.repositionSectionBar();
 					return;
-				}
-			if (this.uiMovieType == MOVIETYPE_EMPTY_LINE) 
-				{
+					break;
+				case MOVIETYPE_EMPTY_LINE:
 					this.border.alpha = 0;
 					GlobalFunc.SetText(this.textField, " ", true);
 					return;
-				}
+					break;
+				case MOVIETYPE_TEXT:
+					this.border.alpha = 0;
+					GlobalFunc.SetText(this.textField, " ", true);
+					(this.OptionItem as mcm.Option_Text).textArea.text = _arg_1.text;
+					(this.OptionItem as mcm.Option_Text).textArea.height = (this.OptionItem as mcm.Option_Text).textArea.textHeight + 4;
+					return;
+					break;
+				default:
+			}
             if (this.border != null)
             {
                 this.border.alpha = ((this.selected) ? GlobalFunc.SELECTED_RECT_ALPHA : 0);
@@ -251,8 +267,8 @@ package mcm
                     case MOVIETYPE_STEPPER:
                         (this.OptionItem as mcm.Option_OptionStepper).onItemPressed();
                         return;
-                    case MOVIETYPE_CB:
-                        (this.OptionItem as mcm.Option_Checkbox).onItemPressed();
+                    case MOVIETYPE_SWITCHER:
+                        (this.OptionItem as mcm.Option_Switcher).onItemPressed();
                         return;
                     case MOVIETYPE_DROPDOWN:
                         (this.OptionItem as mcm.Option_DropDown).onItemPressed();
@@ -273,8 +289,8 @@ package mcm
                     case MOVIETYPE_STEPPER:
                         (this.OptionItem as mcm.Option_OptionStepper).HandleKeyboardInput(_arg_1);
                         return;
-                    case MOVIETYPE_CB:
-                        (this.OptionItem as mcm.Option_Checkbox).HandleKeyboardInput(_arg_1);
+                    case MOVIETYPE_SWITCHER:
+                        (this.OptionItem as mcm.Option_Switcher).HandleKeyboardInput(_arg_1);
                         return;
                     case MOVIETYPE_DROPDOWN:
                         (this.OptionItem as mcm.Option_DropDown).HandleKeyboardInput(_arg_1);

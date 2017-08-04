@@ -1,12 +1,12 @@
 package mcm {
-	import flash.display.MovieClip;
 	import Shared.AS3.*;
+	import Shared.GlobalFunc;
+	import com.adobe.serialization.json.*;
+	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.utils.getQualifiedClassName;
-	import com.adobe.serialization.json.*;
-	import Shared.GlobalFunc;
 	
 	/**
 	 * ...
@@ -128,14 +128,18 @@ package mcm {
 			tempObj.filterFlagControl = uint.MAX_VALUE;
 			for (var num in tempObj["content"]){
 				switch (tempObj["content"][num]["type"]){
-					case "checkbox":
-						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_CB;
+					case "switcher":
+						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_SWITCHER;
 						break;
 					case "stepper":
 						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_STEPPER;
+						tempObj["content"][num].options = tempObj["content"][num]["valueOptions"];
 						break;
 					case "slider":
 						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_SCROLLBAR;
+						tempObj["content"][num].minvalue = tempObj["content"][num]["valueOptions"].min;
+						tempObj["content"][num].maxvalue = tempObj["content"][num]["valueOptions"].max;
+						tempObj["content"][num].step = tempObj["content"][num]["valueOptions"].step;
 						break;
 					case "section":
 						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_SECTION;
@@ -145,6 +149,12 @@ package mcm {
 						break;
 					case "dropdown":
 						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_DROPDOWN;
+						break;
+					case "text":
+						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_TEXT;
+						break;
+					case "button":
+						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_BUTTON;
 						break;
 					default:
 						tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE;

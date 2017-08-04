@@ -13,7 +13,7 @@ package mcm
     import flash.ui.Keyboard;
     import flash.events.KeyboardEvent;
 
-    public class Option_Checkbox extends MovieClip 
+    public class Option_Switcher extends MovieClip 
     {
 
         public static const VALUE_CHANGE:String = "mcmOption_Checkbox::VALUE_CHANGE";
@@ -21,7 +21,7 @@ package mcm
         public var textField:TextField;
         private var bChecked:Boolean;
 
-        public function Option_Checkbox()
+        public function Option_Switcher()
         {
             this.bChecked = false;
             addEventListener(MouseEvent.CLICK, this.onClick);
