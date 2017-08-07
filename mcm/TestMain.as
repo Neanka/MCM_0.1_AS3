@@ -1,15 +1,14 @@
-﻿package mcm {
-	
+﻿package mcm
+{
+
 	import flash.display.MovieClip;
-	
-	
-	public class TestMain extends MovieClip {
-		
-		
-		public function TestMain() {
-			// constructor code
+
+	public class TestMain extends MovieClip
+	{
+
+		public function TestMain()
+		{
 			trace("HEY THERE");
 		}
 	}
-	
 }

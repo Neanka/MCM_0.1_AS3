@@ -1,9 +1,4 @@
-﻿// Decompiled by AS3 Sorcerer 4.04
-// www.as3sorcerer.com
-
-//Option_Checkbox
-
-package mcm
+﻿package mcm
 {
     import flash.display.MovieClip;
     import flash.text.TextField;
@@ -13,15 +8,14 @@ package mcm
     import flash.ui.Keyboard;
     import flash.events.KeyboardEvent;
 
-    public class Option_Switcher extends MovieClip 
+    public class Option_Checkbox extends MovieClip 
     {
 
         public static const VALUE_CHANGE:String = "mcmOption_Checkbox::VALUE_CHANGE";
-
         public var textField:TextField;
         private var bChecked:Boolean;
 
-        public function Option_Switcher()
+        public function Option_Checkbox()
         {
             this.bChecked = false;
             addEventListener(MouseEvent.CLICK, this.onClick);
@@ -63,8 +57,5 @@ package mcm
             this.Toggle();
             _arg_1.stopPropagation();
         }
-
-
     }
-}//package 
-
+}

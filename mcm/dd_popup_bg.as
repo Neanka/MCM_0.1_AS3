@@ -14,5 +14,4 @@
 			this.BracketStyle = "vertical";
 		}
 	}
-
 }
