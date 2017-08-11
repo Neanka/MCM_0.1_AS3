@@ -1,19 +1,20 @@
 ﻿package mcm
 {
+	
 	import Shared.AS3.BSUIComponent;
 	import flash.display.InteractiveObject;
 	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.geom.Point;
-
+	
 	public class DD_popup_window extends MovieClip
 	{
-
-		public var opened: Boolean;
-		public var DD_popup_list_mc: mcm.DD_popup_list;
+		
+		public var opened:Boolean;
+		public var DD_popup_list_mc:mcm.DD_popup_list;
 		public var dd_popup_bg_mc: BSUIComponent;
 		private var _target: InteractiveObject;
-
+		
 		public function DD_popup_window()
 		{
 			super();
@@ -21,8 +22,8 @@
 			opened = false;
 			visible = false;
 		}
-
-		public function Open(aTarget: InteractiveObject)
+		
+		public function Open(aTarget:InteractiveObject)
 		{
 			_target = aTarget;
 			listprocedures();
@@ -30,19 +31,20 @@
 			opened = true;
 			stage.focus = this.DD_popup_list_mc;
 
-			if (aTarget.localToGlobal(new Point(0, 0)).y < 280)
+			if (aTarget.localToGlobal(new Point(0, 0)).y<280)
 			{
-				this.y = parent.globalToLocal(aTarget.localToGlobal(new Point(0, 0))).y + aTarget.height + 2;
+				this.y = parent.globalToLocal(aTarget.localToGlobal(new Point(0, 0))).y + aTarget.height+2;
 			}
-			else
+			else 
 			{
-				this.y = parent.globalToLocal(aTarget.localToGlobal(new Point(0, 0))).y - 2 - this.dd_popup_bg_mc.height;
+				this.y = parent.globalToLocal(aTarget.localToGlobal(new Point(0, 0))).y-2-this.dd_popup_bg_mc.height;
 			}
-		}
 
+		}
+		
 		public function Close(bNoSave: Boolean)
 		{
-			if (!bNoSave)
+			if (!bNoSave) 
 			{
 				_target.index = this.DD_popup_list_mc.selectedIndex;
 				_target.dispatchEvent(new Event(Option_DropDown.VALUE_CHANGE, true, true));
@@ -56,24 +58,26 @@
 			visible = false;
 			opened = false;
 		}
-
-		function listprocedures(): *
+		
+		function listprocedures():*
 		{
+			
 			this.DD_popup_list_mc.InvalidateData();
-			this.dd_popup_bg_mc.height = 12 + this.DD_popup_list_mc.itemsShown * 28;
+			this.dd_popup_bg_mc.height = 12+this.DD_popup_list_mc.itemsShown*28;
 			this.DD_popup_list_mc.UpdateList();
-			this.DD_popup_list_mc.selectedIndex = _target.index; //this.DD_popup_list_mc.GetEntryFromClipIndex(0);
+			this.DD_popup_list_mc.selectedIndex = _target.index;//this.DD_popup_list_mc.GetEntryFromClipIndex(0);
 			stage.focus = this.DD_popup_list_mc;
 		}
-
+		
 		function setprops()
 		{
 			try
 			{
 				this.DD_popup_list_mc["componentInspectorSetting"] = true;
 			}
-			catch (e: Error)
-			{}
+			catch (e:Error)
+			{
+			}
 			this.DD_popup_list_mc.listEntryClass = "mcm.DD_popup_list_entry";
 			this.DD_popup_list_mc.numListItems = 7;
 			this.DD_popup_list_mc.restoreListIndex = false;
@@ -84,10 +88,11 @@
 				this.DD_popup_list_mc["componentInspectorSetting"] = false;
 				return;
 			}
-			catch (e: Error)
+			catch (e:Error)
 			{
 				return;
 			}
 		}
 	}
+
 }
