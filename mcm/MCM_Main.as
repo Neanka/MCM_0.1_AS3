@@ -148,6 +148,11 @@
 			
 		}
 		
+		public function ProcessKeyEvent(keyCode:int, isDown:Boolean):void {
+			mcmMenu.ProcessKeyEvent(keyCode, isDown);
+		//log("Key event! keyCode: " + keyCode + " isDown: " + isDown);
+		}
+		
 		
 		// *********************************
 		// =========== UTILITIES ===========

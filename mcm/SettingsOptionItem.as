@@ -21,6 +21,7 @@ package mcm
     {
 
         public static const VALUE_CHANGE:String = "mcmSettingsOptionItem::value_change";
+		public static const BUTTON_PRESSED:String = "mcmSettingsOptionItem::button_pressed";
 		public static const MOVIETYPE_SCROLLBAR:int = 0;
 		public static const MOVIETYPE_STEPPER:int = 1;
 		public static const MOVIETYPE_SWITCHER:int = 2;
@@ -29,6 +30,7 @@ package mcm
 		public static const MOVIETYPE_DROPDOWN:int = 5;
 		public static const MOVIETYPE_TEXT:int = 6;
 		public static const MOVIETYPE_BUTTON:int = 7;
+		public static const MOVIETYPE_KEYINPUT:int = 8;
 
 
         private var OptionItem:MovieClip;
@@ -47,6 +49,7 @@ package mcm
             addEventListener(mcm.Option_OptionStepper.VALUE_CHANGE, this.onValueChange);
             addEventListener(mcm.Option_Scrollbar.VALUE_CHANGE, this.onValueChange);
 			addEventListener(mcm.Option_DropDown.VALUE_CHANGE, this.onValueChange);
+			addEventListener(mcm.Option_ButtonMapping.VALUE_CHANGE, this.onValueChange);
             Extensions.enabled = true;
             TextFieldEx.setTextAutoSize(textField, "shrink");
         }
@@ -86,6 +89,9 @@ package mcm
                     break;
                 case MOVIETYPE_TEXT:
                     this.OptionItem = new mcm.Option_Text();
+                    break;
+                case MOVIETYPE_KEYINPUT:
+                    this.OptionItem = new mcm.Option_ButtonMapping();
                     break;
 				default:
 					this.OptionItem = new MovieClip();
@@ -228,6 +234,9 @@ package mcm
 					(this.OptionItem as mcm.Option_Text).textArea.height = (this.OptionItem as mcm.Option_Text).textArea.textHeight + 4;
 					return;
 					break;
+				case MOVIETYPE_KEYINPUT:
+					(this.OptionItem as mcm.Option_ButtonMapping).setKeys(_arg_1.keys);
+					break;
 				default:
 			}
             if (this.border != null)
@@ -272,6 +281,12 @@ package mcm
                         return;
                     case MOVIETYPE_DROPDOWN:
                         (this.OptionItem as mcm.Option_DropDown).onItemPressed();
+                        return;
+                    case MOVIETYPE_BUTTON:
+						dispatchEvent(new Event(BUTTON_PRESSED, true, true));
+                        return;
+                    case MOVIETYPE_KEYINPUT:
+                        (this.OptionItem as mcm.Option_ButtonMapping).onItemPressed();
                         return;
                 };
             };
