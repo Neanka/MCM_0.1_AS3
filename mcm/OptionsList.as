@@ -45,6 +45,11 @@ package mcm
 		public function onValueChange(_arg_1:Event)
 		{
 			EntriesA[_arg_1.target.itemIndex].value = _arg_1.target.value;
+			if (_arg_1.target.movieType == mcm.SettingsOptionItem.MOVIETYPE_KEYINPUT) 
+			{
+				EntriesA[_arg_1.target.itemIndex].keys = _arg_1.target.OptionItem.keys;
+				EntriesA[_arg_1.target.itemIndex].valueString = _arg_1.target.OptionItem.keys.join();
+			}
 			if (EntriesA[_arg_1.target.itemIndex].action)
 			{
 				switch (EntriesA[_arg_1.target.itemIndex].action.type)
@@ -161,6 +166,16 @@ package mcm
 					if (_arg_2.maxvalue != undefined)
 					{
 						_local_3.SetOptionSlider(_arg_2.minvalue, _arg_2.maxvalue, _arg_2.step);
+					}
+					if (_arg_2.keys != undefined)
+					{
+						if (_arg_2.valueOptions.allowModifierKeys) 
+						{
+							_local_3.SetOptionKeyInput(_arg_2.keys,_arg_2.valueOptions.allowModifierKeys);	
+						} else 
+						{
+							_local_3.SetOptionKeyInput(_arg_2.keys,0);							
+						}
 					}
 					;
 					_local_3.ID = _arg_2.ID;

@@ -165,7 +165,7 @@ package mcm
             };
             return (_local_1);
         }
-
+		
         public function set value(_arg_1:Number)
         {
             switch (this.uiMovieType)
@@ -187,6 +187,15 @@ package mcm
 					break;
             };
         }
+		
+        public function SetOptionKeyInput(_arg_1:Array, arg2:int)
+        {
+            if (this.uiMovieType == MOVIETYPE_KEYINPUT)
+            {
+                (this.OptionItem as mcm.Option_ButtonMapping).keys = _arg_1;
+				(this.OptionItem as mcm.Option_ButtonMapping).allowModifierKeys = arg2;
+            };
+        }		
 
         public function SetOptionStepperOptions(_arg_1:Array)
         {
@@ -233,9 +242,6 @@ package mcm
 					(this.OptionItem as mcm.Option_Text).textArea.text = _arg_1.text;
 					(this.OptionItem as mcm.Option_Text).textArea.height = (this.OptionItem as mcm.Option_Text).textArea.textHeight + 4;
 					return;
-					break;
-				case MOVIETYPE_KEYINPUT:
-					(this.OptionItem as mcm.Option_ButtonMapping).setKeys(_arg_1.keys);
 					break;
 				default:
 			}

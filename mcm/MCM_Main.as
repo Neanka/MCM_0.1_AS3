@@ -47,7 +47,7 @@
 			MainMenu["MainPanel_mc"].List_mc.InvalidateData();
 			MainMenu.addEventListener("BSScrollingList::itemPress", itemPressedHandler);
 			
-			traceObj(MainMenu["MainPanel_mc"].List_mc.entryList);
+			//traceObj(MainMenu["MainPanel_mc"].List_mc.entryList);
 			
             log("Successfully injected into MainMenu.");
 			

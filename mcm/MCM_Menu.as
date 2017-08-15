@@ -51,7 +51,7 @@ package mcm
 		{
 			try
 			{
-				bmForInput = null;
+				bmForInput = null; //TODO separate null and stopkeycapture
 				mcmCodeObj.StopKeyCapture();
 			}
 			catch (e:Error)

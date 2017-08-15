@@ -14,115 +14,131 @@
 		public static const VALUE_CHANGE:String = "mcmOption_ButtonMapping::VALUE_CHANGE";
 		public static const START_INPUT:String = "mcmOption_ButtonMapping::START_INPUT";
 		public static const END_INPUT:String = "mcmOption_ButtonMapping::END_INPUT";
+		public static const KEY_LSHIFT:int = 160;
+		public static const KEY_RSHIFT:int = 161;
+		public static const KEY_LCTRL:int = 162;
+		public static const KEY_RCTRL:int = 163;
+		public static const KEY_LALT:int = 164;
+		public static const KEY_RALT:int = 165;
 		
-		public var _shiftpressed: Boolean = false;
-		public var _ctrlpressed: Boolean = false;
-		public var _altpressed: Boolean = false;
-		public var _epressed: Boolean = false;
+		public var _shiftpressed:Boolean = false;
+		public var _ctrlpressed:Boolean = false;
+		public var _altpressed:Boolean = false;
+		public var _epressed:Boolean = false;
 		
 		public var PCKey_tf:TextField;
+		public var allowModifierKeys:int = 0;
 		private var DelayTimer:Timer;
+		private var KeysArray:Array;
 		
-		public function Option_ButtonMapping(){
+		public function Option_ButtonMapping()
+		{
 			this.DelayTimer = new Timer(300, 1);
 			this.DelayTimer.addEventListener(TimerEvent.TIMER_COMPLETE, DelayTimerAction);
 		}
 		
-		private function DelayTimerAction(e:TimerEvent){
+		private function DelayTimerAction(e:TimerEvent)
+		{
 			this.DelayTimer.reset();
 			stage.getChildAt(0)["Menu_mc"]["bRemapMode"] = false;
+			dispatchEvent(new Event(END_INPUT, true, true));
+			dispatchEvent(new Event(VALUE_CHANGE, true, true));
 		}
 		
-        public function onItemPressed()
-        {
-			//startinput();
+		public function onItemPressed()
+		{
+			stage.getChildAt(0)["Menu_mc"]["bRemapMode"] = true;
 			dispatchEvent(new Event(START_INPUT, true, true));
 		}
 		
-		public function startinput(){
-			//stage.focus = this;
-			//addEventListener(KeyboardEvent.KEY_DOWN, this.onKeyDown1, false, int.MAX_VALUE, true);
-			//addEventListener(KeyboardEvent.KEY_UP,this.onKeyUp1,false,int.MAX_VALUE,true);
-			//_epressed = true;
-		}
-		
-		public function ProcessKeyEvent(keyCode:int, isDown:Boolean):void {
-			//trace("Key event! keyCode: " + keyCode + " isDown: " + isDown);
-			MCM_Menu.instance.configPanel_mc.hint_tf.text = keytostring(keyCode);
-			dispatchEvent(new Event(END_INPUT, true, true));
-			if (keyCode == Keyboard.ESCAPE || keyCode == Keyboard.TAB) 
-			{
-				dispatchEvent(new Event(END_INPUT, true, true));
-				stage.getChildAt(0)["Menu_mc"]["bRemapMode"] = true;
-				DelayTimer.start();
-			}	
-			
-		}
-		
-		private function onKeyDown1(e:KeyboardEvent) : void
+		public function ProcessKeyEvent(keyCode:int, isDown:Boolean):void
 		{
-			e.stopImmediatePropagation();
-			if (keytostring(e.keyCode) == "Shift" ) {_shiftpressed = true;return};
-			if (keytostring(e.keyCode) == "Ctrl" ) {_ctrlpressed = true;return};
-			if (keytostring(e.keyCode) == "Alt" ) {_altpressed = true;return};
-			if (e.keyCode == Keyboard.ESCAPE) 
+			if (keyCode == Keyboard.ESCAPE || keyCode == Keyboard.TAB && !isDown) 
 			{
-				stage.getChildAt(0)["Menu_mc"]["bRemapMode"] = true;
 				DelayTimer.start();
-			}			
-		}
-		
-		private function onKeyUp1(e:KeyboardEvent) : void
-		{
-			e.stopImmediatePropagation();
-			if (keytostring(e.keyCode) == "E" && _epressed) {_epressed = false; return};
-			switch (keytostring(e.keyCode)) 
-			{
-				case "Shift":
-					_shiftpressed = false;
-					return;					
-				break;
-				case "Ctrl":
-					_ctrlpressed = false;
-					return;					
-				break;
-				case "Alt":
-					_altpressed = false;
-					return;
-				break;
-				case "":
-					return;			
-				break;
-				case "Escape":
-					stage.getChildAt(0)["Menu_mc"]["bRemapMode"] = true;
-					DelayTimer.start();
-					removeEventListener(KeyboardEvent.KEY_DOWN, this.onKeyDown1);
-					removeEventListener(KeyboardEvent.KEY_UP, this.onKeyUp1);	
-					return;			
-				break;
-			default:
-				//MCM_Menu.instance.configPanel_mc.hint_tf.text = keytostring(e.keyCode);
-				var temparray: Array = new Array();
-				if (_shiftpressed){temparray.push(Keyboard.SHIFT)};
-				if (_ctrlpressed){temparray.push(Keyboard.CONTROL)};
-				if (_altpressed){temparray.push(Keyboard.ALTERNATE)};
-				temparray.push(e.keyCode);
-				setKeys(temparray);
-				dispatchEvent(new Event(VALUE_CHANGE, true, true));
-				removeEventListener(KeyboardEvent.KEY_DOWN, this.onKeyDown1);
-				removeEventListener(KeyboardEvent.KEY_UP, this.onKeyUp1);				
+				return;
 			}
+			//MCM_Menu.instance.configPanel_mc.hint_tf.text = keytostring(keyCode);
+			if (allowModifierKeys == 0)
+			{
+				switch (keyCode)
+				{
+				case Keyboard.SHIFT: 
+				case KEY_LSHIFT: 
+				case KEY_RSHIFT: 
+					_shiftpressed = isDown;
+					//MCM_Menu.instance.configPanel_mc.hint_tf.text = "SHIFT PRESSED";
+					break;
+				case Keyboard.ALTERNATE: 
+				case KEY_LALT: 
+				case KEY_RALT:
+					_altpressed = isDown;
+					//MCM_Menu.instance.configPanel_mc.hint_tf.text = "ALT PRESSED";
+					break;
+				case Keyboard.CONTROL: 
+				case KEY_LCTRL: 
+				case KEY_RCTRL: 
+					_ctrlpressed = isDown;
+					//MCM_Menu.instance.configPanel_mc.hint_tf.text = "CTRL PRESSED";
+					break;
+				default: 
+					if (!isDown) 
+					{
+						var temparray: Array = new Array();
+						if (_shiftpressed) 
+						{
+							temparray.push(Keyboard.SHIFT);
+						}
+						if (_ctrlpressed) 
+						{
+							temparray.push(Keyboard.CONTROL);
+						}
+						if (_altpressed) 
+						{
+							temparray.push(Keyboard.ALTERNATE);
+						}
+						temparray.push(keyCode);
+						//setKeys(temparray);
+						keys = temparray;
+						DelayTimer.start();
+					}
+				}
+			}
+			else 
+			{
+				if (!isDown)
+				{
+					var temparray2: Array = new Array();
+					temparray2.push(keyCode);
+					keys = temparray2;
+					DelayTimer.start();
+				}
+			}
+			//
 		}
 		
-		public function setKeys(auKeys:Array):*{
-			var tempText: String = "";
-			for (var key in auKeys) {
-				tempText += keytostring(auKeys[key]);
-				if (key<auKeys.length-1) 
+		public function get keys():Array
+		{
+			return (this.KeysArray);
+		}
+		
+		public function set keys(_arg_1:Array)
+		{
+			this.KeysArray = _arg_1;
+			this.RefreshText();
+		}
+		
+		private function RefreshText()
+		{
+			var tempText:String = "";
+			for (var key in KeysArray)
+			{
+				tempText += keytostring(KeysArray[key]);
+				if (key < KeysArray.length - 1)
 				{
 					tempText += "-";
 				}
-				else 
+				else
 				{
 					tempText += ")";
 				}
@@ -386,28 +402,28 @@
 			case Keyboard.SHIFT: 
 				return "Shift";
 				break;
-			case 160: 
+			case KEY_LSHIFT: 
 				return "L Shift";
 				break;
-			case 161: 
+			case KEY_RSHIFT: 
 				return "R Shift";
 				break;
 			case Keyboard.ALTERNATE: 
 				return "Alt";
 				break;
-			case 164: 
+			case KEY_LALT: 
 				return "L Alt";
 				break;
-			case 165: 
+			case KEY_RALT: 
 				return "R Alt";
 				break;
 			case Keyboard.CONTROL: 
 				return "Ctrl";
 				break;
-			case 162: 
+			case KEY_LCTRL: 
 				return "L Ctrl";
 				break;
-			case 163: 
+			case KEY_RCTRL: 
 				return "R Ctrl";
 				break;
 			case Keyboard.SPACE: 
