@@ -64,6 +64,19 @@ package mcm
 						trace("Failed to SetGlobalValue");
 					}
 					break;
+				case "ModSettingString": 
+					try
+					{
+						parent.parent.mcmCodeObj.SetModSettingString(EntriesA[_arg_1.target.itemIndex].action.modName, EntriesA[_arg_1.target.itemIndex].action.settingName, Number(EntriesA[_arg_1.target.itemIndex].valueString));
+						trace(EntriesA[_arg_1.target.itemIndex].action.modName);
+						trace(EntriesA[_arg_1.target.itemIndex].action.settingName);
+						trace(EntriesA[_arg_1.target.itemIndex].valueString);
+					}
+					catch (e:Error)
+					{
+						trace("Failed to SetModSettingString");
+					}
+					break;
 				default:
 					
 					break;
