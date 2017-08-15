@@ -67,7 +67,7 @@ package mcm
 				case "ModSettingString": 
 					try
 					{
-						parent.parent.mcmCodeObj.SetModSettingString(EntriesA[_arg_1.target.itemIndex].action.modName, EntriesA[_arg_1.target.itemIndex].action.settingName, Number(EntriesA[_arg_1.target.itemIndex].valueString));
+						parent.parent.mcmCodeObj.SetModSettingString(EntriesA[_arg_1.target.itemIndex].action.modName, EntriesA[_arg_1.target.itemIndex].action.settingName, EntriesA[_arg_1.target.itemIndex].valueString);
 						trace(EntriesA[_arg_1.target.itemIndex].action.modName);
 						trace(EntriesA[_arg_1.target.itemIndex].action.settingName);
 						trace(EntriesA[_arg_1.target.itemIndex].valueString);
