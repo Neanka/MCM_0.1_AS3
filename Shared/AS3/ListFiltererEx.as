@@ -5,6 +5,7 @@
 	public class ListFiltererEx extends EventDispatcher {
 
 		public static const FILTER_CHANGE: String = "ListFiltererEx::filter_change";
+		public static const FILTER_TYPE_LEFTPANEL: int = 1;
 
 
 		private var iItemFilter: int;

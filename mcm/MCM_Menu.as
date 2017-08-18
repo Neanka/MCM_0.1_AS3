@@ -104,7 +104,7 @@ package mcm
 				{
 					trace("Failed to GetDirectoryListing");
 					JSONLoader("../../Data/MCM/Config/testmod.json");
-					JSONLoader("../../Data/MCM/Config/testmod2.json");
+					//JSONLoader("../../Data/MCM/Config/testmod2.json");
 				}
 				
 				break;
@@ -121,8 +121,16 @@ package mcm
 			{
 			case this.HelpPanel_mc.HelpList_mc: 
 				this.configPanel_mc.configList_mc.selectedIndex = -1;
-				this.configPanel_mc.configList_mc.entryList = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj["content"];
-				this.configPanel_mc.configList_mc.filterer.itemFilter = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj["filterFlagControl"];
+				if (this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj) 
+				{
+					this.configPanel_mc.configList_mc.entryList = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj;
+					this.configPanel_mc.configList_mc.filterer.itemFilter = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj["filterFlagControl"];
+				} else 
+				{
+					this.configPanel_mc.configList_mc.entryList = new Array();
+					this.configPanel_mc.configList_mc.filterer.itemFilter = int.MAX_VALUE;
+					GlobalFunc.SetText(this.configPanel_mc.hint_tf, " ", true);
+				}
 				this.configPanel_mc.configList_mc.InvalidateData();
 				this.configPanel_mc.configList_mc.selectedIndex = 0;
 				break;
@@ -167,7 +175,12 @@ package mcm
 		private function decodeJSON(e:Event):void
 		{
 			var dataObj:Object = com.adobe.serialization.json.JSON.decode(e.target.data) as Object;
-			this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(dataObj), text: dataObj["modName"]})
+			this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: null, text: dataObj["modName"], modName: dataObj["modName"]});
+			for (var i in dataObj["pages"]) 
+			{
+				this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(dataObj["pages"][i]["content"]), text: dataObj["pages"][i].pageName, modName: dataObj["modName"]});
+			}
+
 			this.HelpPanel_mc.HelpList_mc.InvalidateData();
 			
 			this.HelpPanel_mc.HelpList_mc.selectedIndex = 0;
@@ -177,142 +190,141 @@ package mcm
 		private function processDataObj(dataObj:Object):Object
 		{
 			var tempObj:Object = dataObj;
-			tempObj.filterFlagControl = uint.MAX_VALUE;
-			for (var num in tempObj["content"])
+			for (var num in tempObj)
 			{
-				if (tempObj["content"][num]["action"])
+				if (tempObj[num]["action"])
 				{
-					switch (tempObj["content"][num]["action"]["type"])
+					switch (tempObj[num]["action"]["type"])
 					{
 					case "GlobalValue": 
 						try
 						{
-							tempObj["content"][num].value = mcmCodeObj.GetGlobalValue(tempObj["content"][num]["action"]["params"]);
+							tempObj[num].value = mcmCodeObj.GetGlobalValue(tempObj[num]["action"]["params"]);
 						}
 						catch (e:Error)
 						{
-							tempObj["content"][num].value = 0;
+							tempObj[num].value = 0;
 							trace("Failed to GetGlobalValue");
 						}
 						break;
 					case "ModSettingString": 
 						try
 						{
-							tempObj["content"][num].valueString = mcmCodeObj.GetModSettingString(tempObj["content"][num]["action"]["modName"],tempObj["content"][num]["action"]["settingName"]);
+							tempObj[num].valueString = mcmCodeObj.GetModSettingString(tempObj[num]["action"]["modName"],tempObj[num]["action"]["settingName"]);
 						}
 						catch (e:Error)
 						{
-							tempObj["content"][num].valueString = " ";
+							tempObj[num].valueString = " ";
 							trace("Failed to GetModSettingString");
 						}
 						break;
 					default: 
-						tempObj["content"][num].value = 5; // temp value just for test
+						tempObj[num].value = 5; // temp value just for test
 						break;
 					}
 					
 				}
 				
-				switch (tempObj["content"][num]["type"])
+				switch (tempObj[num]["type"])
 				{
 				case "switcher": 
-					tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_SWITCHER;
+					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_SWITCHER;
 					break;
 				case "stepper": 
-					tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_STEPPER;
-					tempObj["content"][num].options = tempObj["content"][num]["valueOptions"];
+					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_STEPPER;
+					tempObj[num].options = tempObj[num]["valueOptions"];
 					break;
 				case "slider": 
-					tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_SCROLLBAR;
-					tempObj["content"][num].minvalue = tempObj["content"][num]["valueOptions"].min;
-					tempObj["content"][num].maxvalue = tempObj["content"][num]["valueOptions"].max;
-					tempObj["content"][num].step = tempObj["content"][num]["valueOptions"].step;
+					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_SCROLLBAR;
+					tempObj[num].minvalue = tempObj[num]["valueOptions"].min;
+					tempObj[num].maxvalue = tempObj[num]["valueOptions"].max;
+					tempObj[num].step = tempObj[num]["valueOptions"].step;
 					break;
 				case "section": 
-					tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_SECTION;
+					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_SECTION;
 					break;
 				case "empty": 
-					tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE;
+					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE;
 					break;
 				case "dropdown": 
-					tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_DROPDOWN;
-					tempObj["content"][num].options = tempObj["content"][num]["valueOptions"];
+					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_DROPDOWN;
+					tempObj[num].options = tempObj[num]["valueOptions"];
 					break;
 				case "text": 
-					tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_TEXT;
+					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_TEXT;
 					break;
 				case "button": 
-					tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_BUTTON;
+					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_BUTTON;
 					break;
 				case "keyinput": 
-					tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_KEYINPUT;
-					tempObj["content"][num].defaultkeys = tempObj["content"][num]["valueOptions"]["default"];
-					if (!tempObj["content"][num].valueString || tempObj["content"][num].valueString == " ") 
+					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_KEYINPUT;
+					tempObj[num].defaultkeys = tempObj[num]["valueOptions"]["default"];
+					if (!tempObj[num].valueString || tempObj[num].valueString == " ") 
 					{
-						tempObj["content"][num].keys = tempObj["content"][num].defaultkeys
+						tempObj[num].keys = tempObj[num].defaultkeys
 					}
 					else 
 					{
-						tempObj["content"][num].keys = tempObj["content"][num].valueString.split(",");
+						tempObj[num].keys = tempObj[num].valueString.split(",");
 					}
 					break;
 				default: 
-					tempObj["content"][num].movieType = mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE;
+					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE;
 					break;
 				}
 				
-				if (tempObj["content"][num]["groupCondition"])
+				if (tempObj[num]["groupCondition"])
 				{
-					switch (getQualifiedClassName(tempObj["content"][num]["groupCondition"]))
+					switch (getQualifiedClassName(tempObj[num]["groupCondition"]))
 					{
 					case "int": 
-						tempObj["content"][num].filterOperator = "OR";
-						tempObj["content"][num].filterFlag = Math.pow(2, int(tempObj["content"][num]["groupCondition"]));
+						tempObj[num].filterOperator = "OR";
+						tempObj[num].filterFlag = Math.pow(2, int(tempObj[num]["groupCondition"]));
 						break;
 					case "Array": 
-						tempObj["content"][num].filterOperator = "OR";
-						tempObj["content"][num].filterFlag = 0;
-						for (var j in tempObj["content"][num]["groupCondition"])
+						tempObj[num].filterOperator = "OR";
+						tempObj[num].filterFlag = 0;
+						for (var j in tempObj[num]["groupCondition"])
 						{
-							tempObj["content"][num].filterFlag += Math.pow(2, int(tempObj["content"][num]["groupCondition"][j]));
+							tempObj[num].filterFlag += Math.pow(2, int(tempObj[num]["groupCondition"][j]));
 						}
 						break;
 					case "Object": 
-						if (tempObj["content"][num]["groupCondition"]["AND"])
+						if (tempObj[num]["groupCondition"]["AND"])
 						{
-							tempObj["content"][num].filterOperator = "AND";
-							tempObj["content"][num].filterFlag = 0;
-							for (var k in tempObj["content"][num]["groupCondition"]["AND"])
+							tempObj[num].filterOperator = "AND";
+							tempObj[num].filterFlag = 0;
+							for (var k in tempObj[num]["groupCondition"]["AND"])
 							{
-								tempObj["content"][num].filterFlag += Math.pow(2, int(tempObj["content"][num]["groupCondition"]["AND"][k]));
+								tempObj[num].filterFlag += Math.pow(2, int(tempObj[num]["groupCondition"]["AND"][k]));
 							}
 						}
-						else if (tempObj["content"][num]["groupCondition"]["OR"])
+						else if (tempObj[num]["groupCondition"]["OR"])
 						{
-							tempObj["content"][num].filterOperator = "OR";
-							tempObj["content"][num].filterFlag = 0;
-							for (var m in tempObj["content"][num]["groupCondition"]["OR"])
+							tempObj[num].filterOperator = "OR";
+							tempObj[num].filterFlag = 0;
+							for (var m in tempObj[num]["groupCondition"]["OR"])
 							{
-								tempObj["content"][num].filterFlag += Math.pow(2, int(tempObj["content"][num]["groupCondition"]["OR"][m]));
+								tempObj[num].filterFlag += Math.pow(2, int(tempObj[num]["groupCondition"]["OR"][m]));
 							}
 						}
 						break;
 					default: 
-						tempObj["content"][num].filterOperator = "OR";
-						tempObj["content"][num].filterFlag = 1;
+						tempObj[num].filterOperator = "OR";
+						tempObj[num].filterFlag = 1;
 						break;
 					}
 				}
 				else
 				{
-					tempObj["content"][num].filterOperator = "OR";
-					tempObj["content"][num].filterFlag = 1;
+					tempObj[num].filterOperator = "OR";
+					tempObj[num].filterFlag = 1;
 				}
 				
-					//traceObj(tempObj["content"][num]);
+					//traceObj(tempObj[num]);
 				
 			}
-			
+			tempObj.filterFlagControl = uint.MAX_VALUE;
 			return tempObj;
 		}
 		

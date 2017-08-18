@@ -147,18 +147,21 @@ package mcm
 		public function setfilterflag(iFilterFlag:Number):*
 		{
 			this.filterer.itemFilter = Math.pow(2, iFilterFlag);			// move math.pow
+			MCM_Menu.instance.HelpPanel_mc.HelpList_mc.entryList[MCM_Menu.instance.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj["filterFlagControl"] = this.filterer.itemFilter;
 			InvalidateData();
 		}
 		
 		public function addfilterflag(iFilterFlag:Number):*
 		{
 			this.filterer.itemFilter = this.filterer.itemFilter | Math.pow(2, iFilterFlag);
+			MCM_Menu.instance.HelpPanel_mc.HelpList_mc.entryList[MCM_Menu.instance.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj["filterFlagControl"] = this.filterer.itemFilter;
 			InvalidateData();
 		}
 		
 		public function removefilterflag(iFilterFlag:Number):*
 		{
 			this.filterer.itemFilter = this.filterer.itemFilter & ~Math.pow(2, iFilterFlag);
+			MCM_Menu.instance.HelpPanel_mc.HelpList_mc.entryList[MCM_Menu.instance.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj["filterFlagControl"] = this.filterer.itemFilter;
 			InvalidateData();
 		}
 		
