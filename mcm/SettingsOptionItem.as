@@ -221,7 +221,7 @@ package mcm
         override public function SetEntryText(_arg_1:Object, _arg_2:String)
         {
             var _local_3:ColorTransform;
-			TextFieldEx.setTextAutoSize(textField, "fit");
+			//TextFieldEx.setTextAutoSize(textField, "fit");
             super.SetEntryText(_arg_1, _arg_2);
 			switch (this.uiMovieType) 
 			{

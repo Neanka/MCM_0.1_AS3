@@ -84,6 +84,8 @@ package mcm
 			switch (param1.target.name)
 			{
 			case "HelpList_mc": 
+				this.HelpPanel_mc.HelpList_mc.filterer.filterType = ListFiltererEx.FILTER_TYPE_LEFTPANEL;
+				this.HelpPanel_mc.HelpList_mc.filterer.itemFilter = 1;
 				try
 				{
 					var jsonsArray:Array = root.f4se.GetDirectoryListing("Data/MCM/Config", "*.json", recursive = false);
@@ -104,7 +106,7 @@ package mcm
 				{
 					trace("Failed to GetDirectoryListing");
 					JSONLoader("../../Data/MCM/Config/testmod.json");
-					//JSONLoader("../../Data/MCM/Config/testmod2.json");
+					JSONLoader("../../Data/MCM/Config/testmod3.json");
 				}
 				
 				break;
@@ -128,7 +130,7 @@ package mcm
 				} else 
 				{
 					this.configPanel_mc.configList_mc.entryList = new Array();
-					this.configPanel_mc.configList_mc.filterer.itemFilter = int.MAX_VALUE;
+					this.configPanel_mc.configList_mc.filterer.itemFilter = uint.MAX_VALUE;
 					GlobalFunc.SetText(this.configPanel_mc.hint_tf, " ", true);
 				}
 				this.configPanel_mc.configList_mc.InvalidateData();
@@ -163,6 +165,14 @@ package mcm
 			{
 				this.configPanel_mc.DD_popup_mc.Close(false);
 			}
+			else if (_arg_1.target == this.HelpPanel_mc.HelpList_mc)
+			{
+				if (this.HelpPanel_mc.HelpList_mc.selectedEntry.filterFlag == 1) 
+				{
+					this.HelpPanel_mc.HelpList_mc.filterer.modName = this.HelpPanel_mc.HelpList_mc.selectedEntry.modName;
+					this.HelpPanel_mc.HelpList_mc.UpdateList();
+				}				
+			}
 		}
 		
 		public function JSONLoader(filename:String)
@@ -175,10 +185,10 @@ package mcm
 		private function decodeJSON(e:Event):void
 		{
 			var dataObj:Object = com.adobe.serialization.json.JSON.decode(e.target.data) as Object;
-			this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: null, text: dataObj["modName"], modName: dataObj["modName"]});
+			this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: null, text: dataObj["modName"], modName: dataObj["modName"], filterFlag: 1});
 			for (var i in dataObj["pages"]) 
 			{
-				this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(dataObj["pages"][i]["content"]), text: dataObj["pages"][i].pageName, modName: dataObj["modName"]});
+				this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(dataObj["pages"][i]["content"]), text: dataObj["pages"][i].pageName, ownerModName: dataObj["modName"], filterFlag: 2});
 			}
 
 			this.HelpPanel_mc.HelpList_mc.InvalidateData();

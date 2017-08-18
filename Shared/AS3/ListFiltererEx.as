@@ -5,10 +5,14 @@
 	public class ListFiltererEx extends EventDispatcher {
 
 		public static const FILTER_CHANGE: String = "ListFiltererEx::filter_change";
+		public static const FILTER_TYPE_DEFAULT: int = 0;
 		public static const FILTER_TYPE_LEFTPANEL: int = 1;
 
 
 		private var iItemFilter: int;
+		
+		private var _iFilterType: int;
+		private var _sModName: String;
 
 		private var iItemFilterString: String;
 
@@ -16,9 +20,13 @@
 
 		public function ListFiltererEx() {
 			super();
-			this.iItemFilter = 4294967295;
+			this.iItemFilter = uint.MAX_VALUE;//4294967295;
+			this._iFilterType = FILTER_TYPE_DEFAULT;
+			this._sModName = "";
 			this.iItemFilterString = "";
 		}
+		
+		
 
 		public function get itemFilter(): int {
 			return this.iItemFilter;
@@ -51,6 +59,28 @@
 		public function set filterArray(param1: Array): * {
 			this._filterArray = param1;
 		}
+		
+		public function get filterType():int 
+		{
+			return _iFilterType;
+		}
+		
+		public function set filterType(value:int):void 
+		{
+			_iFilterType = value;
+		}
+		
+		public function get modName(): String {
+			return this._sModName;
+		}
+
+		public function set modName(param1: String): * {
+			var _loc2_: * = this._sModName != param1;
+			this._sModName = param1;
+			if (_loc2_ == true) {
+				dispatchEvent(new Event(FILTER_CHANGE, true, true));
+			}
+		}
 
 		private function checktext(param1: Object): Boolean {
 			if (this.iItemFilterString == "") {
@@ -63,6 +93,13 @@
 		}
 
 		public function EntryMatchesFilter(param1: Object): Boolean {
+			if (_iFilterType == FILTER_TYPE_LEFTPANEL) 
+			{
+				if (param1 != null && param1.hasOwnProperty("ownerModName")) 
+				{
+					return (param1.ownerModName == _sModName);
+				}
+			}
 			if (param1 != null && param1.hasOwnProperty("filterOperator")) 
 			{
 				if (param1.filterOperator == "AND") {
