@@ -1,20 +1,33 @@
 package mcm
 {
-    import flash.display.*;
-    import flash.events.*;
-    import Shared.AS3.*;
-   
-   public class ItemList extends BSScrollingList1
-   {
+	import Shared.AS3.BSScrollingList1;
+	import flash.events.Event;
+	import flash.events.MouseEvent;
+	
+	public class ItemList extends BSScrollingList1
+	{
 		public static const MOUSE_OVER:String = "ItemList::mouse_over";
-      
-      public function ItemList()
-      {
-         super();
-		 addEventListener(MouseEvent.MOUSE_OVER, this.onMouseOver);
-      }
-        private function onMouseOver(event:MouseEvent){
-            dispatchEvent(new Event(MOUSE_OVER, true, true));
-        }
-   }
+		public static const MOUSE_OUT:String = "ItemList::mouse_out";
+		
+		public function ItemList()
+		{
+			super();
+			addEventListener(MouseEvent.MOUSE_OVER, this.onMouseOver);
+			addEventListener(MouseEvent.MOUSE_OUT, this.onMouseOut);
+		}
+		
+		private function onMouseOver(event:MouseEvent)
+		{
+			dispatchEvent(new Event(MOUSE_OVER, true, true));
+		}
+		
+		private function onMouseOut(event:MouseEvent)
+		{
+			dispatchEvent(new Event(MOUSE_OUT, true, true));
+			if (this.name == "HelpList_mc") 
+			{
+				this.selectedIndex = -1;
+			}
+		}
+	}
 }

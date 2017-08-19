@@ -73,7 +73,7 @@ package Shared.AS3
         public function SetEntryText(_arg_1:Object, _arg_2:String)
         {
             var _local_3:Number;
-            if ((((((!((this.textField == null)))) && ((!((_arg_1 == null)))))) && (_arg_1.hasOwnProperty("text"))))
+            if (((this.textField != null) && (_arg_1 != null)) && _arg_1.hasOwnProperty("text"))
             {
                 if (_arg_2 == BSScrollingList.TEXT_OPTION_SHRINK_TO_FIT)
                 {

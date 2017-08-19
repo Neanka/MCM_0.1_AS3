@@ -4,8 +4,10 @@ package mcm
 	import Shared.GlobalFunc;
 	import com.adobe.serialization.json.*;
 	import flash.display.InteractiveObject;
+	import flash.display.Loader;
 	import flash.display.MovieClip;
 	import flash.events.Event;
+	import flash.events.IOErrorEvent;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.utils.getQualifiedClassName;
@@ -22,6 +24,8 @@ package mcm
 		public var mcmCodeObj:Object = new Object();
 		public var bmForInput:InteractiveObject = null;
 		private static var _instance:mcm.MCM_Menu;
+		public var selectedPage: int;
+		public var swfsobject: Object = new Object;
 		
 		public function MCM_Menu()
 		{
@@ -106,7 +110,9 @@ package mcm
 				{
 					trace("Failed to GetDirectoryListing");
 					JSONLoader("../../Data/MCM/Config/testmod.json");
+					JSONLoader("../../Data/MCM/Config/testmod2.json");
 					JSONLoader("../../Data/MCM/Config/testmod3.json");
+					JSONLoader("../../Data/MCM/Config/testmod33.json");
 				}
 				
 				break;
@@ -122,7 +128,8 @@ package mcm
 			switch (param1.target)
 			{
 			case this.HelpPanel_mc.HelpList_mc: 
-				this.configPanel_mc.configList_mc.selectedIndex = -1;
+				/*this.configPanel_mc.configList_mc.selectedIndex = -1;
+				//this.selectedPage = this.HelpPanel_mc.HelpList_mc.selectedIndex;
 				if (this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj) 
 				{
 					this.configPanel_mc.configList_mc.entryList = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj;
@@ -134,7 +141,7 @@ package mcm
 					GlobalFunc.SetText(this.configPanel_mc.hint_tf, " ", true);
 				}
 				this.configPanel_mc.configList_mc.InvalidateData();
-				this.configPanel_mc.configList_mc.selectedIndex = 0;
+				this.configPanel_mc.configList_mc.selectedIndex = 0;*/
 				break;
 			case this.configPanel_mc.configList_mc: 
 				if (this.configPanel_mc.configList_mc.selectedIndex > -1)
@@ -167,11 +174,30 @@ package mcm
 			}
 			else if (_arg_1.target == this.HelpPanel_mc.HelpList_mc)
 			{
+				for each (var obj in this.HelpPanel_mc.HelpList_mc.entryList)
+				{
+					obj.pageSelected = false;
+				}
+				this.HelpPanel_mc.HelpList_mc.selectedEntry.pageSelected = true;
+				this.configPanel_mc.configList_mc.selectedIndex = -1;
+				this.selectedPage = this.HelpPanel_mc.HelpList_mc.selectedIndex;
+				if (this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj) 
+				{
+					this.configPanel_mc.configList_mc.entryList = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj;
+					this.configPanel_mc.configList_mc.filterer.itemFilter = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj["filterFlagControl"];
+				} else 
+				{
+					this.configPanel_mc.configList_mc.entryList = new Array();
+					this.configPanel_mc.configList_mc.filterer.itemFilter = uint.MAX_VALUE;
+					GlobalFunc.SetText(this.configPanel_mc.hint_tf, " ", true);
+				}
+				this.configPanel_mc.configList_mc.InvalidateData();
+				this.configPanel_mc.configList_mc.selectedIndex = 0;
 				if (this.HelpPanel_mc.HelpList_mc.selectedEntry.filterFlag == 1) 
 				{
 					this.HelpPanel_mc.HelpList_mc.filterer.modName = this.HelpPanel_mc.HelpList_mc.selectedEntry.modName;
-					this.HelpPanel_mc.HelpList_mc.UpdateList();
-				}				
+				}
+				this.HelpPanel_mc.HelpList_mc.UpdateList();	
 			}
 		}
 		
@@ -180,20 +206,60 @@ package mcm
 			var loader:URLLoader = new URLLoader();
 			loader.addEventListener(Event.COMPLETE, decodeJSON);
 			loader.load(new URLRequest(filename));
+			var swfloader: Loader = new Loader();
+			swfloader.contentLoaderInfo.addEventListener(Event.COMPLETE,this.onSWFLoaded,false,0,true);
+			swfloader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, IOSWFErrorHandler);
+			swfloader.load(new URLRequest(filename.replace(/\.json/, ".swf")));
+		}
+		
+		private function onSWFLoaded(event:Event) : void
+		{
+			trace(event.currentTarget);
+		}
+	  
+		private function IOSWFErrorHandler(errorEvent:IOErrorEvent):void{
+			trace(errorEvent.text);
 		}
 		
 		private function decodeJSON(e:Event):void
 		{
 			var dataObj:Object = com.adobe.serialization.json.JSON.decode(e.target.data) as Object;
-			this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: null, text: dataObj["modName"], modName: dataObj["modName"], filterFlag: 1});
+			if (dataObj["content"]) 
+			{
+			this.HelpPanel_mc.HelpList_mc.entryList.push({
+				dataobj: processDataObj(dataObj["content"]), 
+				text: dataObj["modName"], 
+				modName: dataObj["modName"], 
+				filterFlag: 1,
+				pageSelected: false
+				
+			});
+			} else 
+			{
+			this.HelpPanel_mc.HelpList_mc.entryList.push({
+				dataobj: null, 
+				text: dataObj["modName"], 
+				modName: dataObj["modName"], 
+				filterFlag: 1,
+				pageSelected: false
+				
+			});
+			}
 			for (var i in dataObj["pages"]) 
 			{
-				this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(dataObj["pages"][i]["content"]), text: dataObj["pages"][i].pageName, ownerModName: dataObj["modName"], filterFlag: 2});
+				this.HelpPanel_mc.HelpList_mc.entryList.push({
+					dataobj: processDataObj(dataObj["pages"][i]["content"]), 
+					text: dataObj["pages"][i].pageName, 
+					ownerModName: dataObj["modName"], 
+					filterFlag: 2,
+					pageSelected: false
+				});
 			}
 
 			this.HelpPanel_mc.HelpList_mc.InvalidateData();
 			
-			this.HelpPanel_mc.HelpList_mc.selectedIndex = 0;
+			//this.HelpPanel_mc.HelpList_mc.selectedIndex = 0;
+			//onListItemPress(null);
 		
 		}
 		
