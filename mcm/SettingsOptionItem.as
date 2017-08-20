@@ -31,6 +31,7 @@ package mcm
 		public static const MOVIETYPE_TEXT:int = 6;
 		public static const MOVIETYPE_BUTTON:int = 7;
 		public static const MOVIETYPE_KEYINPUT:int = 8;
+		public static const MOVIETYPE_IMAGE:int = 9;
 
 
         private var OptionItem:MovieClip;
@@ -241,6 +242,20 @@ package mcm
 					GlobalFunc.SetText(this.textField, " ", true);
 					(this.OptionItem as mcm.Option_Text).textArea.text = _arg_1.text;
 					(this.OptionItem as mcm.Option_Text).textArea.height = (this.OptionItem as mcm.Option_Text).textArea.textHeight + 4;
+					return;
+					break;
+				case MOVIETYPE_IMAGE:
+					this.border.alpha = 0;
+					GlobalFunc.SetText(this.textField, " ", true);
+					this.OptionItem.x = 0;
+					var tempMc: MovieClip = MCM_Menu.instance.getMcFromLib(_arg_1.libName, _arg_1.className);
+					if (tempMc.width>700){
+						tempMc.width = 700;
+						tempMc.scaleY = tempMc.scaleX;
+					}
+					//tempMc.y = plch.curheight;
+					tempMc.x = (700-tempMc.width)/2;
+					this.OptionItem.addChild(tempMc); //BUG should be fixed
 					return;
 					break;
 				default:

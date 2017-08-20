@@ -5,11 +5,13 @@ package mcm
 	import com.adobe.serialization.json.*;
 	import flash.display.InteractiveObject;
 	import flash.display.Loader;
+	import flash.display.LoaderInfo;
 	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
 	
 	/**
@@ -90,6 +92,7 @@ package mcm
 			case "HelpList_mc": 
 				this.HelpPanel_mc.HelpList_mc.filterer.filterType = ListFiltererEx.FILTER_TYPE_LEFTPANEL;
 				this.HelpPanel_mc.HelpList_mc.filterer.itemFilter = 1;
+				loadLibs(); //TODO find best place to call
 				try
 				{
 					var jsonsArray:Array = root.f4se.GetDirectoryListing("Data/MCM/Config", "*.json", recursive = false);
@@ -108,7 +111,7 @@ package mcm
 				}
 				catch (e:Error)
 				{
-					trace("Failed to GetDirectoryListing");
+					trace("Failed to GetDirectoryListing for JSON");
 					JSONLoader("../../Data/MCM/Config/testmod.json");
 					JSONLoader("../../Data/MCM/Config/testmod2.json");
 					JSONLoader("../../Data/MCM/Config/testmod3.json");
@@ -118,8 +121,62 @@ package mcm
 				break;
 			case "configList_mc": 
 				this.configPanel_mc.configList_mc.InvalidateData();
+				loadWelcomePage();
 				break;
 			default: 
+			}
+		}
+		
+		private function loadWelcomePage():void 
+		{
+			var temparray: Array = new Array();
+			temparray.push({
+				"type": "empty"
+			});
+			temparray.push({
+				"type": "image",
+				"libName": "builtin",
+				"className": "img_builtin_mcmlogo"
+			});
+			temparray.push({
+				"type": "empty"
+			});
+			temparray.push({
+				"text": "                                                            MCM FALLOUT 4 EDITION",
+				"type": "text"
+			});
+			temparray.push({
+				"text": "                                                                        VERSION 0.5",
+				"type": "text"
+			});
+			this.configPanel_mc.configList_mc.entryList = processDataObj(temparray);
+			this.configPanel_mc.configList_mc.InvalidateData();
+		}
+		
+		function loadLibs():void 
+		{
+			try
+			{
+				var swfsArray:Array = root.f4se.GetDirectoryListing("Data/MCM/Libs", "*.swf", recursive = false);
+				for (var i in swfsArray)
+				{
+					var swfloader: Loader = new Loader();
+					swfloader.contentLoaderInfo.addEventListener(Event.COMPLETE,this.onSWFLoaded,false,0,true);
+					swfloader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, IOSWFErrorHandler);
+					swfloader.load(new URLRequest("../../" + swfsArray[i]["nativePath"]));
+				}
+			}
+			catch (e:Error)
+			{
+				trace("Failed to GetDirectoryListing for Libs");
+					var swfloader1: Loader = new Loader();
+					swfloader1.contentLoaderInfo.addEventListener(Event.COMPLETE,this.onSWFLoaded,false,0,true);
+					swfloader1.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, IOSWFErrorHandler);
+					swfloader1.load(new URLRequest("../../Data/MCM/Libs/testmod_lib.swf"));
+					var swfloader2: Loader = new Loader();
+					swfloader2.contentLoaderInfo.addEventListener(Event.COMPLETE,this.onSWFLoaded,false,0,true);
+					swfloader2.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, IOSWFErrorHandler);
+					swfloader2.load(new URLRequest("../../Data/MCM/Libs/testmod.swf"));
 			}
 		}
 		
@@ -128,20 +185,7 @@ package mcm
 			switch (param1.target)
 			{
 			case this.HelpPanel_mc.HelpList_mc: 
-				/*this.configPanel_mc.configList_mc.selectedIndex = -1;
-				//this.selectedPage = this.HelpPanel_mc.HelpList_mc.selectedIndex;
-				if (this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj) 
-				{
-					this.configPanel_mc.configList_mc.entryList = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj;
-					this.configPanel_mc.configList_mc.filterer.itemFilter = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj["filterFlagControl"];
-				} else 
-				{
-					this.configPanel_mc.configList_mc.entryList = new Array();
-					this.configPanel_mc.configList_mc.filterer.itemFilter = uint.MAX_VALUE;
-					GlobalFunc.SetText(this.configPanel_mc.hint_tf, " ", true);
-				}
-				this.configPanel_mc.configList_mc.InvalidateData();
-				this.configPanel_mc.configList_mc.selectedIndex = 0;*/
+
 				break;
 			case this.configPanel_mc.configList_mc: 
 				if (this.configPanel_mc.configList_mc.selectedIndex > -1)
@@ -206,15 +250,29 @@ package mcm
 			var loader:URLLoader = new URLLoader();
 			loader.addEventListener(Event.COMPLETE, decodeJSON);
 			loader.load(new URLRequest(filename));
-			var swfloader: Loader = new Loader();
-			swfloader.contentLoaderInfo.addEventListener(Event.COMPLETE,this.onSWFLoaded,false,0,true);
-			swfloader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, IOSWFErrorHandler);
-			swfloader.load(new URLRequest(filename.replace(/\.json/, ".swf")));
 		}
 		
 		private function onSWFLoaded(event:Event) : void
 		{
-			trace(event.currentTarget);
+			var path: String = event.target.url;
+			path = path.substring(path.lastIndexOf("/") + 1); // no need for game but need for testing in IDE
+			path = path.substring(path.lastIndexOf("\\") + 1);
+			path = path.substring(0, path.lastIndexOf("."));
+			swfsobject[path] = (event.target as LoaderInfo).applicationDomain;
+		}
+		
+		public function getMcFromLib(libname: String, classname: String): MovieClip 
+		{
+			var myClass: Class;
+			if (libname == "builtin") 
+			{
+				myClass = getDefinitionByName(classname);
+			} else 
+			{
+				myClass = swfsobject[libname].getDefinition(classname) as Class;
+			}
+			return new myClass() as MovieClip;
+
 		}
 	  
 		private function IOSWFErrorHandler(errorEvent:IOErrorEvent):void{
@@ -344,6 +402,9 @@ package mcm
 						tempObj[num].keys = tempObj[num].valueString.split(",");
 					}
 					break;
+				case "image": 
+					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_IMAGE;
+					break;
 				default: 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE;
 					break;
@@ -353,7 +414,8 @@ package mcm
 				{
 					switch (getQualifiedClassName(tempObj[num]["groupCondition"]))
 					{
-					case "int": 
+					case "int": // for Flash
+					case "Number": //for Scaleform
 						tempObj[num].filterOperator = "OR";
 						tempObj[num].filterFlag = Math.pow(2, int(tempObj[num]["groupCondition"]));
 						break;
