@@ -275,6 +275,7 @@ package mcm
 						case mcm.SettingsOptionItem.MOVIETYPE_SECTION: 
 						case mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE: 
 						case mcm.SettingsOptionItem.MOVIETYPE_TEXT: 
+						case mcm.SettingsOptionItem.MOVIETYPE_IMAGE: 
 							break;
 						default: 
 							if (iprevFilterMatch != int.MAX_VALUE)
@@ -316,6 +317,7 @@ package mcm
 						case mcm.SettingsOptionItem.MOVIETYPE_SECTION: 
 						case mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE: 
 						case mcm.SettingsOptionItem.MOVIETYPE_TEXT:
+						case mcm.SettingsOptionItem.MOVIETYPE_IMAGE: 
 							
 							break;
 						default: 

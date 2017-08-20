@@ -7,6 +7,7 @@ package mcm
 {
     import Shared.AS3.BSScrollingListEntry;
     import flash.display.MovieClip;
+	import flash.text.TextField;
 	import flash.text.TextFormat;
     import scaleform.gfx.Extensions;
     import scaleform.gfx.TextFieldEx;
@@ -240,22 +241,41 @@ package mcm
 				case MOVIETYPE_TEXT:
 					this.border.alpha = 0;
 					GlobalFunc.SetText(this.textField, " ", true);
+					if (_arg_1.align) 
+					{
+						var tf: TextFormat = (this.OptionItem as mcm.Option_Text).textArea.getTextFormat();
+						tf.align = _arg_1.align;
+						(this.OptionItem as mcm.Option_Text).textArea.defaultTextFormat = tf; 
+					}
 					(this.OptionItem as mcm.Option_Text).textArea.text = _arg_1.text;
 					(this.OptionItem as mcm.Option_Text).textArea.height = (this.OptionItem as mcm.Option_Text).textArea.textHeight + 4;
+					
 					return;
 					break;
 				case MOVIETYPE_IMAGE:
 					this.border.alpha = 0;
 					GlobalFunc.SetText(this.textField, " ", true);
 					this.OptionItem.x = 0;
+					try 
+					{
 					var tempMc: MovieClip = MCM_Menu.instance.getMcFromLib(_arg_1.libName, _arg_1.className);
-					if (tempMc.width>700){
-						tempMc.width = 700;
+					if (tempMc.width>690){
+						tempMc.width = 690;
 						tempMc.scaleY = tempMc.scaleX;
 					}
+					if (tempMc.height>400) 
+					{
+						tempMc.height = 400;
+						tempMc.scaleX = tempMc.scaleY;
+					}
 					//tempMc.y = plch.curheight;
-					tempMc.x = (700-tempMc.width)/2;
-					this.OptionItem.addChild(tempMc); //BUG should be fixed
+					tempMc.x = (690-tempMc.width)/2+10;
+					this.OptionItem.addChild(tempMc);
+					} catch (err:Error)
+					{
+						GlobalFunc.SetText(this.textField, "[Error]: Can't load \""+_arg_1.className+"\" image from \""+_arg_1.libName+"\" library!", true);
+					}
+
 					return;
 					break;
 				default:

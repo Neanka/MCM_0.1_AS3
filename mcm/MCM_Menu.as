@@ -142,17 +142,18 @@ package mcm
 				"type": "empty"
 			});
 			temparray.push({
-				"text": "                                                            MCM FALLOUT 4 EDITION",
+				"text": "MCM FALLOUT 4 EDITION",
+				"align": "center",
 				"type": "text"
 			});
 			temparray.push({
-				"text": "                                                                        VERSION 0.5",
+				"text": "VERSION 0.5",
+				"align": "center",
 				"type": "text"
 			});
 			this.configPanel_mc.configList_mc.entryList = processDataObj(temparray);
 			this.configPanel_mc.configList_mc.InvalidateData();
 		}
-		
 		function loadLibs():void 
 		{
 			try
@@ -258,7 +259,7 @@ package mcm
 			path = path.substring(path.lastIndexOf("/") + 1); // no need for game but need for testing in IDE
 			path = path.substring(path.lastIndexOf("\\") + 1);
 			path = path.substring(0, path.lastIndexOf("."));
-			swfsobject[path] = (event.target as LoaderInfo).applicationDomain;
+			swfsobject[path] = (event.target as LoaderInfo).loader;
 		}
 		
 		public function getMcFromLib(libname: String, classname: String): MovieClip 
@@ -269,7 +270,7 @@ package mcm
 				myClass = getDefinitionByName(classname);
 			} else 
 			{
-				myClass = swfsobject[libname].getDefinition(classname) as Class;
+				myClass = swfsobject[libname].contentLoaderInfo.applicationDomain.getDefinition(classname) as Class;
 			}
 			return new myClass() as MovieClip;
 
@@ -282,6 +283,93 @@ package mcm
 		private function decodeJSON(e:Event):void
 		{
 			var dataObj:Object = com.adobe.serialization.json.JSON.decode(e.target.data) as Object;
+			var reqsstatus: Array = new Array();
+			var mcmstatus: Boolean = true;
+			if (dataObj["pluginRequirements"]) 
+			{
+				
+				for (var reqs in dataObj["pluginRequirements"]){
+					try
+					{
+						if (!mcmCodeObj.IsPluginInstalled(dataObj["pluginRequirements"][reqs])) 
+						{
+							reqsstatus.push(dataObj["pluginRequirements"][reqs]);
+						}
+					}
+					catch (err:Error)
+					{
+						trace("Failed to check IsPluginInstalled");
+						//reqsstatus.push(dataObj["pluginRequirements"][reqs]);
+					}
+				}
+			}
+			if (dataObj["mcmVersion"]) 
+			{
+				try
+				{
+					if (uint(dataObj["mcmVersion"]) != GetVersionCode()) 
+					{
+						mcmstatus = false;
+					}
+				}
+				catch (err:Error)
+				{
+					trace("Failed to check GetVersionCode");
+				}
+			}
+			if ((reqsstatus.length > 0) || !mcmstatus) 
+			{
+				var temparray: Array = new Array();
+				temparray.push({
+					"type": "empty"
+				});
+				temparray.push({
+					"type": "image",
+					"libName": "builtin",
+					"className": "exclamation_icon"
+				});
+				temparray.push({
+					"type": "empty"
+				});
+				if ((reqsstatus.length > 0)) 
+				{
+					temparray.push({
+						"text": "Missing plugins:",
+						"align": "center",
+						"type": "text"
+					});
+					for (var count in reqsstatus) 
+					{
+						temparray.push({
+							"text": String(count+1)+". "+reqsstatus[count],
+							"align": "center",
+							"type": "text"
+						});
+					}
+					temparray.push({
+						"type": "empty"
+					});
+				}
+
+				if (!mcmstatus) 
+				{
+				temparray.push({
+					"text": "Wrong MCM version: "+String(GetVersionCode())+" (required: "+dataObj["mcmVersion"]+")",
+					"align": "center",
+					"type": "text"
+				});
+				}
+				this.HelpPanel_mc.HelpList_mc.entryList.push({
+					dataobj: processDataObj(temparray), 
+					text: dataObj["modName"], 
+					modName: dataObj["modName"], 
+					filterFlag: 1,
+					pageSelected: false,
+					reqsStatus: 1
+				});
+				this.HelpPanel_mc.HelpList_mc.InvalidateData();
+				return;
+			}
 			if (dataObj["content"]) 
 			{
 			this.HelpPanel_mc.HelpList_mc.entryList.push({
@@ -491,6 +579,11 @@ package mcm
 		private function log(str:String):void
 		{
 			trace("[MCM_Menu] " + str);
+		}
+		
+		private function GetVersionCode():uint
+		{
+			return 1;
 		}
 	
 	}
