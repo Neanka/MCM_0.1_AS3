@@ -50,6 +50,59 @@ package mcm
 				EntriesA[_arg_1.target.itemIndex].keys = _arg_1.target.OptionItem.keys;
 				EntriesA[_arg_1.target.itemIndex].valueString = _arg_1.target.OptionItem.keys.join();
 			}
+			if (_arg_1.target.movieType == mcm.SettingsOptionItem.MOVIETYPE_HOTKEY) 
+			{
+				EntriesA[_arg_1.target.itemIndex].keys = _arg_1.target.OptionItem.keys;
+				try
+				{
+					var modName: String = EntriesA[_arg_1.target.itemIndex].modName;// MCM_Menu.instance.HelpPanel_mc.HelpList_mc.entryList[MCM_Menu.instance.selectedPage]["modName"];
+					var keybindID: String = EntriesA[_arg_1.target.itemIndex].id;
+					var keycode: int = EntriesA[_arg_1.target.itemIndex].keys[0];
+					if (keycode == 0) 
+					{
+						parent.parent.mcmCodeObj.ClearKeybind(modName, keybindID);
+					}
+					else 
+					{
+						var modifiers: int = EntriesA[_arg_1.target.itemIndex].keys[1];
+						var keyobj: Object = parent.parent.mcmCodeObj.GetKeybind(modName, keybindID);
+						if (keyobj.keycode != 0) 
+						{
+							parent.parent.mcmCodeObj.RemapKeybind(modName, keybindID, keycode, modifiers);
+						}
+						else 
+						{
+							var keybindName: String = EntriesA[_arg_1.target.itemIndex].text;
+
+							var params: Array = new Array();
+							var actionType: int;
+							switch (EntriesA[_arg_1.target.itemIndex].hotkeyAction["type"]) 
+							{
+								case "CallQuestFunction":
+									actionType = 0;
+									params.push(EntriesA[_arg_1.target.itemIndex].hotkeyAction["quest"]);
+									params.push(EntriesA[_arg_1.target.itemIndex].hotkeyAction["function"]);
+								break;
+								case "CallGlobalFunction":
+									actionType = 1;
+									params.push(EntriesA[_arg_1.target.itemIndex].hotkeyAction["script"]);
+									params.push(EntriesA[_arg_1.target.itemIndex].hotkeyAction["function"]);
+								break;
+								case "RunConsoleCommand":
+									actionType = 2;
+									params.push(EntriesA[_arg_1.target.itemIndex].hotkeyAction["command"]);
+								break;
+								default:
+							}
+							parent.parent.mcmCodeObj.SetKeybind(modName, keybindID, keybindName, keycode, modifiers, actionType, params);
+						}
+					}
+				}
+				catch (e:Error)
+				{
+					trace("Failed to handle Keybind");
+				}
+			}
 			if (EntriesA[_arg_1.target.itemIndex].action)
 			{
 				switch (EntriesA[_arg_1.target.itemIndex].action.type)
@@ -185,12 +238,14 @@ package mcm
 					}
 					if (_arg_2.keys != undefined)
 					{
-						if (_arg_2.valueOptions.allowModifierKeys) 
+						if (_arg_2.valueOptions != undefined && _arg_2.valueOptions.allowModifierKeys) 
 						{
-							_local_3.SetOptionKeyInput(_arg_2.keys,_arg_2.valueOptions.allowModifierKeys);	
+							//_local_3.SetOptionKeyInput(_arg_2.keys,_arg_2.valueOptions.allowModifierKeys,_arg_2.modName,_arg_2.id);
+							_local_3.SetOptionKeyInput(_arg_2.keys, _arg_2.valueOptions.allowModifierKeys);
 						} else 
 						{
-							_local_3.SetOptionKeyInput(_arg_2.keys,0);							
+							//_local_3.SetOptionKeyInput(_arg_2.keys,0,_arg_2.modName,_arg_2.id);
+							_local_3.SetOptionKeyInput(_arg_2.keys,0);	
 						}
 					}
 					;

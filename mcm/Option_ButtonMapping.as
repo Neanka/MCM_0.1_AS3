@@ -20,6 +20,12 @@
 		public static const KEY_RCTRL:int = 163;
 		public static const KEY_LALT:int = 164;
 		public static const KEY_RALT:int = 165;
+		public static const KEY_NONE:int = 0;
+		
+		public static const MODIFIER_SHIFT:int = (1 << 0);
+		public static const MODIFIER_CONTROL:int = (1 << 1);
+		public static const MODIFIER_ALT:int = (1<<2);
+		
 		
 		public var _shiftpressed:Boolean = false;
 		public var _ctrlpressed:Boolean = false;
@@ -28,8 +34,11 @@
 		
 		public var PCKey_tf:TextField;
 		public var allowModifierKeys:int = 0;
+		public var modName:String = "";
+		public var id:String = "";
 		private var DelayTimer:Timer;
 		private var KeysArray:Array;
+		//private var _changed: Boolean = false;
 		
 		public function Option_ButtonMapping()
 		{
@@ -41,20 +50,37 @@
 		{
 			this.DelayTimer.reset();
 			stage.getChildAt(0)["Menu_mc"]["bRemapMode"] = false;
-			dispatchEvent(new Event(END_INPUT, true, true));
-			dispatchEvent(new Event(VALUE_CHANGE, true, true));
 		}
 		
 		public function onItemPressed()
 		{
 			stage.getChildAt(0)["Menu_mc"]["bRemapMode"] = true;
 			dispatchEvent(new Event(START_INPUT, true, true));
+			_shiftpressed = false;
+			_altpressed = false;
+			_ctrlpressed = false;
 		}
 		
 		public function ProcessKeyEvent(keyCode:int, isDown:Boolean):void
 		{
-			if (keyCode == Keyboard.ESCAPE || keyCode == Keyboard.TAB && !isDown) 
+			if (keyCode == Keyboard.ESCAPE && !isDown) 
 			{
+				dispatchEvent(new Event(END_INPUT, true, true));
+				DelayTimer.start();
+				return;
+			}
+			var temparray: Array = new Array();
+			if (keyCode == Keyboard.TAB && !isDown) 
+			{
+				if (keys[0] != 0) 
+				{
+					temparray.push(0);
+					temparray.push(0);
+					//_changed = true;
+					keys = temparray;
+					dispatchEvent(new Event(VALUE_CHANGE, true, true));
+				}
+				dispatchEvent(new Event(END_INPUT, true, true));
 				DelayTimer.start();
 				return;
 			}
@@ -84,22 +110,25 @@
 				default: 
 					if (!isDown) 
 					{
-						var temparray: Array = new Array();
+						var modifiers: uint = 0;
 						if (_shiftpressed) 
 						{
-							temparray.push(Keyboard.SHIFT);
+							modifiers |= MODIFIER_SHIFT;
 						}
 						if (_ctrlpressed) 
 						{
-							temparray.push(Keyboard.CONTROL);
+							modifiers |= MODIFIER_CONTROL;
 						}
 						if (_altpressed) 
 						{
-							temparray.push(Keyboard.ALTERNATE);
+							modifiers |= MODIFIER_ALT;
 						}
 						temparray.push(keyCode);
-						//setKeys(temparray);
+						temparray.push(modifiers);
+						//_changed = true;
 						keys = temparray;
+						dispatchEvent(new Event(END_INPUT, true, true));
+						dispatchEvent(new Event(VALUE_CHANGE, true, true));
 						DelayTimer.start();
 					}
 				}
@@ -108,13 +137,16 @@
 			{
 				if (!isDown)
 				{
-					var temparray2: Array = new Array();
-					temparray2.push(keyCode);
-					keys = temparray2;
+					temparray.push(keyCode);
+					temparray.push(0);
+					//_changed = true;
+					keys = temparray;
+					dispatchEvent(new Event(END_INPUT, true, true));
+					dispatchEvent(new Event(VALUE_CHANGE, true, true));
 					DelayTimer.start();
 				}
 			}
-			//
+			// TODO check if already in use
 		}
 		
 		public function get keys():Array
@@ -130,19 +162,48 @@
 		
 		private function RefreshText()
 		{
-			var tempText:String = "";
-			for (var key in KeysArray)
+			/*if (modName != "" && id != "" && !_changed) 
 			{
-				tempText += keytostring(KeysArray[key]);
-				if (key < KeysArray.length - 1)
+				try 
 				{
-					tempText += "-";
+					var tempobj = MCM_Menu.instance.mcmCodeObj.GetKeybind(modName, id);
+					if (tempobj) 
+					{
+						KeysArray[0] = tempobj.keycode;
+						KeysArray[1] = tempobj.modifiers;
+					}
+					else 
+					{
+						KeysArray[0] = 0;
+						KeysArray[1] = 0;
+					}
 				}
-				else
+				catch (err:Error)
 				{
-					tempText += ")";
+					trace("Failed to GetKeybind");
+				}
+			}*/
+			//_changed = false;
+
+			var tempText:String = "";
+			if (KeysArray.length>1) 
+			{
+				var modifiers: uint = KeysArray[1];
+				if ((modifiers & MODIFIER_SHIFT) != 0) 
+				{
+					tempText += keytostring(Keyboard.SHIFT)+"-";
+				}
+				if ((modifiers & MODIFIER_CONTROL) != 0) 
+				{
+					tempText += keytostring(Keyboard.CONTROL)+"-";
+				}
+				if ((modifiers & MODIFIER_ALT) != 0) 
+				{
+					tempText += keytostring(Keyboard.ALTERNATE)+"-";
 				}
 			}
+
+			tempText += keytostring(KeysArray[0])+")";
 			this.PCKey_tf.text = tempText;
 		}
 		
@@ -443,6 +504,9 @@
 				break;
 			case Keyboard.ENTER: 
 				return "Enter";
+				break;
+			case KEY_NONE: 
+				return "None";
 				break;
 			default: 
 				return "";

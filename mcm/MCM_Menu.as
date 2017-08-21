@@ -28,6 +28,9 @@ package mcm
 		private static var _instance:mcm.MCM_Menu;
 		public var selectedPage: int;
 		public var swfsobject: Object = new Object;
+		private var modsNum: int = 0;
+		private var modsCount: int = 0;
+		private var hotkeyManagerList: Array = new Array();
 		
 		public function MCM_Menu()
 		{
@@ -96,7 +99,8 @@ package mcm
 				try
 				{
 					var jsonsArray:Array = root.f4se.GetDirectoryListing("Data/MCM/Config", "*.json", recursive = false);
-					if (jsonsArray.length == 0)
+					modsNum = jsonsArray.length;
+					if (modsNum == 0)
 					{
 						this.HelpPanel_mc.HelpList_mc.entryList.push({text: "No supported mods installed"})
 						this.HelpPanel_mc.HelpList_mc.InvalidateData();
@@ -108,10 +112,12 @@ package mcm
 							JSONLoader("../../" + jsonsArray[i]["nativePath"]);
 						}
 					}
+					trace("JSON LOADED");
 				}
 				catch (e:Error)
 				{
 					trace("Failed to GetDirectoryListing for JSON");
+					modsNum = 4;
 					JSONLoader("../../Data/MCM/Config/testmod.json");
 					JSONLoader("../../Data/MCM/Config/testmod2.json");
 					JSONLoader("../../Data/MCM/Config/testmod3.json");
@@ -147,7 +153,7 @@ package mcm
 				"type": "text"
 			});
 			temparray.push({
-				"text": "VERSION 0.5",
+				"text": "VERSION "+String(GetVersionCode()),
 				"align": "center",
 				"type": "text"
 			});
@@ -230,7 +236,12 @@ package mcm
 				{
 					this.configPanel_mc.configList_mc.entryList = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj;
 					this.configPanel_mc.configList_mc.filterer.itemFilter = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj["filterFlagControl"];
-				} else 
+				} else if (this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].hotkeyManager) 
+				{
+					populateHotkeyArray();
+					this.configPanel_mc.configList_mc.entryList = processDataObj(hotkeyManagerList,"Hotkey manager");
+					this.configPanel_mc.configList_mc.filterer.itemFilter = uint.MAX_VALUE;
+				} else
 				{
 					this.configPanel_mc.configList_mc.entryList = new Array();
 					this.configPanel_mc.configList_mc.filterer.itemFilter = uint.MAX_VALUE;
@@ -307,7 +318,7 @@ package mcm
 			{
 				try
 				{
-					if (uint(dataObj["mcmVersion"]) != GetVersionCode()) 
+					if (Number(dataObj["mcmVersion"]) != Number(GetVersionCode()))
 					{
 						mcmstatus = false;
 					}
@@ -360,7 +371,7 @@ package mcm
 				});
 				}
 				this.HelpPanel_mc.HelpList_mc.entryList.push({
-					dataobj: processDataObj(temparray), 
+					dataobj: processDataObj(temparray, dataObj["modName"]), 
 					text: dataObj["modName"], 
 					modName: dataObj["modName"], 
 					filterFlag: 1,
@@ -368,12 +379,13 @@ package mcm
 					reqsStatus: 1
 				});
 				this.HelpPanel_mc.HelpList_mc.InvalidateData();
+				checkModsLoad();
 				return;
 			}
 			if (dataObj["content"]) 
 			{
 			this.HelpPanel_mc.HelpList_mc.entryList.push({
-				dataobj: processDataObj(dataObj["content"]), 
+				dataobj: processDataObj(dataObj["content"], dataObj["modName"]), 
 				text: dataObj["modName"], 
 				modName: dataObj["modName"], 
 				filterFlag: 1,
@@ -394,8 +406,9 @@ package mcm
 			for (var i in dataObj["pages"]) 
 			{
 				this.HelpPanel_mc.HelpList_mc.entryList.push({
-					dataobj: processDataObj(dataObj["pages"][i]["content"]), 
-					text: dataObj["pages"][i].pageName, 
+					dataobj: processDataObj(dataObj["pages"][i]["content"], dataObj["modName"]), 
+					text: dataObj["pages"][i].pageName,
+					modName: dataObj["modName"], 
 					ownerModName: dataObj["modName"], 
 					filterFlag: 2,
 					pageSelected: false
@@ -403,17 +416,22 @@ package mcm
 			}
 
 			this.HelpPanel_mc.HelpList_mc.InvalidateData();
+			checkModsLoad();
 			
 			//this.HelpPanel_mc.HelpList_mc.selectedIndex = 0;
 			//onListItemPress(null);
 		
 		}
 		
-		private function processDataObj(dataObj:Object):Object
+		private function processDataObj(dataObj:Object, modName:String = "MCM"):Object
 		{
 			var tempObj:Object = dataObj;
 			for (var num in tempObj)
 			{
+				if (!tempObj[num].modName) 
+				{
+					tempObj[num].modName = modName;
+				}
 				if (tempObj[num]["action"])
 				{
 					switch (tempObj[num]["action"]["type"])
@@ -493,6 +511,34 @@ package mcm
 				case "image": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_IMAGE;
 					break;
+				case "hotkey": 
+					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_HOTKEY;
+					try 
+					{
+						var tempobj: Object = mcmCodeObj.GetKeybind(tempObj[num].modName, tempObj[num].id);
+						//trace("==============");
+						//trace(tempObj[num].modName);
+						//trace(tempObj[num].id);
+						//traceObj(tempobj);
+						//trace("==============");
+						var temparr: Array = new Array();
+						if (tempobj) 
+						{
+							temparr.push(tempobj.keycode);
+							temparr.push(tempobj.modifiers);
+						}
+						else 
+						{
+							temparr.push(0);
+							temparr.push(0);
+						}
+						tempObj[num].keys = temparr;
+					}
+					catch (err:Error)
+					{
+						trace("Failed to GetKeybind");
+					}
+					break;
 				default: 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE;
 					break;
@@ -553,7 +599,108 @@ package mcm
 			tempObj.filterFlagControl = uint.MAX_VALUE;
 			return tempObj;
 		}
+	
+		private function checkModsLoad():void 
+		{
+			modsCount += 1;
+			if (modsCount == modsNum) 
+			{
+				onAllModsLoad();
+			}	
+		}
 		
+		private function onAllModsLoad():void 
+		{
+			trace(modsCount + "/" + modsNum + " mods loaded");
+			this.HelpPanel_mc.HelpList_mc.entryList.push({
+				dataobj: null, 
+				text: "$Hotkey manager", 
+				modName: "Hotkey manager",
+				hotkeyManager: true,
+				filterFlag: 1,
+				pageSelected: false
+				
+			});
+			this.HelpPanel_mc.HelpList_mc.InvalidateData();
+		}
+		
+		public function populateHotkeyArray():void 
+		{
+			hotkeyManagerList = new Array();
+			var tempmodname: String = "";
+			try 
+			{
+				var temparray: Array = mcmCodeObj.GetAllKeybinds();	
+				trace("===========trace all keybinds=========");
+				traceObj(temparray);
+				trace("EOF ===========trace all keybinds=========");
+				if (temparray.length == 0) 
+				{
+					hotkeyManagerList.push({
+						"type": "text",
+						"text": "$There are no active hotkeys."
+					});
+				}
+				else 
+				{
+					temparray.sortOn(["modName"]);					
+					for each (var obj in temparray) 
+					{
+						if (obj.modName != tempmodname) 
+						{
+							if (tempmodname != "") 
+							{
+								hotkeyManagerList.push({
+									"type": "empty"
+								});
+							}
+							tempmodname = obj.modName;
+							hotkeyManagerList.push({
+								"type": "section",
+								"text": tempmodname
+							});
+						}
+						var tempObject: Object = {
+							"type": "hotkey",
+							"modName": obj.modName,
+							"text": obj.keybindName,
+							"id": obj.keybindID,
+							"help": "",
+							"hotkeyAction":{}
+						};
+						switch (obj.type) 
+						{
+							case 0:
+								tempObject["hotkeyAction"] = {
+									"type": "CallQuestFunction",
+									"quest": obj.targetForm,
+									"function": obj.callbackName
+								}
+							break;
+							case 1:
+								tempObject["hotkeyAction"] = {
+									"type": "CallGlobalFunction",
+									"script": obj.targetForm,
+									"function": obj.callbackName
+								}
+							break;
+							case 2:
+								tempObject["hotkeyAction"] = {
+									"type": "RunConsoleCommand",
+									"command": obj.callbackName
+								}
+							break;
+							default:
+						}
+						hotkeyManagerList.push(tempObject);
+					}
+				}
+			}
+			catch (err:Error)
+			{
+				trace("Failed to GetAllKeybinds");
+			}
+		}
 		// *********************************
 		// =========== UTILITIES ===========
 		// *********************************
@@ -581,9 +728,9 @@ package mcm
 			trace("[MCM_Menu] " + str);
 		}
 		
-		private function GetVersionCode():uint
+		private function GetVersionCode():String
 		{
-			return 1;
+			return mcmCodeObj.GetMCMVersion();
 		}
 	
 	}

@@ -33,6 +33,7 @@ package mcm
 		public static const MOVIETYPE_BUTTON:int = 7;
 		public static const MOVIETYPE_KEYINPUT:int = 8;
 		public static const MOVIETYPE_IMAGE:int = 9;
+		public static const MOVIETYPE_HOTKEY:int = 10;
 
 
         private var OptionItem:MovieClip;
@@ -93,6 +94,9 @@ package mcm
                     this.OptionItem = new mcm.Option_Text();
                     break;
                 case MOVIETYPE_KEYINPUT:
+                    this.OptionItem = new mcm.Option_ButtonMapping();
+                    break;
+                case MOVIETYPE_HOTKEY:
                     this.OptionItem = new mcm.Option_ButtonMapping();
                     break;
 				default:
@@ -190,12 +194,21 @@ package mcm
             };
         }
 		
-        public function SetOptionKeyInput(_arg_1:Array, arg2:int)
+      //  public function SetOptionKeyInput(_arg_1:Array, arg2:int, arg3: String, arg4: String)
+		public function SetOptionKeyInput(_arg_1:Array, arg2:int)
         {
             if (this.uiMovieType == MOVIETYPE_KEYINPUT)
             {
                 (this.OptionItem as mcm.Option_ButtonMapping).keys = _arg_1;
 				(this.OptionItem as mcm.Option_ButtonMapping).allowModifierKeys = arg2;
+            };
+            if (this.uiMovieType == MOVIETYPE_HOTKEY)
+            {
+                (this.OptionItem as mcm.Option_ButtonMapping).keys = _arg_1;
+				(this.OptionItem as mcm.Option_ButtonMapping).allowModifierKeys = arg2;
+				//(this.OptionItem as mcm.Option_ButtonMapping).modName = arg3;
+				//(this.OptionItem as mcm.Option_ButtonMapping).id = arg4;
+				//(this.OptionItem as mcm.Option_ButtonMapping).RefreshText();
             };
         }		
 
@@ -327,6 +340,9 @@ package mcm
 						dispatchEvent(new Event(BUTTON_PRESSED, true, true));
                         return;
                     case MOVIETYPE_KEYINPUT:
+                        (this.OptionItem as mcm.Option_ButtonMapping).onItemPressed();
+                        return;
+                    case MOVIETYPE_HOTKEY:
                         (this.OptionItem as mcm.Option_ButtonMapping).onItemPressed();
                         return;
                 };
