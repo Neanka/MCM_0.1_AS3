@@ -32,6 +32,8 @@
 		public var _altpressed:Boolean = false;
 		public var _epressed:Boolean = false;
 		
+		public var type:int;
+		
 		public var PCKey_tf:TextField;
 		public var allowModifierKeys:int = 0;
 		public var modName:String = "";
@@ -126,10 +128,8 @@
 						temparray.push(keyCode);
 						temparray.push(modifiers);
 						//_changed = true;
-						keys = temparray;
-						dispatchEvent(new Event(END_INPUT, true, true));
-						dispatchEvent(new Event(VALUE_CHANGE, true, true));
-						DelayTimer.start();
+						StartConfirm(temparray);
+
 					}
 				}
 			}
@@ -140,14 +140,65 @@
 					temparray.push(keyCode);
 					temparray.push(0);
 					//_changed = true;
-					keys = temparray;
-					dispatchEvent(new Event(END_INPUT, true, true));
-					dispatchEvent(new Event(VALUE_CHANGE, true, true));
-					DelayTimer.start();
+					StartConfirm(temparray);
 				}
 			}
 			// TODO check if already in use
 		}
+		
+		private function StartConfirm(temparray:Array):void 
+		{
+			dispatchEvent(new Event(END_INPUT, true, true));
+			DelayTimer.start();
+			if (this.type == mcm.SettingsOptionItem.MOVIETYPE_KEYINPUT) 
+			{
+				EndConfirm(temparray);
+			}
+			else 
+			{
+				try 
+				{
+					var tempobj = MCM_Menu.instance.mcmCodeObj.GetKeybind(int(temparray[0]), int(temparray[1]));
+					if (tempobj) 
+					{
+						if (tempobj.modName == this.modName && tempobj.keybindID == this.id) {
+							EndConfirm(temparray);
+						}
+						else 
+						{
+							switch (tempobj.keybindType) 
+							{
+								case 0:
+									EndConfirm(temparray);
+								break;
+								case 1:
+								EndConfirm(temparray);
+									MCM_Menu.instance.configPanel_mc.hotkey_conflict_mc.Open(1,temparray,tempobj.modName,tempobj.keybindName,this);
+								break;
+								case 2:
+								EndConfirm(temparray);
+								MCM_Menu.instance.configPanel_mc.hotkey_conflict_mc.Open(2,temparray,tempobj.modName,tempobj.keybindName,this);
+								break;
+								default:
+							}	
+						}
+					}
+				}
+				catch (err:Error)
+				{
+					trace("Failed to GetKeybind");
+				}
+			}
+
+
+		}
+		
+		private function EndConfirm(temparray:Array):void 
+		{
+						keys = temparray;
+						dispatchEvent(new Event(VALUE_CHANGE, true, true));
+		}
+
 		
 		public function get keys():Array
 		{

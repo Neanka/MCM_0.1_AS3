@@ -13,6 +13,7 @@
 		public var HelpPanelBrackets_mc:MovieClip;
 		public var hint_tf: TextField;
 		public var DD_popup_mc:mcm.DD_popup_window;
+		public var hotkey_conflict_mc: mcm.hotkey_conflict_window;
 		
 		public function ConfigPanel() {
             Extensions.enabled = true;

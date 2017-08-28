@@ -194,9 +194,10 @@ package mcm
             };
         }
 		
-      //  public function SetOptionKeyInput(_arg_1:Array, arg2:int, arg3: String, arg4: String)
-		public function SetOptionKeyInput(_arg_1:Array, arg2:int)
+        public function SetOptionKeyInput(_arg_1:Array, arg2:int, arg3: String, arg4: String)
+	//	public function SetOptionKeyInput(_arg_1:Array, arg2:int)
         {
+			(this.OptionItem as mcm.Option_ButtonMapping).type = this.uiMovieType;
             if (this.uiMovieType == MOVIETYPE_KEYINPUT)
             {
                 (this.OptionItem as mcm.Option_ButtonMapping).keys = _arg_1;
@@ -206,8 +207,8 @@ package mcm
             {
                 (this.OptionItem as mcm.Option_ButtonMapping).keys = _arg_1;
 				(this.OptionItem as mcm.Option_ButtonMapping).allowModifierKeys = arg2;
-				//(this.OptionItem as mcm.Option_ButtonMapping).modName = arg3;
-				//(this.OptionItem as mcm.Option_ButtonMapping).id = arg4;
+				(this.OptionItem as mcm.Option_ButtonMapping).modName = arg3;
+				(this.OptionItem as mcm.Option_ButtonMapping).id = arg4;
 				//(this.OptionItem as mcm.Option_ButtonMapping).RefreshText();
             };
         }		
@@ -260,7 +261,14 @@ package mcm
 						tf.align = _arg_1.align;
 						(this.OptionItem as mcm.Option_Text).textArea.defaultTextFormat = tf; 
 					}
-					(this.OptionItem as mcm.Option_Text).textArea.text = _arg_1.text;
+					if (_arg_1.html) 
+					{
+						GlobalFunc.SetText((this.OptionItem as mcm.Option_Text).textArea,_arg_1.text,true);
+					}
+					else 
+					{
+						GlobalFunc.SetText((this.OptionItem as mcm.Option_Text).textArea,_arg_1.text,false);
+					}
 					(this.OptionItem as mcm.Option_Text).textArea.height = (this.OptionItem as mcm.Option_Text).textArea.textHeight + 4;
 					
 					return;

@@ -41,7 +41,7 @@
 			savedMenuProperties.HelpPanelBackground_Width = MainMenu.BackgroundAndBracketsHelpTopic_mc.width;
 			
 			MainMenu["MainPanel_mc"].List_mc.entryList.unshift({
-				"text":"MOD CONFIG",
+				"text":"$MOD CONFIG",
 				"index":100
 			});
 			MainMenu["MainPanel_mc"].List_mc.InvalidateData();

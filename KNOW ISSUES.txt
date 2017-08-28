@@ -1,0 +1,3 @@
+dont place text or image with non standart entry height after 15th entry from end. need to tune calculate max scroll positin for bsscrollinglist1
+
+TODO: apply filterflag on load
