@@ -122,11 +122,11 @@ package mcm
 				catch (e:Error)
 				{
 					trace("Failed to GetDirectoryListing for JSON");
-					modsNum = 4;
+					modsNum = 3;
 					JSONLoader("../../Data/MCM/Config/test_mcm/config.json");
 					JSONLoader("../../Data/MCM/Config/testmod2/config.json");
 					//JSONLoader("../../Data/MCM/Config/testmod3/config.json");
-					JSONLoader("../../Data/MCM/Config/testmod33/config.json");
+					JSONLoader("../../Data/MCM/Config/dummy_mod/config.json");
 				}
 				
 				break;
@@ -260,10 +260,10 @@ package mcm
 				switch (this.configPanel_mc.hotkey_conflict_mc.confirmlist_mc.selectedIndex)
 				{
 				case 0:
-					
+					this.configPanel_mc.hotkey_conflict_mc.Close(false);
 					break;
 				case 1: 
-					this.configPanel_mc.hotkey_conflict_mc.Close(false);
+					this.configPanel_mc.hotkey_conflict_mc.Close(true);
 					break;
 				default: 
 				}
@@ -344,7 +344,7 @@ package mcm
 			{
 				try
 				{
-					if (Number(dataObj["minMcmVersion"]) != Number(GetVersionCode()))
+					if (Number(dataObj["minMcmVersion"]) > Number(GetVersionCode()))
 					{
 						mcmstatus = false;
 					}
@@ -362,7 +362,7 @@ package mcm
 				temparray.push({"type": "empty"});
 				if ((reqsstatus.length > 0))
 				{
-					temparray.push({"text": "Missing plugins:", "align": "center", "type": "text"});
+					temparray.push({"text": Translator("$Missing plugins:"), "align": "center", "type": "text"});
 					for (var count in reqsstatus)
 					{
 						temparray.push({"text": String(count + 1) + ". " + reqsstatus[count], "align": "center", "type": "text"});
@@ -372,7 +372,7 @@ package mcm
 				
 				if (!mcmstatus)
 				{
-					temparray.push({"text": "Wrong MCM version: " + String(GetVersionCode()) + " (required: " + dataObj["minMcmVersion"] + ")", "align": "center", "type": "text"});
+					temparray.push({"text": Translator("$Wrong MCM version:")+" " + String(GetVersionCode()) + " ("+Translator("$required:")+" " + dataObj["minMcmVersion"] + ")", "align": "center", "type": "text"});
 				}
 				this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(temparray, dataObj["modName"]), text: displayName, modName: dataObj["modName"], filterFlag: 1, pageSelected: false, reqsStatus: 1});
 				this.HelpPanel_mc.HelpList_mc.InvalidateData();
@@ -406,6 +406,7 @@ package mcm
 		
 		private function processDataObj(dataObj:Object, modName:String = "MCM"):Object
 		{
+			var filterFlagControl: uint = uint.MAX_VALUE;
 			var tempObj:Object = dataObj;
 			for (var num in tempObj)
 			{
@@ -413,37 +414,77 @@ package mcm
 				{
 					tempObj[num].modName = modName;
 				}
-				if (tempObj[num]["action"])
+				if (tempObj[num]["valueOptions"])
 				{
-					switch (tempObj[num]["action"]["type"])
+					if (tempObj[num]["valueOptions"]["sourceType"])
 					{
-					case "GlobalValue": 
-						try
+						switch (tempObj[num]["valueOptions"]["sourceType"]) 
 						{
-							tempObj[num].value = mcmCodeObj.GetGlobalValue(tempObj[num]["action"]["params"]);
+						case "ModSettingBool":
+							try
+							{
+								tempObj[num].value = mcmCodeObj.GetModSettingBool(tempObj[num].modName, tempObj[num]["id"])?1:0;
+								if (tempObj[num]["groupcontrol"]) 
+								{
+									if (tempObj[num].value == 0) 
+									{
+										filterFlagControl = filterFlagControl & ~Math.pow(2, tempObj[num]["groupcontrol"]);
+									}
+								}
+							}
+							catch (e:Error)
+							{
+								tempObj[num].value = 0;
+								trace("Failed to GetModSettingBool");
+							}
+							break;
+						case "GlobalValue": 
+							try
+							{
+								tempObj[num].value = mcmCodeObj.GetGlobalValue(tempObj[num]["valueOptions"]["sourceForm"]);
+							}
+							catch (e:Error)
+							{
+								tempObj[num].value = 0;
+								trace("Failed to GetGlobalValue");
+							}
+							break;
+						case "ModSettingString": 
+							try
+							{
+								tempObj[num].valueString = mcmCodeObj.GetModSettingString(tempObj[num].modName, tempObj[num]["id"]);
+							}
+							catch (e:Error)
+							{
+								tempObj[num].valueString = " ";
+								trace("Failed to GetModSettingString");
+							}
+							break;
+						case "ModSettingInt": 
+							try
+							{
+								tempObj[num].value = mcmCodeObj.GetModSettingInt(tempObj[num].modName, tempObj[num]["id"]);
+							}
+							catch (e:Error)
+							{
+								tempObj[num].value = 0;
+								trace("Failed to GetModSettingInt");
+							}
+							break;
+						case "ModSettingFloat": 
+							try
+							{
+								tempObj[num].value = mcmCodeObj.GetModSettingFloat(tempObj[num].modName, tempObj[num]["id"]);
+							}
+							catch (e:Error)
+							{
+								tempObj[num].value = 0.0;
+								trace("Failed to GetModSettingFloat");
+							}
+							break;
+							default:
 						}
-						catch (e:Error)
-						{
-							tempObj[num].value = 0;
-							trace("Failed to GetGlobalValue");
-						}
-						break;
-					case "ModSettingString": 
-						try
-						{
-							tempObj[num].valueString = mcmCodeObj.GetModSettingString(tempObj[num]["action"]["modName"], tempObj[num]["action"]["settingName"]);
-						}
-						catch (e:Error)
-						{
-							tempObj[num].valueString = " ";
-							trace("Failed to GetModSettingString");
-						}
-						break;
-					default: 
-						tempObj[num].value = 5; // temp value just for test
-						break;
 					}
-					
 				}
 				
 				switch (tempObj[num]["type"])
@@ -453,7 +494,7 @@ package mcm
 					break;
 				case "stepper": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_STEPPER;
-					tempObj[num].options = tempObj[num]["valueOptions"];
+					tempObj[num].options = tempObj[num]["valueOptions"]["options"];
 					break;
 				case "slider": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_SCROLLBAR;
@@ -469,7 +510,7 @@ package mcm
 					break;
 				case "dropdown": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_DROPDOWN;
-					tempObj[num].options = tempObj[num]["valueOptions"];
+					tempObj[num].options = tempObj[num]["valueOptions"]["options"];
 					break;
 				case "text": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_TEXT;
@@ -479,15 +520,7 @@ package mcm
 					break;
 				case "keyinput": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_KEYINPUT;
-					tempObj[num].defaultkeys = tempObj[num]["valueOptions"]["default"];
-					if (!tempObj[num].valueString || tempObj[num].valueString == " ")
-					{
-						tempObj[num].keys = tempObj[num].defaultkeys
-					}
-					else
-					{
-						tempObj[num].keys = tempObj[num].valueString.split(",");
-					}
+					tempObj[num].keys = tempObj[num].valueString.split(",");
 					break;
 				case "image": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_IMAGE;
@@ -568,11 +601,8 @@ package mcm
 					tempObj[num].filterOperator = "OR";
 					tempObj[num].filterFlag = 1;
 				}
-				
-					//traceObj(tempObj[num]);
-				
 			}
-			tempObj.filterFlagControl = uint.MAX_VALUE;
+			tempObj.filterFlagControl = filterFlagControl;
 			return tempObj;
 		}
 		
@@ -587,7 +617,7 @@ package mcm
 		
 		private function onAllModsLoad():void
 		{
-			trace(modsCount + "/" + modsNum + " mods loaded");
+			trace(modsCount + "/" + modsNum + " mod configs loaded");
 			this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: null, text: "$Hotkey manager", modName: "Hotkey manager", hotkeyManager: true, filterFlag: 1, pageSelected: false
 			
 			});
@@ -623,30 +653,6 @@ package mcm
 							hotkeyManagerList.push({"type": "section", "text": tempmodname});
 						}
 						var tempObject:Object = {"type": "hotkey", "modName": obj.modName, "text": obj.keybindName, "id": obj.keybindID, "help": "", "hotkeyAction": {}};
-						/*	switch (obj.type)
-						   {
-						   case 0:
-						   tempObject["hotkeyAction"] = {
-						   "type": "CallQuestFunction",
-						   "quest": obj.targetForm,
-						   "function": obj.callbackName
-						   }
-						   break;
-						   case 1:
-						   tempObject["hotkeyAction"] = {
-						   "type": "CallGlobalFunction",
-						   "script": obj.targetForm,
-						   "function": obj.callbackName
-						   }
-						   break;
-						   case 2:
-						   tempObject["hotkeyAction"] = {
-						   "type": "RunConsoleCommand",
-						   "command": obj.callbackName
-						   }
-						   break;
-						   default:
-						   }*/
 						hotkeyManagerList.push(tempObject);
 					}
 				}

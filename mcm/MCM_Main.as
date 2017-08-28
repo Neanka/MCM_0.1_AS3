@@ -2,6 +2,7 @@
 	
 	import flash.display.MovieClip;
 	import flash.events.Event;
+	import flash.events.FocusEvent;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	import flash.utils.getQualifiedClassName;
@@ -60,12 +61,19 @@
 			}
 		}
 		
+        private function focusInHandler(event:FocusEvent):void {
+			stage.getChildAt(0).f4se.SendExternalEvent("OnMCMClose");
+            MainMenu["MainPanel_mc"].List_mc.removeEventListener(FocusEvent.FOCUS_IN,focusInHandler);
+        }
+		
 		private function itemPressedHandler(e:Event):void {
 			switch (MainMenu.MainPanel_mc.List_mc.selectedEntry.index) {
 				case 100:
+					stage.getChildAt(0).f4se.SendExternalEvent("OnMCMOpen");
+					MainMenu["MainPanel_mc"].List_mc.addEventListener(FocusEvent.FOCUS_IN,focusInHandler);
 					// Mod Config
 					log("Mod config selected.");
-					
+					//MainMenu.MainPanel_mc.addEventListener(
 					// TEST
 					//log("Get Global Value [GameHour]: " + mcmCodeObj.GetGlobalValue("Fallout4.esm|38"));
 					//mcmCodeObj.SetGlobalValue("Fallout4.esm|38", Number(0));	// Set gamehour to 0
@@ -81,7 +89,7 @@
 					// Prepare target surface
 					MainMenu.BackgroundAndBrackets_mc.DLCPanelBrackets_mc.getChildAt(0).visible = false;	// Hide existing brackets
 					MainMenu.BackgroundAndBrackets_mc.DLCPanelBrackets_mc.addChild(mcmMenu);				// Auto-tint
-					MainMenu.BackgroundAndBrackets_mc.DLCPanelBrackets_mc.x = -250;
+					MainMenu.BackgroundAndBrackets_mc.DLCPanelBrackets_mc.x = -335;
 					MainMenu.BackgroundAndBrackets_mc.DLCPanelBrackets_mc.y = -250;
 					MainMenu.BackgroundAndBrackets_mc.DLCPanelBrackets_mc.visible = true;
 					
@@ -91,7 +99,7 @@
 					MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.x = localCoords.x;
 					MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.y = localCoords.y;
 					MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.height = mcmMenu.configPanel_mc.height;
-					MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.width = mcmMenu.configPanel_mc.width - 3;  // Padding
+					MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.width = mcmMenu.configPanel_mc.width - 25;  // Padding (-25 for confirm list positioning)
 					
 					MainMenu.BGSCodeObj.SetBackgroundVisible(uint(1), true);								// SECOND_PANEL_BACKGROUND
 					

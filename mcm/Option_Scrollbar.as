@@ -81,7 +81,10 @@ package mcm
 
         public function set value(_arg_1:Number)
         {
-            this.fValue = Math.min(Math.max(_arg_1, this.fMinValue), this.fMaxValue);
+			var atemp:Number = Math.min(Math.max(_arg_1, this.fMinValue), this.fMaxValue); //TODO: Tune math.round position in whole script
+			atemp = Math.round(atemp / fStepSize) * fStepSize;
+			this.fValue = atemp;
+            //this.fValue = Math.min(Math.max(_arg_1, this.fMinValue), this.fMaxValue);
             var _local_2:* = ((this.fValue - this.fMinValue) / (this.fMaxValue - this.fMinValue));
             this.Thumb_mc.x = (this.fMinThumbX + (_local_2 * (this.fMaxThumbX - this.fMinThumbX)));
 			val_tf.text = String(this.fValue);
@@ -127,9 +130,10 @@ package mcm
                 {
                     if (_arg_1.target == this.BarCatcher_mc)
                     {
-						var atemp:Number = ((_arg_1.currentTarget.mouseX / this.BarCatcher_mc.width) * (this.fMaxValue - this.fMinValue));
-						atemp = Math.round(atemp / fStepSize) * fStepSize;
-						this.value = atemp;
+						//var atemp:Number = ((_arg_1.currentTarget.mouseX / this.BarCatcher_mc.width) * (this.fMaxValue - this.fMinValue));
+						//atemp = Math.round(atemp / fStepSize) * fStepSize;
+						//this.value = atemp;
+						this.value = (_arg_1.currentTarget.mouseX / this.BarCatcher_mc.width) * (this.fMaxValue - this.fMinValue);
                         dispatchEvent(new Event(VALUE_CHANGE, true, true));
                     };
                 };
@@ -151,13 +155,14 @@ package mcm
 			if (newValue != this.fOldValue) 
 			{
 				this.value = newValue;
-			    dispatchEvent(new Event(VALUE_CHANGE, true, true));
+			    //dispatchEvent(new Event(VALUE_CHANGE, true, true));
 			}
         }
 
         private function onThumbMouseUp(_arg_1:MouseEvent)
         {
             this.Thumb_mc.stopDrag();
+			dispatchEvent(new Event(VALUE_CHANGE, true, true));
             stage.removeEventListener(MouseEvent.MOUSE_UP, this.onThumbMouseUp);
             stage.removeEventListener(MouseEvent.MOUSE_MOVE, this.onThumbMouseMove);
         }

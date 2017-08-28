@@ -1,3 +1,6 @@
 dont place text or image with non standart entry height after 15th entry from end. need to tune calculate max scroll positin for bsscrollinglist1
+dont press keys fast during binding (should be tested more)
 
-TODO: apply filterflag on load
+TODO: tune left panel width
+TODO: handle all callbacks
+TODO: live update hotkey elements if keys rebinded from manager

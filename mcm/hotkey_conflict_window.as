@@ -14,6 +14,8 @@
 		public var opened:Boolean;
 		public var confirmlist_mc:mcm.confirmlist;
 		public var confirmtext_tf: TextField;
+		private var _sender: InteractiveObject;
+		private var _keysarray: Array;
 		
 		public function hotkey_conflict_window()
 		{
@@ -27,8 +29,10 @@
 			visible = false;
 		}
 		
-		public function Open(state: int, keys: Array, modname: String, hotkeyAction: String,sender: InteractiveObject)
+		public function Open(state: int, keys: Array, modname: String, hotkeyAction: String, sender: InteractiveObject)
 		{
+			_sender = sender;
+			_keysarray = keys;
 			MCM_Menu.instance.configPanel_mc.configList_mc.disableInput = true;
 			MCM_Menu.instance.configPanel_mc.configList_mc.disableSelection = true;
 			MCM_Menu.instance.HelpPanel_mc.HelpList_mc.disableInput = true;
@@ -65,14 +69,15 @@
 		{
 			if (!bNoSave) 
 			{
-				//_target.index = this.DD_popup_list_mc.selectedIndex;
-				//_target.dispatchEvent(new Event(Option_DropDown.VALUE_CHANGE, true, true));
+				(_sender as mcm.Option_ButtonMapping).EndConfirm(_keysarray);
 			}
 			MCM_Menu.instance.configPanel_mc.configList_mc.disableInput = false;
 			MCM_Menu.instance.configPanel_mc.configList_mc.disableSelection = false;
 			MCM_Menu.instance.HelpPanel_mc.HelpList_mc.disableInput = false;
 			MCM_Menu.instance.HelpPanel_mc.HelpList_mc.disableSelection = false;
 			stage.focus = MCM_Menu.instance.configPanel_mc.configList_mc;
+			_sender = null;
+			_keysarray = new Array();
 			visible = false;
 			opened = false;
 		}

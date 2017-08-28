@@ -24,11 +24,11 @@ package mcm {
 			if (_arg_1.filterFlag == 2) 
 			{
 				textField.x = 30;
-				textField.width = 118;
+				textField.width = 218;
 			} else 
 			{
 				textField.x = 10;
-				textField.width = 138;
+				textField.width = 238;
 			}
 			if (_arg_1.hasOwnProperty("pageSelected")) 
 			{

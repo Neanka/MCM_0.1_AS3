@@ -7,6 +7,7 @@
 	import flash.text.TextField;
 	import flash.ui.Keyboard;
 	import flash.utils.Timer;
+	import com.greensock.*;
 	
 	public dynamic class Option_ButtonMapping extends MovieClip
 	{
@@ -33,13 +34,13 @@
 		public var _epressed:Boolean = false;
 		
 		public var type:int;
-		
 		public var PCKey_tf:TextField;
 		public var allowModifierKeys:int = 0;
 		public var modName:String = "";
 		public var id:String = "";
 		private var DelayTimer:Timer;
 		private var KeysArray:Array;
+		private var tween:TweenMax;
 		//private var _changed: Boolean = false;
 		
 		public function Option_ButtonMapping()
@@ -56,6 +57,7 @@
 		
 		public function onItemPressed()
 		{
+			tween = new TweenMax(PCKey_tf, 0.5, {alpha:0, yoyo: true, repeat: -1});
 			stage.getChildAt(0)["Menu_mc"]["bRemapMode"] = true;
 			dispatchEvent(new Event(START_INPUT, true, true));
 			_shiftpressed = false;
@@ -68,6 +70,7 @@
 			if (keyCode == Keyboard.ESCAPE && !isDown) 
 			{
 				dispatchEvent(new Event(END_INPUT, true, true));
+				tween.pause(0);
 				DelayTimer.start();
 				return;
 			}
@@ -83,6 +86,7 @@
 					dispatchEvent(new Event(VALUE_CHANGE, true, true));
 				}
 				dispatchEvent(new Event(END_INPUT, true, true));
+				tween.pause(0);
 				DelayTimer.start();
 				return;
 			}
@@ -143,7 +147,6 @@
 					StartConfirm(temparray);
 				}
 			}
-			// TODO check if already in use
 		}
 		
 		private function StartConfirm(temparray:Array):void 
@@ -171,13 +174,11 @@
 								case 0:
 									EndConfirm(temparray);
 								break;
-								case 1:
-								EndConfirm(temparray);
+								case 1:								
 									MCM_Menu.instance.configPanel_mc.hotkey_conflict_mc.Open(1,temparray,tempobj.modName,tempobj.keybindName,this);
 								break;
 								case 2:
-								EndConfirm(temparray);
-								MCM_Menu.instance.configPanel_mc.hotkey_conflict_mc.Open(2,temparray,tempobj.modName,tempobj.keybindName,this);
+									MCM_Menu.instance.configPanel_mc.hotkey_conflict_mc.Open(2,temparray,tempobj.modName,tempobj.keybindName,this);
 								break;
 								default:
 							}	
@@ -193,10 +194,11 @@
 
 		}
 		
-		private function EndConfirm(temparray:Array):void 
+		public function EndConfirm(temparray:Array):void 
 		{
-						keys = temparray;
-						dispatchEvent(new Event(VALUE_CHANGE, true, true));
+			keys = temparray;
+			dispatchEvent(new Event(VALUE_CHANGE, true, true));
+			tween.pause(0);
 		}
 
 		

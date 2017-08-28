@@ -83,36 +83,67 @@ package mcm
 					trace("Failed to handle Keybind");
 				}
 			}
-			if (EntriesA[_arg_1.target.itemIndex].action)
+			if (EntriesA[_arg_1.target.itemIndex].valueOptions)
 			{
-				switch (EntriesA[_arg_1.target.itemIndex].action.type)
+				if (EntriesA[_arg_1.target.itemIndex].valueOptions.sourceType)
 				{
-				case "GlobalValue": 
-					try
+					switch (EntriesA[_arg_1.target.itemIndex].valueOptions.sourceType)
 					{
-						parent.parent.mcmCodeObj.SetGlobalValue(EntriesA[_arg_1.target.itemIndex].actionparams, Number(EntriesA[_arg_1.target.itemIndex].value));
+					case "GlobalValue": 
+						try
+						{
+							parent.parent.mcmCodeObj.SetGlobalValue(EntriesA[_arg_1.target.itemIndex].valueOptions.sourceForm, Number(EntriesA[_arg_1.target.itemIndex].value));
+						}
+						catch (e:Error)
+						{
+							trace("Failed to SetGlobalValue");
+						}
+						break;
+					case "ModSettingString": 
+						try
+						{
+							parent.parent.mcmCodeObj.SetModSettingString(EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].id, EntriesA[_arg_1.target.itemIndex].valueString);
+						}
+						catch (e:Error)
+						{
+							trace("Failed to SetModSettingString");
+						}
+						break;
+					case "ModSettingInt": 
+						try
+						{
+							parent.parent.mcmCodeObj.SetModSettingInt(EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].id, int(EntriesA[_arg_1.target.itemIndex].value));
+						}
+						catch (e:Error)
+						{
+							trace("Failed to SetModSettingInt");
+						}
+						break;
+					case "ModSettingFloat": 
+						try
+						{
+							trace(Number(EntriesA[_arg_1.target.itemIndex].value));
+							parent.parent.mcmCodeObj.SetModSettingFloat(EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].id, Number(EntriesA[_arg_1.target.itemIndex].value));
+						}
+						catch (e:Error)
+						{
+							trace("Failed to SetModSettingFloat");
+						}
+						break;
+					case "ModSettingBool": 
+						try
+						{
+							parent.parent.mcmCodeObj.SetModSettingBool(EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].id, Boolean(EntriesA[_arg_1.target.itemIndex].value));
+						}
+						catch (e:Error)
+						{
+							trace("Failed to SetModSettingBool");
+						}
+						break;
+					default:
+						
+						break;
 					}
-					catch (e:Error)
-					{
-						trace("Failed to SetGlobalValue");
-					}
-					break;
-				case "ModSettingString": 
-					try
-					{
-						parent.parent.mcmCodeObj.SetModSettingString(EntriesA[_arg_1.target.itemIndex].action.modName, EntriesA[_arg_1.target.itemIndex].action.settingName, EntriesA[_arg_1.target.itemIndex].valueString);
-						trace(EntriesA[_arg_1.target.itemIndex].action.modName);
-						trace(EntriesA[_arg_1.target.itemIndex].action.settingName);
-						trace(EntriesA[_arg_1.target.itemIndex].valueString);
-					}
-					catch (e:Error)
-					{
-						trace("Failed to SetModSettingString");
-					}
-					break;
-				default:
-					
-					break;
 				}
 			}
 			
@@ -127,6 +158,7 @@ package mcm
 					removefilterflag(EntriesA[_arg_1.target.itemIndex].groupcontrol);
 				}
 			}
+			stage.getChildAt(0).f4se.SendExternalEvent("OnMCMSettingChange", EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].id);
 		}
 		
 		public function onButtonPressed(_arg_1:Event)
@@ -134,7 +166,7 @@ package mcm
 			switch (EntriesA[_arg_1.target.itemIndex].action.type)
 			{
 			case "CallQuestFunction": 
-				cqf(EntriesA[_arg_1.target.itemIndex].action.quest, EntriesA[_arg_1.target.itemIndex].action["function"], EntriesA[_arg_1.target.itemIndex].action.params);
+				cqf(EntriesA[_arg_1.target.itemIndex].action.form, EntriesA[_arg_1.target.itemIndex].action["function"], EntriesA[_arg_1.target.itemIndex].action.params);
 				break;
 			case "CallGlobalFunction": 
 				cgf(EntriesA[_arg_1.target.itemIndex].action.script, EntriesA[_arg_1.target.itemIndex].action["function"], EntriesA[_arg_1.target.itemIndex].action.params);
