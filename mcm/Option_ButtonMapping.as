@@ -53,7 +53,7 @@
 		private function DelayTimerAction(e:TimerEvent)
 		{
 			this.DelayTimer.reset();
-			//stage.getChildAt(0)["Menu_mc"]["bMenuClosing"] = false;
+			stage.getChildAt(0)["Menu_mc"]["bMenuClosing"] = false;
 		}
 		
 		public function onItemPressed()
