@@ -246,10 +246,6 @@
 			if (KeysArray.length>1) 
 			{
 				var modifiers: uint = KeysArray[1];
-				if ((modifiers & MODIFIER_SHIFT) != 0) 
-				{
-					tempText += keytostring(Keyboard.SHIFT)+"-";
-				}
 				if ((modifiers & MODIFIER_CONTROL) != 0) 
 				{
 					tempText += keytostring(Keyboard.CONTROL)+"-";
@@ -257,6 +253,10 @@
 				if ((modifiers & MODIFIER_ALT) != 0) 
 				{
 					tempText += keytostring(Keyboard.ALTERNATE)+"-";
+				}
+				if ((modifiers & MODIFIER_SHIFT) != 0) 
+				{
+					tempText += keytostring(Keyboard.SHIFT)+"-";
 				}
 			}
 
