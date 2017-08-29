@@ -15,6 +15,7 @@ package mcm
 	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
 	import scaleform.gfx.Extensions;
+	import Shared.AS3.BSButtonHintData;
 	
 	/**
 	 * ...
@@ -34,9 +35,16 @@ package mcm
 		private var modsCount:int = 0;
 		private var hotkeyManagerList:Array = new Array();
 		
+		private var standardButtonHintDataV:Vector.<BSButtonHintData>;
+		private var ConfirmButton:BSButtonHintData;
+		private var CancelButton:BSButtonHintData;
+		
 		public function MCM_Menu()
 		{
 			super();
+			this.ConfirmButton = new BSButtonHintData("$CONFIRM", "Enter", "PSN_A", "Xenon_A", 1, this.onAcceptPress);
+			this.CancelButton = new BSButtonHintData("$CANCEL", "Esc", "PSN_B", "Xenon_B", 1, this.onCancelPress);
+			this.PopulateButtonBar();
 			MCM_Menu._instance = this;
 			addEventListener(BSScrollingList1.LIST_ITEMS_CREATED, listcreated);
 			addEventListener(BSScrollingList1.SELECTION_CHANGE, selectionchanged);
@@ -44,6 +52,24 @@ package mcm
 			addEventListener(mcm.Option_ButtonMapping.START_INPUT, this.StartInput);
 			addEventListener(mcm.Option_ButtonMapping.END_INPUT, this.EndInput);
 		}
+		
+		private function onCancelPress():void 
+		{
+			
+		}
+		
+		private function onAcceptPress():void 
+		{
+			
+		}
+		
+        private function PopulateButtonBar():void
+        {
+            this.standardButtonHintDataV = new Vector.<BSButtonHintData>();
+            this.standardButtonHintDataV.push(this.ConfirmButton);
+			this.standardButtonHintDataV.push(this.CancelButton);
+            this.ButtonHintBar_mc.SetButtonHintData(this.standardButtonHintDataV);
+        }
 		
 		private function StartInput(e:Event):void
 		{
@@ -78,11 +104,6 @@ package mcm
 				bmForInput.ProcessKeyEvent(keyCode, isDown);
 			}
 			//log("Key event! keyCode: " + keyCode + " isDown: " + isDown);
-		}
-		
-		public function ProcessUserEvent(param1:String, param2:Boolean):Boolean
-		{
-			configPanel_mc.hint_tf.text = "PROCESS USER EVENT: " + param1 + " state: " + param2;
 		}
 		
 		public static function get instance():MCM_Menu
@@ -122,9 +143,9 @@ package mcm
 				catch (e:Error)
 				{
 					trace("Failed to GetDirectoryListing for JSON");
-					modsNum = 3;
+					modsNum = 2;
 					JSONLoader("../../Data/MCM/Config/test_mcm/config.json");
-					JSONLoader("../../Data/MCM/Config/testmod2/config.json");
+					//JSONLoader("../../Data/MCM/Config/testmod2/config.json");
 					//JSONLoader("../../Data/MCM/Config/testmod3/config.json");
 					JSONLoader("../../Data/MCM/Config/dummy_mod/config.json");
 				}
@@ -718,7 +739,7 @@ package mcm
 			translator = null;
 			return str;
 		}
-	
+
 	}
 
 }

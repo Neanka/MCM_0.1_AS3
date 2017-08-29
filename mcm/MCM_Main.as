@@ -7,6 +7,7 @@
 	import flash.utils.Timer;
 	import flash.utils.getQualifiedClassName;
 	import flash.geom.Point;
+	import Shared.AS3.BSButtonHintData;
 	
 	import scaleform.gfx.Extensions;
 	
@@ -62,6 +63,8 @@
 		}
 		
         private function focusInHandler(event:FocusEvent):void {
+			stage.getChildAt(0)["Menu_mc"]["CancelButton"].ButtonDisabled = false;
+			stage.getChildAt(0)["Menu_mc"]["CancelButton"].ButtonVisible = true;
 			stage.getChildAt(0).f4se.SendExternalEvent("OnMCMClose");
             MainMenu["MainPanel_mc"].List_mc.removeEventListener(FocusEvent.FOCUS_IN,focusInHandler);
         }
@@ -116,6 +119,8 @@
 					
 					MainMenu.BGSCodeObj.SetBackgroundVisible(uint(2), true);								// HELP_TOPIC_BACKGROUND
 					MainMenu.BackgroundAndBracketsHelpTopic_mc.visible = true;
+					stage.getChildAt(0)["Menu_mc"]["CancelButton"].ButtonDisabled = true;
+					stage.getChildAt(0)["Menu_mc"]["CancelButton"].ButtonVisible = false;
 					break;
 					
 				default:

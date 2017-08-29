@@ -71,6 +71,10 @@
 			{
 				(_sender as mcm.Option_ButtonMapping).EndConfirm(_keysarray);
 			}
+			else 
+			{
+				(_sender as mcm.Option_ButtonMapping).EndConfirm(null);
+			}
 			MCM_Menu.instance.configPanel_mc.configList_mc.disableInput = false;
 			MCM_Menu.instance.configPanel_mc.configList_mc.disableSelection = false;
 			MCM_Menu.instance.HelpPanel_mc.HelpList_mc.disableInput = false;

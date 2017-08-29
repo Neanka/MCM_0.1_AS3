@@ -8,6 +8,7 @@
 	import flash.ui.Keyboard;
 	import flash.utils.Timer;
 	import com.greensock.*;
+	import Shared.AS3.BSButtonHintData;
 	
 	public dynamic class Option_ButtonMapping extends MovieClip
 	{
@@ -40,26 +41,26 @@
 		public var id:String = "";
 		private var DelayTimer:Timer;
 		private var KeysArray:Array;
-		private var tween:TweenMax;
+		public var tween:TweenMax;
 		//private var _changed: Boolean = false;
 		
 		public function Option_ButtonMapping()
 		{
-			this.DelayTimer = new Timer(300, 1);
+			this.DelayTimer = new Timer(200, 1);
 			this.DelayTimer.addEventListener(TimerEvent.TIMER_COMPLETE, DelayTimerAction);
 		}
 		
 		private function DelayTimerAction(e:TimerEvent)
 		{
 			this.DelayTimer.reset();
-			stage.getChildAt(0)["Menu_mc"]["bRemapMode"] = false;
+			//stage.getChildAt(0)["Menu_mc"]["bMenuClosing"] = false;
 		}
 		
 		public function onItemPressed()
-		{
-			tween = new TweenMax(PCKey_tf, 0.5, {alpha:0, yoyo: true, repeat: -1});
-			stage.getChildAt(0)["Menu_mc"]["bRemapMode"] = true;
+		{			
+			stage.getChildAt(0)["Menu_mc"]["bMenuClosing"] = true;			
 			dispatchEvent(new Event(START_INPUT, true, true));
+			tween = new TweenMax(PCKey_tf, 0.5, {alpha:0, yoyo: true, repeat: -1});
 			_shiftpressed = false;
 			_altpressed = false;
 			_ctrlpressed = false;
@@ -196,8 +197,11 @@
 		
 		public function EndConfirm(temparray:Array):void 
 		{
-			keys = temparray;
-			dispatchEvent(new Event(VALUE_CHANGE, true, true));
+			if (temparray) 
+			{
+				keys = temparray;
+				dispatchEvent(new Event(VALUE_CHANGE, true, true));
+			}
 			tween.pause(0);
 		}
 
