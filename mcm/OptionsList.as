@@ -58,7 +58,7 @@ package mcm
 					var modName: String = EntriesA[_arg_1.target.itemIndex].modName;// MCM_Menu.instance.HelpPanel_mc.HelpList_mc.entryList[MCM_Menu.instance.selectedPage]["modName"];
 					var keybindID: String = EntriesA[_arg_1.target.itemIndex].id;
 					var keycode: int = EntriesA[_arg_1.target.itemIndex].keys[0];
-					trace(modName, keybindID,keycode);
+					//trace(modName, keybindID,keycode);
 					if (keycode == 0) 
 					{
 						parent.parent.mcmCodeObj.ClearKeybind(modName, keybindID);
@@ -67,7 +67,7 @@ package mcm
 					{
 						var modifiers: int = EntriesA[_arg_1.target.itemIndex].keys[1];
 						var keyobj: Object = parent.parent.mcmCodeObj.GetKeybind(modName, keybindID);
-						trace(keyobj.keycode);
+						//trace(keyobj.keycode);
 						if (keyobj.keycode != 0) 
 						{
 							parent.parent.mcmCodeObj.RemapKeybind(modName, keybindID, keycode, modifiers);
@@ -82,6 +82,8 @@ package mcm
 				{
 					trace("Failed to handle Keybind");
 				}
+				//trace("MCM_Menu.instance.requestHotkeyControlsUpdate();");
+				//MCM_Menu.instance.requestHotkeyControlsUpdate();
 			}
 			if (EntriesA[_arg_1.target.itemIndex].valueOptions)
 			{
@@ -122,7 +124,7 @@ package mcm
 					case "ModSettingFloat": 
 						try
 						{
-							trace(Number(EntriesA[_arg_1.target.itemIndex].value));
+							//trace(Number(EntriesA[_arg_1.target.itemIndex].value));
 							parent.parent.mcmCodeObj.SetModSettingFloat(EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].id, Number(EntriesA[_arg_1.target.itemIndex].value));
 						}
 						catch (e:Error)
@@ -147,18 +149,19 @@ package mcm
 				}
 			}
 			
-			if (EntriesA[_arg_1.target.itemIndex].groupcontrol)
+			if (EntriesA[_arg_1.target.itemIndex].groupControl)
 			{
 				if (EntriesA[_arg_1.target.itemIndex].value == 1)
 				{
-					addfilterflag(EntriesA[_arg_1.target.itemIndex].groupcontrol);
+					addfilterflag(EntriesA[_arg_1.target.itemIndex].groupControl);
 				}
 				else
 				{
-					removefilterflag(EntriesA[_arg_1.target.itemIndex].groupcontrol);
+					removefilterflag(EntriesA[_arg_1.target.itemIndex].groupControl);
 				}
 			}
 			stage.getChildAt(0).f4se.SendExternalEvent("OnMCMSettingChange", EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].id);
+			stage.getChildAt(0).f4se.SendExternalEvent("OnMCMSettingChange|"+EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].id);
 		}
 		
 		public function onButtonPressed(_arg_1:Event)

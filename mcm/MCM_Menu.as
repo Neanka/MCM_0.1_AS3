@@ -8,10 +8,15 @@ package mcm
 	import flash.display.LoaderInfo;
 	import flash.display.MovieClip;
 	import flash.events.Event;
+	import flash.events.FocusEvent;
 	import flash.events.IOErrorEvent;
+	import flash.events.KeyboardEvent;
+	import flash.events.TimerEvent;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.text.TextField;
+	import flash.ui.Keyboard;
+	import flash.utils.Timer;
 	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
 	import scaleform.gfx.Extensions;
@@ -38,45 +43,315 @@ package mcm
 		private var standardButtonHintDataV:Vector.<BSButtonHintData>;
 		private var ConfirmButton:BSButtonHintData;
 		private var CancelButton:BSButtonHintData;
+		private var BackButton:BSButtonHintData;
+		private var SwitchButtonLeft:BSButtonHintData;
+		private var SwitchButtonRight:BSButtonHintData;
 		
+		static private var _iMode:uint = 0;
+		static public var MCM_MAIN_MODE:uint = 0;
+		static public var MCM_REMAP_MODE:uint = 1;
+		static public var MCM_CONFLICT_MODE:uint = 2;
+		static public var MCM_DD_MODE:uint = 3;
+
 		public function MCM_Menu()
 		{
 			super();
 			this.ConfirmButton = new BSButtonHintData("$CONFIRM", "Enter", "PSN_A", "Xenon_A", 1, this.onAcceptPress);
-			this.CancelButton = new BSButtonHintData("$CANCEL", "Esc", "PSN_B", "Xenon_B", 1, this.onCancelPress);
-			this.PopulateButtonBar();
+			this.BackButton = new BSButtonHintData("$Back", "Tab", "PSN_X", "Xenon_X", 1, this.onBackPress);
+			this.CancelButton = new BSButtonHintData("$Cancel", "Esc", "PSN_B", "Xenon_B", 1, this.onCancelPress);
+			this.SwitchButtonLeft = new BSButtonHintData("$MCM_SWITCH_TO_LEFT", "Q", "PSN_L1", "Xenon_L1", 1, this.switchToLeft);
+			this.SwitchButtonRight = new BSButtonHintData("$MCM_SWITCH_TO_RIGHT", "D", "PSN_R1", "Xenon_R1", 1, this.switchToRight);
 			MCM_Menu._instance = this;
 			addEventListener(BSScrollingList1.LIST_ITEMS_CREATED, listcreated);
 			addEventListener(BSScrollingList1.SELECTION_CHANGE, selectionchanged);
 			addEventListener(BSScrollingList1.ITEM_PRESS, this.onListItemPress);
 			addEventListener(mcm.Option_ButtonMapping.START_INPUT, this.StartInput);
 			addEventListener(mcm.Option_ButtonMapping.END_INPUT, this.EndInput);
-		}
-		
-		private function onCancelPress():void 
-		{
 			
+			if (stage)
+			{
+				onAddedToStage(null);
+			}
+			else
+			{
+				addEventListener(Event.ADDED_TO_STAGE, onAddedToStage)
+			}
+			iMode = 0;
 		}
 		
-		private function onAcceptPress():void 
+		public function SetButtons():void
 		{
-			
+			switch (iMode)
+			{
+			case MCM_MAIN_MODE:
+				
+				this.ConfirmButton.ButtonVisible = false;
+				this.CancelButton.ButtonText = "$Back";
+				this.CancelButton.ButtonVisible = true;
+				this.BackButton.ButtonVisible = false;
+				break;
+			case MCM_REMAP_MODE: 
+				this.ConfirmButton.ButtonVisible = false;
+				this.CancelButton.ButtonText = "$Cancel";
+				this.CancelButton.ButtonVisible = true;
+				this.BackButton.ButtonText = "$MCM_CLEAR_HOTKEY";
+				this.BackButton.ButtonVisible = true;
+				break;
+			case MCM_CONFLICT_MODE: 
+				this.ConfirmButton.ButtonVisible = false;
+				this.CancelButton.ButtonText = "$Cancel";
+				this.CancelButton.ButtonVisible = true;
+				this.BackButton.ButtonVisible = false;
+				break;
+			case MCM_DD_MODE:
+				
+				this.ConfirmButton.ButtonVisible = false;
+				this.CancelButton.ButtonText = "$Back";
+				this.CancelButton.ButtonVisible = true;
+				this.BackButton.ButtonVisible = false;
+				break;
+			default: 
+			}
+			if (stage) 
+			{
+				this.SwitchButtonLeft.ButtonVisible = (iMode == MCM_MAIN_MODE) && (stage.focus != this.HelpPanel_mc.HelpList_mc);
+				this.SwitchButtonRight.ButtonVisible = (iMode == MCM_MAIN_MODE) && (stage.focus == this.HelpPanel_mc.HelpList_mc);
+			}
 		}
 		
-        private function PopulateButtonBar():void
-        {
-            this.standardButtonHintDataV = new Vector.<BSButtonHintData>();
-            this.standardButtonHintDataV.push(this.ConfirmButton);
+		private function onAddedToStage(e:Event):void
+		{
+			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+			stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUpHandler);
+			this.ButtonHintBar_mc = stage.getChildAt(0)["Menu_mc"].ButtonHintBar_mc;
+			SetButtons();
+		}
+		
+		private function onKeyUpHandler(e:KeyboardEvent):void
+		{
+			switch (e.keyCode)
+			{
+			case Keyboard.ESCAPE: 
+				onCancelPress();
+				break;
+			default: 
+			}
+		}
+		
+		public function onQuitPressed():void
+		{
+			stage.getChildAt(0)["Menu_mc"].EndState();
+		}
+		
+		private function onCancelPress():void
+		{
+			switch (iMode)
+			{
+			case MCM_MAIN_MODE: 
+				onQuitPressed();
+				break;
+			case MCM_CONFLICT_MODE: 
+				this.configPanel_mc.hotkey_conflict_mc.Close(true);
+				break;
+			case MCM_REMAP_MODE: 
+				(bmForInput as mcm.Option_ButtonMapping).onEscPressed();
+				break;
+			case MCM_DD_MODE: 
+				this.configPanel_mc.DD_popup_mc.Close(true);
+				this.configPanel_mc.configList_mc.UpdateList();
+				break;
+			default: 
+			}
+		}
+		
+		private function onBackPress():void
+		{
+			switch (iMode)
+			{
+			case MCM_MAIN_MODE:
+				
+				break;
+			case MCM_CONFLICT_MODE:
+				
+				break;
+			case MCM_REMAP_MODE: 
+				(bmForInput as mcm.Option_ButtonMapping).onTabPressed();
+				break;
+			default: 
+			}
+		}
+		
+		private function onAcceptPress():void
+		{
+			trace("onAcceptPress");
+		}
+		
+		public function PopulateButtonBar():void
+		{
+			this.standardButtonHintDataV = new Vector.<BSButtonHintData>();
+			this.standardButtonHintDataV.push(this.SwitchButtonLeft);
+			this.standardButtonHintDataV.push(this.SwitchButtonRight);	
+			this.standardButtonHintDataV.push(this.ConfirmButton);
+			this.standardButtonHintDataV.push(this.BackButton);
 			this.standardButtonHintDataV.push(this.CancelButton);
-            this.ButtonHintBar_mc.SetButtonHintData(this.standardButtonHintDataV);
-        }
+			this.ButtonHintBar_mc.SetButtonHintData(this.standardButtonHintDataV);
+		}
+		
+		public function requestHotkeyControlsUpdate():void
+		{
+			for each (var entry in this.HelpPanel_mc.HelpList_mc.entryList)
+			{
+				if (entry.dataobj) 
+				{
+					checkHotkeyByRequest(entry.dataobj);
+				}				
+			}
+			checkHotkeyByRequest(this.configPanel_mc.configList_mc.entryList); //TODO: needs only for hotkey manager ?
+			this.configPanel_mc.configList_mc.UpdateList();
+			/*for each (var entry1 in this.configPanel_mc.configList_mc.entryList)
+			{
+				if (getQualifiedClassName(entry1) == "Object" && entry1.hasOwnProperty("movieType") && entry1.movieType == mcm.SettingsOptionItem.MOVIETYPE_HOTKEY)
+				{
+					this.configPanel_mc.configList_mc.UpdateEntry(entry1);
+				}
+
+			}*/
+		}
+		
+		public function checkHotkeyByRequest(obj: Object):void 
+		{
+			for each (var control in obj)
+			{
+				if (getQualifiedClassName(control) == "Object" && control.hasOwnProperty("movieType") && control.movieType == mcm.SettingsOptionItem.MOVIETYPE_HOTKEY)
+				{
+					try
+					{
+						var tempobj:Object = mcmCodeObj.GetKeybind(control.modName, control.id);
+						var temparr:Array = new Array();
+						if (tempobj)
+						{
+							temparr.push(tempobj.keycode);
+							temparr.push(tempobj.modifiers);
+						}
+						else
+						{
+							temparr.push(0);
+							temparr.push(0);
+						}
+						control.keys = temparr;
+					}
+					catch (err:Error)
+					{
+						trace("Failed to GetKeybind");
+					}
+				}
+			}
+		}
+		
+		public function RefreshMCM_internal():void
+		{
+			for each (var entry in this.HelpPanel_mc.HelpList_mc.entryList)
+			{
+				if (entry.dataobj) 
+				{
+					checkEntriesByRequest(entry.dataobj);
+				}				
+			}
+			//checkEntriesByRequest(this.configPanel_mc.configList_mc.entryList);
+			this.configPanel_mc.configList_mc.UpdateList();
+		}
+		
+		public function checkEntriesByRequest(obj: Object):void 
+		{
+			trace("checkEntriesByRequest");
+			var filterFlagControl:uint = uint.MAX_VALUE;
+			for each (var control in obj)
+			{
+				if (getQualifiedClassName(control) == "Object")
+				{
+					if (control["valueOptions"])
+					{
+						if (control["valueOptions"]["sourceType"])
+						{
+							switch (control["valueOptions"]["sourceType"])
+							{
+							case "ModSettingBool": 
+								try
+								{
+									control.value = mcmCodeObj.GetModSettingBool(control.modName, control["id"]) ? 1 : 0;
+									if (control["groupControl"])
+									{
+										if (control.value == 0)
+										{
+											filterFlagControl = filterFlagControl & ~Math.pow(2, control["groupControl"]);
+										}
+									}
+								}
+								catch (e:Error)
+								{
+									control.value = 0;
+									trace("Failed to GetModSettingBool");
+								}
+								break;
+							case "GlobalValue": 
+								try
+								{
+									control.value = mcmCodeObj.GetGlobalValue(control["valueOptions"]["sourceForm"]);
+								}
+								catch (e:Error)
+								{
+									control.value = 0;
+									trace("Failed to GetGlobalValue");
+								}
+								break;
+							case "ModSettingString": 
+								try
+								{
+									control.valueString = mcmCodeObj.GetModSettingString(control.modName, control["id"]);
+								}
+								catch (e:Error)
+								{
+									control.valueString = " ";
+									trace("Failed to GetModSettingString");
+								}
+								break;
+							case "ModSettingInt": 
+								try
+								{
+									control.value = mcmCodeObj.GetModSettingInt(control.modName, control["id"]);
+								}
+								catch (e:Error)
+								{
+									control.value = 0;
+									trace("Failed to GetModSettingInt");
+								}
+								break;
+							case "ModSettingFloat": 
+								try
+								{
+									control.value = mcmCodeObj.GetModSettingFloat(control.modName, control["id"]);
+								}
+								catch (e:Error)
+								{
+									control.value = 0.0;
+									trace("Failed to GetModSettingFloat");
+								}
+								break;
+							default: 
+							}
+						}
+					}
+				}
+			}
+			obj.filterFlagControl = filterFlagControl;
+		}
 		
 		private function StartInput(e:Event):void
 		{
 			try
 			{
 				bmForInput = e.target;
-				mcmCodeObj.StartKeyCapture();
+				//mcmCodeObj.StartKeyCapture();
 			}
 			catch (e:Error)
 			{
@@ -88,8 +363,8 @@ package mcm
 		{
 			try
 			{
-				bmForInput = null; //TODO separate null and stopkeycapture
-				mcmCodeObj.StopKeyCapture();
+				bmForInput = null;
+				//mcmCodeObj.StopKeyCapture();
 			}
 			catch (e:Error)
 			{
@@ -97,23 +372,25 @@ package mcm
 			}
 		}
 		
-		public function ProcessKeyEvent(keyCode:int, isDown:Boolean):void
-		{
-			if (bmForInput)
-			{
-				bmForInput.ProcessKeyEvent(keyCode, isDown);
-			}
-			//log("Key event! keyCode: " + keyCode + " isDown: " + isDown);
-		}
-		
 		public static function get instance():MCM_Menu
 		{
 			return _instance;
 		}
 		
+		static public function set iMode(value:uint):void
+		{
+			_iMode = value;
+			MCM_Menu.instance.SetButtons();
+		}
+		
+		static public function get iMode():uint
+		{
+			return _iMode;
+		}
+		
 		function listcreated(param1:Event)
 		{
-			log(param1.target.name + " created");
+			//log(param1.target.name + " created");
 			switch (param1.target.name)
 			{
 			case "HelpList_mc": 
@@ -122,7 +399,6 @@ package mcm
 				loadLibs(); //TODO find best place to call
 				try
 				{
-					//var jsonsArray:Array = root.f4se.plugins.def_plugin.GetDirectoryListing("Data/MCM/Config", "config.json");
 					var jsonsArray:Array = mcmCodeObj.GetConfigList(true);
 					modsNum = jsonsArray.length;
 					if (modsNum == 0)
@@ -134,7 +410,6 @@ package mcm
 					{
 						for (var i in jsonsArray)
 						{
-							//JSONLoader("../../" + jsonsArray[i]["nativePath"]);
 							JSONLoader("../../" + jsonsArray[i]);
 						}
 					}
@@ -144,16 +419,16 @@ package mcm
 				{
 					trace("Failed to GetDirectoryListing for JSON");
 					modsNum = 2;
-					JSONLoader("../../Data/MCM/Config/test_mcm/config.json");
-					//JSONLoader("../../Data/MCM/Config/testmod2/config.json");
-					//JSONLoader("../../Data/MCM/Config/testmod3/config.json");
-					JSONLoader("../../Data/MCM/Config/dummy_mod/config.json");
+					JSONLoader("../../Data/MCM/Config/def_w_sur1/config.json");
+					JSONLoader("../../Data/MCM/Config/MCM_Demo/config.json");
 				}
 				
 				break;
 			case "configList_mc": 
 				this.configPanel_mc.configList_mc.InvalidateData();
 				loadWelcomePage();
+				this.configPanel_mc.configList_mc.disableInput = true;
+				this.configPanel_mc.configList_mc.disableSelection = true;
 				break;
 			case "confirmlist_mc": 
 				var yesno:Array = new Array();
@@ -171,7 +446,15 @@ package mcm
 		{
 			var temparray:Array = new Array();
 			temparray.push({"type": "empty"});
-			temparray.push({"type": "image", "libName": "builtin", "className": "img_builtin_mcmlogo"});
+			temparray.push({"type": "empty"});
+			temparray.push({"type": "empty"});
+			temparray.push({"type": "empty"});
+			temparray.push({"type": "empty"});
+			temparray.push({"type": "empty"});
+			temparray.push({"type": "empty"});
+			temparray.push({"type": "image", "libName": "builtin", "className": "logotest", "width": 345});
+			temparray.push({"type": "empty"});
+			temparray.push({"type": "empty"});
 			temparray.push({"type": "empty"});
 			temparray.push({"text": "MCM FALLOUT 4 EDITION", "align": "center", "type": "text"});
 			temparray.push({"text": "VERSION " + String(GetVersionCode()), "align": "center", "type": "text"});
@@ -183,13 +466,14 @@ package mcm
 		{
 			try
 			{
-				var swfsArray:Array = root.f4se.GetDirectoryListing("Data/MCM/Libs", "*.swf", recursive = false);
+				var swfsArray:Array = mcmCodeObj.GetConfigList(true, "lib.swf");
+				//trace(swfsArray);
 				for (var i in swfsArray)
 				{
 					var swfloader:Loader = new Loader();
 					swfloader.contentLoaderInfo.addEventListener(Event.COMPLETE, this.onSWFLoaded, false, 0, true);
 					swfloader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, IOSWFErrorHandler);
-					swfloader.load(new URLRequest("../../" + swfsArray[i]["nativePath"]));
+					swfloader.load(new URLRequest("../../" + swfsArray[i]));
 				}
 			}
 			catch (e:Error)
@@ -198,11 +482,11 @@ package mcm
 				var swfloader1:Loader = new Loader();
 				swfloader1.contentLoaderInfo.addEventListener(Event.COMPLETE, this.onSWFLoaded, false, 0, true);
 				swfloader1.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, IOSWFErrorHandler);
-				swfloader1.load(new URLRequest("../../Data/MCM/Libs/testmod_lib.swf"));
+				swfloader1.load(new URLRequest("../../Data/MCM/Config/MCM_Demo/lib.swf"));
 				var swfloader2:Loader = new Loader();
 				swfloader2.contentLoaderInfo.addEventListener(Event.COMPLETE, this.onSWFLoaded, false, 0, true);
 				swfloader2.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, IOSWFErrorHandler);
-				swfloader2.load(new URLRequest("../../Data/MCM/Libs/testmod.swf"));
+				swfloader2.load(new URLRequest("../../Data/MCM/Config/def_w_sur1/lib.swf"));
 			}
 		}
 		
@@ -225,7 +509,7 @@ package mcm
 						GlobalFunc.SetText(this.configPanel_mc.hint_tf, " ", true);
 					}
 					
-					stage.focus = this.configPanel_mc.configList_mc; // temp string
+					//stage.focus = this.configPanel_mc.configList_mc; // temp string
 				}
 				break;
 			default: 
@@ -249,7 +533,7 @@ package mcm
 					obj.pageSelected = false;
 				}
 				this.HelpPanel_mc.HelpList_mc.selectedEntry.pageSelected = true;
-				this.configPanel_mc.configList_mc.selectedIndex = -1;
+				//this.configPanel_mc.configList_mc.selectedIndex = -1;
 				this.selectedPage = this.HelpPanel_mc.HelpList_mc.selectedIndex;
 				if (this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj)
 				{
@@ -269,18 +553,20 @@ package mcm
 					GlobalFunc.SetText(this.configPanel_mc.hint_tf, " ", true);
 				}
 				this.configPanel_mc.configList_mc.InvalidateData();
-				this.configPanel_mc.configList_mc.selectedIndex = 0;
+				//this.configPanel_mc.configList_mc.selectedIndex = 0;
 				if (this.HelpPanel_mc.HelpList_mc.selectedEntry.filterFlag == 1)
 				{
 					this.HelpPanel_mc.HelpList_mc.filterer.modName = this.HelpPanel_mc.HelpList_mc.selectedEntry.modName;
 				}
 				this.HelpPanel_mc.HelpList_mc.UpdateList();
+				this.configPanel_mc.configList_mc.disableInput = false;
+				this.configPanel_mc.configList_mc.disableSelection = false;
 			}
 			else if (_arg_1.target == this.configPanel_mc.hotkey_conflict_mc.confirmlist_mc)
 			{
 				switch (this.configPanel_mc.hotkey_conflict_mc.confirmlist_mc.selectedIndex)
 				{
-				case 0:
+				case 0: 
 					this.configPanel_mc.hotkey_conflict_mc.Close(false);
 					break;
 				case 1: 
@@ -301,9 +587,16 @@ package mcm
 		private function onSWFLoaded(event:Event):void
 		{
 			var path:String = event.target.url;
-			path = path.substring(path.lastIndexOf("/") + 1); // no need for game but need for testing in IDE
-			path = path.substring(path.lastIndexOf("\\") + 1);
-			path = path.substring(0, path.lastIndexOf("."));
+			if (Extensions.isScaleform)  // no need for game but need for testing in IDE
+			{
+				path = path.substring(0, path.lastIndexOf("\\"));
+				path = path.substring(path.lastIndexOf("\\") + 1);
+			}
+			else 
+			{
+				path = path.substring(0, path.lastIndexOf("/")); 
+				path = path.substring(path.lastIndexOf("/") + 1);
+			}
 			swfsobject[path] = (event.target as LoaderInfo).loader;
 		}
 		
@@ -383,7 +676,7 @@ package mcm
 				temparray.push({"type": "empty"});
 				if ((reqsstatus.length > 0))
 				{
-					temparray.push({"text": Translator("$Missing plugins:"), "align": "center", "type": "text"});
+					temparray.push({"text": Translator("$MCM_MISSING_PLUGINS"), "align": "center", "type": "text"});
 					for (var count in reqsstatus)
 					{
 						temparray.push({"text": String(count + 1) + ". " + reqsstatus[count], "align": "center", "type": "text"});
@@ -393,7 +686,7 @@ package mcm
 				
 				if (!mcmstatus)
 				{
-					temparray.push({"text": Translator("$Wrong MCM version:")+" " + String(GetVersionCode()) + " ("+Translator("$required:")+" " + dataObj["minMcmVersion"] + ")", "align": "center", "type": "text"});
+					temparray.push({"text": Translator("$MCM_WRONG_VERSION") + " " + String(GetVersionCode()) + " (" + Translator("$MCM_REQUIRED") + " " + dataObj["minMcmVersion"] + ")", "align": "center", "type": "text"});
 				}
 				this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(temparray, dataObj["modName"]), text: displayName, modName: dataObj["modName"], filterFlag: 1, pageSelected: false, reqsStatus: 1});
 				this.HelpPanel_mc.HelpList_mc.InvalidateData();
@@ -427,7 +720,7 @@ package mcm
 		
 		private function processDataObj(dataObj:Object, modName:String = "MCM"):Object
 		{
-			var filterFlagControl: uint = uint.MAX_VALUE;
+			var filterFlagControl:uint = uint.MAX_VALUE;
 			var tempObj:Object = dataObj;
 			for (var num in tempObj)
 			{
@@ -439,17 +732,17 @@ package mcm
 				{
 					if (tempObj[num]["valueOptions"]["sourceType"])
 					{
-						switch (tempObj[num]["valueOptions"]["sourceType"]) 
+						switch (tempObj[num]["valueOptions"]["sourceType"])
 						{
-						case "ModSettingBool":
+						case "ModSettingBool": 
 							try
 							{
-								tempObj[num].value = mcmCodeObj.GetModSettingBool(tempObj[num].modName, tempObj[num]["id"])?1:0;
-								if (tempObj[num]["groupcontrol"]) 
+								tempObj[num].value = mcmCodeObj.GetModSettingBool(tempObj[num].modName, tempObj[num]["id"]) ? 1 : 0;
+								if (tempObj[num]["groupControl"])
 								{
-									if (tempObj[num].value == 0) 
+									if (tempObj[num].value == 0)
 									{
-										filterFlagControl = filterFlagControl & ~Math.pow(2, tempObj[num]["groupcontrol"]);
+										filterFlagControl = filterFlagControl & ~Math.pow(2, tempObj[num]["groupControl"]);
 									}
 								}
 							}
@@ -503,7 +796,7 @@ package mcm
 								trace("Failed to GetModSettingFloat");
 							}
 							break;
-							default:
+						default: 
 						}
 					}
 				}
@@ -639,10 +932,16 @@ package mcm
 		private function onAllModsLoad():void
 		{
 			trace(modsCount + "/" + modsNum + " mod configs loaded");
-			this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: null, text: "$Hotkey manager", modName: "Hotkey manager", hotkeyManager: true, filterFlag: 1, pageSelected: false
+			this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: null, text: "$MCM_HOTKEY_MANAGER", modName: "Hotkey manager", hotkeyManager: true, filterFlag: 1, pageSelected: false
 			
 			});
 			this.HelpPanel_mc.HelpList_mc.InvalidateData();
+			this.HelpPanel_mc.HelpList_mc.selectedIndex = 0;
+			if (stage) 
+			{
+				stage.focus = this.HelpPanel_mc.HelpList_mc;
+				SetButtons();
+			}
 		}
 		
 		public function populateHotkeyArray():void
@@ -652,12 +951,12 @@ package mcm
 			try
 			{
 				var temparray:Array = mcmCodeObj.GetAllKeybinds();
-				trace("===========trace all keybinds=========");
-				traceObj(temparray);
-				trace("EOF ===========trace all keybinds=========");
+				//trace("===========trace all keybinds=========");
+				//traceObj(temparray);
+				//trace("EOF ===========trace all keybinds=========");
 				if (temparray.length == 0)
 				{
-					hotkeyManagerList.push({"type": "text", "text": "$There are no active hotkeys."});
+					hotkeyManagerList.push({"type": "text", "text": "$MCM_NO_HOTKEYS"});
 				}
 				else
 				{
@@ -682,6 +981,75 @@ package mcm
 			{
 				trace("Failed to GetAllKeybinds");
 			}
+		}
+				
+		public function ProcessKeyEvent(keyCode:int, isDown:Boolean):void
+		{
+			if (bmForInput)
+			{
+				bmForInput.ProcessKeyEvent(keyCode, isDown);
+			}
+			else 
+			{
+				if (!isDown && iMode == MCM_MAIN_MODE) 
+				{
+					switch (keyCode) 
+					{
+						case Keyboard.Q:
+							if (stage.focus != this.HelpPanel_mc.HelpList_mc) 
+							{
+								switchToLeft();
+							}
+						break;
+						case Keyboard.D:
+							if (stage.focus == this.HelpPanel_mc.HelpList_mc) 
+							{
+								switchToRight();
+							}
+						break;
+						case Keyboard.TAB:
+						case Keyboard.ESCAPE:
+							//onCancelPress();
+						break;
+						default:
+					}
+				}
+			}
+			//log("Key event! keyCode: " + keyCode + " isDown: " + isDown);
+		}
+		
+		public function ProcessUserEvent(controlName:String, isDown:Boolean, deviceType:int):void {
+			//log("User event! controlName: " + controlName + " isDown: " + isDown);
+			if (!isDown && iMode == MCM_MAIN_MODE && deviceType == 2) 
+			{
+				switch (controlName) 
+				{
+					case "LShoulder":
+						switchToLeft();
+					break;
+					case "RShoulder":
+						switchToRight();
+					break;
+					default:
+				}
+			}
+		}
+		
+		private function switchToLeft(){
+			stage.focus = this.HelpPanel_mc.HelpList_mc;
+			SetButtons();
+		}
+		
+		private function switchToRight(){
+			stage.focus = this.configPanel_mc.configList_mc;
+			this.configPanel_mc.configList_mc.selectedIndex = 0;
+			this.HelpPanel_mc.HelpList_mc.selectedIndex = selectedPage;
+			SetButtons();
+		}
+		
+		public function RefreshMCM():void
+		{
+			RefreshMCM_internal();
 		}
 		
 		// *********************************
@@ -739,7 +1107,7 @@ package mcm
 			translator = null;
 			return str;
 		}
-
+	
 	}
 
 }

@@ -25,6 +25,7 @@
 		
 		public function Open(aTarget:InteractiveObject)
 		{
+			MCM_Menu.iMode = MCM_Menu.MCM_DD_MODE;
 			_target = aTarget;
 			listprocedures();
 			visible = true;
@@ -57,6 +58,7 @@
 			_target = null;
 			visible = false;
 			opened = false;
+			MCM_Menu.iMode = MCM_Menu.MCM_MAIN_MODE;			
 		}
 		
 		function listprocedures():*

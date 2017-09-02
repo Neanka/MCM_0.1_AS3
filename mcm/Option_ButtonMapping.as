@@ -42,7 +42,6 @@
 		private var DelayTimer:Timer;
 		private var KeysArray:Array;
 		public var tween:TweenMax;
-		//private var _changed: Boolean = false;
 		
 		public function Option_ButtonMapping()
 		{
@@ -52,13 +51,23 @@
 		
 		private function DelayTimerAction(e:TimerEvent)
 		{
+			tween.pause(0);
 			this.DelayTimer.reset();
-			stage.getChildAt(0)["Menu_mc"]["bMenuClosing"] = false;
+			MCM_Menu.instance.configPanel_mc.configList_mc.disableInput = false;
+			MCM_Menu.instance.configPanel_mc.configList_mc.disableSelection = false;
+			MCM_Menu.instance.HelpPanel_mc.HelpList_mc.disableInput = false;
+			MCM_Menu.instance.HelpPanel_mc.HelpList_mc.disableSelection = false;
+			MCM_Menu.iMode = MCM_Menu.MCM_MAIN_MODE;
+			MCM_Menu.instance.requestHotkeyControlsUpdate();
 		}
 		
 		public function onItemPressed()
 		{			
-			stage.getChildAt(0)["Menu_mc"]["bMenuClosing"] = true;			
+			MCM_Menu.iMode = MCM_Menu.MCM_REMAP_MODE;
+			MCM_Menu.instance.configPanel_mc.configList_mc.disableInput = true;
+			MCM_Menu.instance.configPanel_mc.configList_mc.disableSelection = true;
+			MCM_Menu.instance.HelpPanel_mc.HelpList_mc.disableInput = true;
+			MCM_Menu.instance.HelpPanel_mc.HelpList_mc.disableSelection = true;
 			dispatchEvent(new Event(START_INPUT, true, true));
 			tween = new TweenMax(PCKey_tf, 0.5, {alpha:0, yoyo: true, repeat: -1});
 			_shiftpressed = false;
@@ -70,28 +79,15 @@
 		{
 			if (keyCode == Keyboard.ESCAPE && !isDown) 
 			{
-				dispatchEvent(new Event(END_INPUT, true, true));
-				tween.pause(0);
-				DelayTimer.start();
+				onEscPressed();
+				return;
+			}
+			if (keyCode == Keyboard.TAB && !isDown) 
+			{
+				onTabPressed();
 				return;
 			}
 			var temparray: Array = new Array();
-			if (keyCode == Keyboard.TAB && !isDown) 
-			{
-				if (keys[0] != 0) 
-				{
-					temparray.push(0);
-					temparray.push(0);
-					//_changed = true;
-					keys = temparray;
-					dispatchEvent(new Event(VALUE_CHANGE, true, true));
-				}
-				dispatchEvent(new Event(END_INPUT, true, true));
-				tween.pause(0);
-				DelayTimer.start();
-				return;
-			}
-			//MCM_Menu.instance.configPanel_mc.hint_tf.text = keytostring(keyCode);
 			if (allowModifierKeys == 0)
 			{
 				switch (keyCode)
@@ -100,19 +96,16 @@
 				case KEY_LSHIFT: 
 				case KEY_RSHIFT: 
 					_shiftpressed = isDown;
-					//MCM_Menu.instance.configPanel_mc.hint_tf.text = "SHIFT PRESSED";
 					break;
 				case Keyboard.ALTERNATE: 
 				case KEY_LALT: 
 				case KEY_RALT:
 					_altpressed = isDown;
-					//MCM_Menu.instance.configPanel_mc.hint_tf.text = "ALT PRESSED";
 					break;
 				case Keyboard.CONTROL: 
 				case KEY_LCTRL: 
 				case KEY_RCTRL: 
 					_ctrlpressed = isDown;
-					//MCM_Menu.instance.configPanel_mc.hint_tf.text = "CTRL PRESSED";
 					break;
 				default: 
 					if (!isDown) 
@@ -132,9 +125,7 @@
 						}
 						temparray.push(keyCode);
 						temparray.push(modifiers);
-						//_changed = true;
 						StartConfirm(temparray);
-
 					}
 				}
 			}
@@ -150,10 +141,29 @@
 			}
 		}
 		
-		private function StartConfirm(temparray:Array):void 
+		public function onTabPressed():void 
+		{
+			var temparray: Array = new Array();
+			if (keys[0] != 0) 
+			{
+				temparray.push(0);
+				temparray.push(0);
+				keys = temparray;
+				dispatchEvent(new Event(VALUE_CHANGE, true, true));
+			}
+			dispatchEvent(new Event(END_INPUT, true, true));
+			DelayTimer.start();
+		}
+		
+		public function onEscPressed():void 
 		{
 			dispatchEvent(new Event(END_INPUT, true, true));
 			DelayTimer.start();
+		}
+		
+		private function StartConfirm(temparray:Array):void 
+		{
+			dispatchEvent(new Event(END_INPUT, true, true));
 			if (this.type == mcm.SettingsOptionItem.MOVIETYPE_KEYINPUT) 
 			{
 				EndConfirm(temparray);
@@ -202,7 +212,7 @@
 				keys = temparray;
 				dispatchEvent(new Event(VALUE_CHANGE, true, true));
 			}
-			tween.pause(0);
+			DelayTimer.start();
 		}
 
 		
@@ -217,7 +227,7 @@
 			this.RefreshText();
 		}
 		
-		private function RefreshText()
+		public function RefreshText()
 		{
 			/*if (modName != "" && id != "" && !_changed) 
 			{

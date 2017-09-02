@@ -4,7 +4,9 @@
 	import Shared.AS3.BSUIComponent;
 	import flash.display.InteractiveObject;
 	import flash.display.MovieClip;
+	import flash.events.TimerEvent;
 	import flash.text.TextField;
+	import flash.utils.Timer;
 	import scaleform.gfx.Extensions;
 	import scaleform.gfx.TextFieldEx;
 	import Shared.GlobalFunc;
@@ -13,9 +15,10 @@
 	{
 		public var opened:Boolean;
 		public var confirmlist_mc:mcm.confirmlist;
-		public var confirmtext_tf: TextField;
-		private var _sender: InteractiveObject;
-		private var _keysarray: Array;
+		public var confirmtext_tf:TextField;
+		private var _sender:InteractiveObject;
+		private var _keysarray:Array;
+		private var DelayTimer:Timer;
 		
 		public function hotkey_conflict_window()
 		{
@@ -27,51 +30,64 @@
 			TextFieldEx.setTextAutoSize(this.confirmtext_tf, TextFieldEx.TEXTAUTOSZ_SHRINK);
 			opened = false;
 			visible = false;
+			this.confirmlist_mc.disableInput = true;
+			this.DelayTimer = new Timer(200, 1);
+			this.DelayTimer.addEventListener(TimerEvent.TIMER_COMPLETE, DelayTimerAction);
 		}
 		
-		public function Open(state: int, keys: Array, modname: String, hotkeyAction: String, sender: InteractiveObject)
+		private function DelayTimerAction(e:TimerEvent)
 		{
+			this.DelayTimer.reset();
+			this.confirmlist_mc.disableInput = false;
+		}
+		
+		public function Open(state:int, keys:Array, modname:String, hotkeyAction:String, sender:InteractiveObject)
+		{
+			MCM_Menu.iMode = MCM_Menu.MCM_CONFLICT_MODE;
 			_sender = sender;
 			_keysarray = keys;
 			MCM_Menu.instance.configPanel_mc.configList_mc.disableInput = true;
 			MCM_Menu.instance.configPanel_mc.configList_mc.disableSelection = true;
 			MCM_Menu.instance.HelpPanel_mc.HelpList_mc.disableInput = true;
 			MCM_Menu.instance.HelpPanel_mc.HelpList_mc.disableSelection = true;
-			var str: String = "";
-			switch (state) 
+			
+			var str:String = "";
+			switch (state)
 			{
-				case 1:
-					this.confirmlist_mc.EntriesA[0].text = "$Replace Keybind";
-					this.confirmlist_mc.UpdateList();
-					str = MCM_Menu.Translator("$This key is in use by the following mod:");
-					str += "<br><b>" + modname + "</b><br>";
-					str += MCM_Menu.Translator("$for the following action:");
-					str += "<br><b>" + hotkeyAction + "</b>";
-					GlobalFunc.SetText(confirmtext_tf, str, true);
+			case 1: 
+				this.confirmlist_mc.EntriesA[0].text = "$MCM_KEYBIND_REPLACE";
+				this.confirmlist_mc.UpdateList();
+				str = MCM_Menu.Translator("$MCM_KEYBIND_IN_USE_MOD_1");
+				str += "<br><b>" + modname + "</b><br>";
+				str += MCM_Menu.Translator("$MCM_KEYBIND_IN_USE_MOD_2");
+				str += "<br><b>" + hotkeyAction + "</b>";
+				GlobalFunc.SetText(confirmtext_tf, str, true);
 				break;
-			case 2:
-					this.confirmlist_mc.EntriesA[0].text = "$Bind Anyway";
-					this.confirmlist_mc.UpdateList();
-					str = MCM_Menu.Translator("$Warning: this key is in use for the following game action:");
-					str += "<br><b>" + MCM_Menu.Translator("$"+hotkeyAction) + "</b><br>";
-					str += MCM_Menu.Translator("$You may choose to bind the key anyway, but doing so will result in multiple actions when the key is pressed.");
-					GlobalFunc.SetText(confirmtext_tf, str, true);
+			case 2: 
+				this.confirmlist_mc.EntriesA[0].text = "$MCM_KEYBIND_BIND_ANYWAY";
+				this.confirmlist_mc.UpdateList();
+				str = MCM_Menu.Translator("$MCM_KEYBIND_IN_USE_GAME_1");
+				str += "<br><b>" + MCM_Menu.Translator("$" + hotkeyAction) + "</b><br>";
+				str += MCM_Menu.Translator("$MCM_KEYBIND_IN_USE_GAME_2");
+				GlobalFunc.SetText(confirmtext_tf, str, true);
 				break;
-				default:
+			default: 
 			}
 			
 			visible = true;
 			opened = true;
 			stage.focus = this.confirmlist_mc;
+			this.confirmlist_mc.selectedIndex = 1;
+			this.DelayTimer.start();
 		}
 		
-		public function Close(bNoSave: Boolean)
+		public function Close(bNoSave:Boolean)
 		{
-			if (!bNoSave) 
+			if (!bNoSave)
 			{
 				(_sender as mcm.Option_ButtonMapping).EndConfirm(_keysarray);
 			}
-			else 
+			else
 			{
 				(_sender as mcm.Option_ButtonMapping).EndConfirm(null);
 			}
@@ -79,11 +95,13 @@
 			MCM_Menu.instance.configPanel_mc.configList_mc.disableSelection = false;
 			MCM_Menu.instance.HelpPanel_mc.HelpList_mc.disableInput = false;
 			MCM_Menu.instance.HelpPanel_mc.HelpList_mc.disableSelection = false;
+			
 			stage.focus = MCM_Menu.instance.configPanel_mc.configList_mc;
 			_sender = null;
 			_keysarray = new Array();
 			visible = false;
 			opened = false;
+			this.confirmlist_mc.disableInput = true;
 		}
 		
 		function setprops()
