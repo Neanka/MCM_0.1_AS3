@@ -36,7 +36,7 @@
 		
 		public var type:int;
 		public var PCKey_tf:TextField;
-		public var allowModifierKeys:int = 0;
+		public var allowModifierKeys:int = 1;
 		public var modName:String = "";
 		public var id:String = "";
 		private var DelayTimer:Timer;
@@ -88,7 +88,7 @@
 				return;
 			}
 			var temparray: Array = new Array();
-			if (allowModifierKeys == 0)
+			if (allowModifierKeys == 1)
 			{
 				switch (keyCode)
 				{

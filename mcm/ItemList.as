@@ -19,6 +19,7 @@ package mcm
 		private function onMouseOver(event:MouseEvent)
 		{
 			dispatchEvent(new Event(MOUSE_OVER, true, true));
+			//stage.focus = this; //TODO: THIS IS PRETTY BAD THING FOR KB NAVIGATION!
 		}
 		
 		private function onMouseOut(event:MouseEvent)
@@ -26,7 +27,7 @@ package mcm
 			dispatchEvent(new Event(MOUSE_OUT, true, true));
 			if (this.name == "HelpList_mc") 
 			{
-				this.selectedIndex = -1;
+				this.selectedIndex = MCM_Menu.instance.selectedPage;
 			}
 		}
 	}

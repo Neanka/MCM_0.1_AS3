@@ -19,9 +19,9 @@
 		
 		private var MainMenu:MovieClip;
 		private var savedMenuProperties:Object = new Object();
-		;
 		public var mcmMenu:MCM_Menu = new mcm.MCM_Menu();
 		private var mcmCodeObj:Object = new Object();
+		private var MCMCloseDelayTimer:Timer;
 		
 		public function MCM_Main()
 		{
@@ -35,6 +35,14 @@
 				log("Not running in-game.");
 				addChild(mcmMenu);
 			}
+			this.MCMCloseDelayTimer = new Timer(100, 1);
+			this.MCMCloseDelayTimer.addEventListener(TimerEvent.TIMER_COMPLETE, MCMCloseDelayTimerAction);
+		}
+		
+		private function MCMCloseDelayTimerAction(e:TimerEvent)
+		{
+			this.MCMCloseDelayTimer.reset();
+			mcmCodeObj.DisableMenuInput(false);
 		}
 		
 		private function makeChanges():void
@@ -50,7 +58,7 @@
 			savedMenuProperties.HelpPanelBackground_Height = MainMenu.BackgroundAndBracketsHelpTopic_mc.height;
 			savedMenuProperties.HelpPanelBackground_Width = MainMenu.BackgroundAndBracketsHelpTopic_mc.width;
 			
-			MainMenu["MainPanel_mc"].List_mc.entryList.unshift({"text": "$MOD CONFIG", "index": 100});
+			MainMenu["MainPanel_mc"].List_mc.entryList.unshift({"text": "$MOD_CONFIG", "index": 100});
 			MainMenu["MainPanel_mc"].List_mc.InvalidateData();
 			MainMenu.addEventListener("BSScrollingList::itemPress", itemPressedHandler);
 			
@@ -73,7 +81,7 @@
 		private function focusInHandler(event:FocusEvent):void
 		{
 			stage.getChildAt(0).f4se.SendExternalEvent("OnMCMClose");
-			mcmCodeObj.DisableMenuInput(false);
+			MCMCloseDelayTimer.start();
 			mcmCodeObj.OnMCMClose();
 			stage.getChildAt(0)["Menu_mc"].PopulateButtonBar();
 			MainMenu["MainPanel_mc"].List_mc.removeEventListener(FocusEvent.FOCUS_IN, focusInHandler);

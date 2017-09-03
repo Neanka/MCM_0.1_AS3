@@ -168,7 +168,7 @@ package mcm
 		{
 			switch (EntriesA[_arg_1.target.itemIndex].action.type)
 			{
-			case "CallQuestFunction": 
+			case "CallFunction": 
 				cqf(EntriesA[_arg_1.target.itemIndex].action.form, EntriesA[_arg_1.target.itemIndex].action["function"], EntriesA[_arg_1.target.itemIndex].action.params);
 				break;
 			case "CallGlobalFunction": 
@@ -253,14 +253,12 @@ package mcm
 					}
 					if (_arg_2.keys != undefined)
 					{
-						if (_arg_2.valueOptions != undefined && _arg_2.valueOptions.allowModifierKeys) 
+						if (_arg_2.valueOptions != undefined && _arg_2.valueOptions.allowModifierKeys != undefined) 
 						{
 							_local_3.SetOptionKeyInput(_arg_2.keys,_arg_2.valueOptions.allowModifierKeys,_arg_2.modName,_arg_2.id);
-							//_local_3.SetOptionKeyInput(_arg_2.keys, _arg_2.valueOptions.allowModifierKeys);
 						} else 
 						{
-							_local_3.SetOptionKeyInput(_arg_2.keys,0,_arg_2.modName,_arg_2.id);
-							//_local_3.SetOptionKeyInput(_arg_2.keys,0);	
+							_local_3.SetOptionKeyInput(_arg_2.keys,1,_arg_2.modName,_arg_2.id);
 						}
 					}
 					;

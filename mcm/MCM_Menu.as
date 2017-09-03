@@ -44,8 +44,8 @@ package mcm
 		private var ConfirmButton:BSButtonHintData;
 		private var CancelButton:BSButtonHintData;
 		private var BackButton:BSButtonHintData;
-		private var SwitchButtonLeft:BSButtonHintData;
-		private var SwitchButtonRight:BSButtonHintData;
+		//private var SwitchButtonLeft:BSButtonHintData;
+		//private var SwitchButtonRight:BSButtonHintData;
 		
 		static private var _iMode:uint = 0;
 		static public var MCM_MAIN_MODE:uint = 0;
@@ -59,8 +59,8 @@ package mcm
 			this.ConfirmButton = new BSButtonHintData("$CONFIRM", "Enter", "PSN_A", "Xenon_A", 1, this.onAcceptPress);
 			this.BackButton = new BSButtonHintData("$Back", "Tab", "PSN_X", "Xenon_X", 1, this.onBackPress);
 			this.CancelButton = new BSButtonHintData("$Cancel", "Esc", "PSN_B", "Xenon_B", 1, this.onCancelPress);
-			this.SwitchButtonLeft = new BSButtonHintData("$MCM_SWITCH_TO_LEFT", "Q", "PSN_L1", "Xenon_L1", 1, this.switchToLeft);
-			this.SwitchButtonRight = new BSButtonHintData("$MCM_SWITCH_TO_RIGHT", "D", "PSN_R1", "Xenon_R1", 1, this.switchToRight);
+			//this.SwitchButtonLeft = new BSButtonHintData("$MCM_SWITCH_TO_LEFT", "Q", "PSN_L1", "Xenon_L1", 1, this.switchToLeft);
+			//this.SwitchButtonRight = new BSButtonHintData("$MCM_SWITCH_TO_RIGHT", "D", "PSN_R1", "Xenon_R1", 1, this.switchToRight);
 			MCM_Menu._instance = this;
 			addEventListener(BSScrollingList1.LIST_ITEMS_CREATED, listcreated);
 			addEventListener(BSScrollingList1.SELECTION_CHANGE, selectionchanged);
@@ -112,17 +112,17 @@ package mcm
 				break;
 			default: 
 			}
-			if (stage) 
+		/*	if (stage) 
 			{
 				this.SwitchButtonLeft.ButtonVisible = (iMode == MCM_MAIN_MODE) && (stage.focus != this.HelpPanel_mc.HelpList_mc);
 				this.SwitchButtonRight.ButtonVisible = (iMode == MCM_MAIN_MODE) && (stage.focus == this.HelpPanel_mc.HelpList_mc);
-			}
+			}*/
 		}
 		
 		private function onAddedToStage(e:Event):void
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
-			stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUpHandler);
+			//stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUpHandler);
 			this.ButtonHintBar_mc = stage.getChildAt(0)["Menu_mc"].ButtonHintBar_mc;
 			SetButtons();
 		}
@@ -148,7 +148,16 @@ package mcm
 			switch (iMode)
 			{
 			case MCM_MAIN_MODE: 
-				onQuitPressed();
+				if (stage.focus == this.HelpPanel_mc.HelpList_mc) 
+				{
+					onQuitPressed();
+				}
+				else 
+				{
+					stage.focus = this.HelpPanel_mc.HelpList_mc;
+					this.configPanel_mc.configList_mc.selectedIndex = -1;
+				}
+
 				break;
 			case MCM_CONFLICT_MODE: 
 				this.configPanel_mc.hotkey_conflict_mc.Close(true);
@@ -189,8 +198,8 @@ package mcm
 		public function PopulateButtonBar():void
 		{
 			this.standardButtonHintDataV = new Vector.<BSButtonHintData>();
-			this.standardButtonHintDataV.push(this.SwitchButtonLeft);
-			this.standardButtonHintDataV.push(this.SwitchButtonRight);	
+			//this.standardButtonHintDataV.push(this.SwitchButtonLeft);
+			//this.standardButtonHintDataV.push(this.SwitchButtonRight);	
 			this.standardButtonHintDataV.push(this.ConfirmButton);
 			this.standardButtonHintDataV.push(this.BackButton);
 			this.standardButtonHintDataV.push(this.CancelButton);
@@ -533,7 +542,6 @@ package mcm
 					obj.pageSelected = false;
 				}
 				this.HelpPanel_mc.HelpList_mc.selectedEntry.pageSelected = true;
-				//this.configPanel_mc.configList_mc.selectedIndex = -1;
 				this.selectedPage = this.HelpPanel_mc.HelpList_mc.selectedIndex;
 				if (this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj)
 				{
@@ -553,10 +561,21 @@ package mcm
 					GlobalFunc.SetText(this.configPanel_mc.hint_tf, " ", true);
 				}
 				this.configPanel_mc.configList_mc.InvalidateData();
-				//this.configPanel_mc.configList_mc.selectedIndex = 0;
+
 				if (this.HelpPanel_mc.HelpList_mc.selectedEntry.filterFlag == 1)
 				{
-					this.HelpPanel_mc.HelpList_mc.filterer.modName = this.HelpPanel_mc.HelpList_mc.selectedEntry.modName;
+					if (this.HelpPanel_mc.HelpList_mc.filterer.modName == this.HelpPanel_mc.HelpList_mc.selectedEntry.modName) 
+					{
+						tryToSelectRightPanel();
+					} 
+					else 
+					{
+						this.HelpPanel_mc.HelpList_mc.filterer.modName = this.HelpPanel_mc.HelpList_mc.selectedEntry.modName;
+					}
+				}
+				else 
+				{
+					tryToSelectRightPanel();
 				}
 				this.HelpPanel_mc.HelpList_mc.UpdateList();
 				this.configPanel_mc.configList_mc.disableInput = false;
@@ -575,6 +594,16 @@ package mcm
 				default: 
 				}
 			}
+		}
+		
+		function tryToSelectRightPanel():void 
+		{
+			this.configPanel_mc.configList_mc.selectedIndex = -1;
+			this.configPanel_mc.configList_mc.moveSelectionDown();
+			if (this.configPanel_mc.configList_mc.selectedIndex != -1) 
+			{
+				stage.focus = this.configPanel_mc.configList_mc;
+			}			
 		}
 		
 		public function JSONLoader(filename:String)
@@ -995,22 +1024,11 @@ package mcm
 				{
 					switch (keyCode) 
 					{
-						case Keyboard.Q:
-							if (stage.focus != this.HelpPanel_mc.HelpList_mc) 
-							{
-								switchToLeft();
-							}
-						break;
-						case Keyboard.D:
-							if (stage.focus == this.HelpPanel_mc.HelpList_mc) 
-							{
-								switchToRight();
-							}
-						break;
 						case Keyboard.TAB:
-						case Keyboard.ESCAPE:
-							//onCancelPress();
+							onCancelPress();
 						break;
+					case Keyboard.ESCAPE:
+							onQuitPressed();
 						default:
 					}
 				}
@@ -1020,7 +1038,7 @@ package mcm
 		
 		public function ProcessUserEvent(controlName:String, isDown:Boolean, deviceType:int):void {
 			//log("User event! controlName: " + controlName + " isDown: " + isDown);
-			if (!isDown && iMode == MCM_MAIN_MODE && deviceType == 2) 
+			/*if (!isDown && iMode == MCM_MAIN_MODE && deviceType == 2) 
 			{
 				switch (controlName) 
 				{
@@ -1032,7 +1050,7 @@ package mcm
 					break;
 					default:
 				}
-			}
+			}*/
 		}
 		
 		private function switchToLeft(){
@@ -1042,7 +1060,8 @@ package mcm
 		
 		private function switchToRight(){
 			stage.focus = this.configPanel_mc.configList_mc;
-			this.configPanel_mc.configList_mc.selectedIndex = 0;
+			this.configPanel_mc.configList_mc.selectedIndex = -1;
+			this.configPanel_mc.configList_mc.moveSelectionDown();
 			this.HelpPanel_mc.HelpList_mc.selectedIndex = selectedPage;
 			SetButtons();
 		}
