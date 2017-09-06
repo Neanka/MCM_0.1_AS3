@@ -169,13 +169,6 @@
 			{
 				makeChanges();	
 			}
-			else
-			{
-				//menu["MainPanel_mc"].getChildAt(3).y = -120;
-			}
-			//menu["MainPanel_mc"].getChildAt(0).height = 308;
-			//menu["MainPanel_mc"].getChildAt(1).height = 308;
-			//menu["MainPanel_mc"].y = 432;
 		}
 		
 		// *********************************

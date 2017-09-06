@@ -433,7 +433,7 @@ package mcm
 				{
 					trace("Failed to GetDirectoryListing for JSON");
 					modsNum = 2;
-					JSONLoader("../../Data/MCM/Config/def_w_sur1/config.json");
+					JSONLoader("../../Data/MCM/Config/cc_cleaner/config.json");
 					JSONLoader("../../Data/MCM/Config/MCM_Demo/config.json");
 				}
 				
@@ -500,7 +500,7 @@ package mcm
 				var swfloader2:Loader = new Loader();
 				swfloader2.contentLoaderInfo.addEventListener(Event.COMPLETE, this.onSWFLoaded, false, 0, true);
 				swfloader2.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, IOSWFErrorHandler);
-				swfloader2.load(new URLRequest("../../Data/MCM/Config/def_w_sur1/lib.swf"));
+				swfloader2.load(new URLRequest("../../Data/MCM/Config/cc_cleaner/lib.swf"));
 			}
 		}
 		

@@ -10,6 +10,7 @@ package mcm
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.ui.Keyboard;
+	import flash.utils.getQualifiedClassName;
 	
 	public class OptionsList extends mcm.ItemList
 	{
@@ -83,6 +84,7 @@ package mcm
 					//trace("MCM_Menu.instance.requestHotkeyControlsUpdate();");
 					//MCM_Menu.instance.requestHotkeyControlsUpdate();
 			}
+			var valueType:String = "String";
 			if (EntriesA[_arg_1.target.itemIndex].valueOptions)
 			{
 				if (EntriesA[_arg_1.target.itemIndex].valueOptions.sourceType)
@@ -90,6 +92,7 @@ package mcm
 					switch (EntriesA[_arg_1.target.itemIndex].valueOptions.sourceType)
 					{
 					case "GlobalValue": 
+						valueType = "Number";
 						try
 						{
 							parent.parent.mcmCodeObj.SetGlobalValue(EntriesA[_arg_1.target.itemIndex].valueOptions.sourceForm, Number(EntriesA[_arg_1.target.itemIndex].value));
@@ -100,6 +103,7 @@ package mcm
 						}
 						break;
 					case "ModSettingString": 
+						valueType = "String";
 						try
 						{
 							parent.parent.mcmCodeObj.SetModSettingString(EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].id, EntriesA[_arg_1.target.itemIndex].valueString);
@@ -110,6 +114,7 @@ package mcm
 						}
 						break;
 					case "ModSettingInt": 
+						valueType = "int";
 						try
 						{
 							parent.parent.mcmCodeObj.SetModSettingInt(EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].id, int(EntriesA[_arg_1.target.itemIndex].value));
@@ -120,6 +125,7 @@ package mcm
 						}
 						break;
 					case "ModSettingFloat": 
+						valueType = "Number";
 						try
 						{
 							//trace(Number(EntriesA[_arg_1.target.itemIndex].value));
@@ -131,6 +137,7 @@ package mcm
 						}
 						break;
 					case "ModSettingBool": 
+						valueType = "Boolean";
 						try
 						{
 							parent.parent.mcmCodeObj.SetModSettingBool(EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].id, Boolean(EntriesA[_arg_1.target.itemIndex].value));
@@ -147,7 +154,7 @@ package mcm
 				}
 			}
 			
-			if (EntriesA[_arg_1.target.itemIndex].groupControl)
+			if (EntriesA[_arg_1.target.itemIndex].hasOwnProperty("groupControl"))
 			{
 				if (EntriesA[_arg_1.target.itemIndex].value == 1)
 				{
@@ -158,8 +165,84 @@ package mcm
 					removefilterflag(EntriesA[_arg_1.target.itemIndex].groupControl);
 				}
 			}
+			if (EntriesA[_arg_1.target.itemIndex].hasOwnProperty("action"))
+			{
+				switch (EntriesA[_arg_1.target.itemIndex].action.type)
+				{
+				case "CallFunction": 
+					cqf(EntriesA[_arg_1.target.itemIndex].action.form, EntriesA[_arg_1.target.itemIndex].action["function"], parseParams(EntriesA[_arg_1.target.itemIndex], valueType));
+					break;
+				case "CallGlobalFunction": 
+					cgf(EntriesA[_arg_1.target.itemIndex].action.script, EntriesA[_arg_1.target.itemIndex].action["function"], parseParams(EntriesA[_arg_1.target.itemIndex], valueType));
+					break;
+				default: 
+					trace("unknown action type");
+					break;
+				}
+			}
 			stage.getChildAt(0).f4se.SendExternalEvent("OnMCMSettingChange", EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].id);
 			stage.getChildAt(0).f4se.SendExternalEvent("OnMCMSettingChange|" + EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].id);
+		}
+		
+		private function parseParams(params:Object, valueType:String):Array
+		{
+			var temparray:Array = new Array();
+			for each (var obj in params.action.params)
+			{
+				if (getQualifiedClassName(obj) == "String")
+				{
+					if (obj == "{value}")
+					{
+						switch (valueType)
+						{
+						case "String": 
+							temparray.push(params.valueString);
+							break;
+						case "Number": 
+							temparray.push(Number(params.value));
+							break;
+						case "int": 
+							temparray.push(int(params.value));
+							break;
+						case "Boolean": 
+							temparray.push(Boolean(params.value));
+							break;
+						default: 
+							temparray.push(params.value);
+						}
+					}
+					else if (obj.search(/{i}/) == 0)
+					{
+						temparray.push(int(obj.replace(/{i}/, "")));
+					}
+					else if (obj.search(/{b}/) == 0)
+					{
+						temparray.push(Boolean(obj.replace(/{b}/, "")));
+					}
+					else if (obj.search(/{f}/) == 0)
+					{
+						temparray.push(Number(obj.replace(/{f}/, "")));
+					}
+					else
+					{
+						if (valueType == "String") 
+						{
+							temparray.push(obj.replace(/{value}/, params.valueString));
+						}
+						else 
+						{
+							temparray.push(obj.replace(/{value}/, params.value));
+						}
+						
+					}
+				}
+				else
+				{
+					temparray.push(obj);
+				}
+				
+			}
+			return temparray;
 		}
 		
 		public function onButtonPressed(_arg_1:Event)
