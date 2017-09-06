@@ -175,6 +175,9 @@ package mcm
 				case "CallGlobalFunction": 
 					cgf(EntriesA[_arg_1.target.itemIndex].action.script, EntriesA[_arg_1.target.itemIndex].action["function"], parseParams(EntriesA[_arg_1.target.itemIndex], valueType));
 					break;
+				case "CallExternalFunction": 
+					cef(EntriesA[_arg_1.target.itemIndex].action.plugin, EntriesA[_arg_1.target.itemIndex].action["function"], parseParams(EntriesA[_arg_1.target.itemIndex], valueType));
+					break;
 				default: 
 					trace("unknown action type");
 					break;
@@ -245,15 +248,51 @@ package mcm
 			return temparray;
 		}
 		
+		private function parseButtonParams(params:Array):Array
+		{
+			var temparray:Array = new Array();
+			for each (var obj in params)
+			{
+				if (getQualifiedClassName(obj) == "String")
+				{
+					if (obj.search(/{i}/) == 0)
+					{
+						temparray.push(int(obj.replace(/{i}/, "")));
+					}
+					else if (obj.search(/{b}/) == 0)
+					{
+						temparray.push(Boolean(obj.replace(/{b}/, "")));
+					}
+					else if (obj.search(/{f}/) == 0)
+					{
+						temparray.push(Number(obj.replace(/{f}/, "")));
+					}
+					else
+					{
+						temparray.push(obj);						
+					}
+				}
+				else
+				{
+					temparray.push(obj);
+				}
+				
+			}
+			return temparray;
+		}
+		
 		public function onButtonPressed(_arg_1:Event)
 		{
 			switch (EntriesA[_arg_1.target.itemIndex].action.type)
 			{
 			case "CallFunction": 
-				cqf(EntriesA[_arg_1.target.itemIndex].action.form, EntriesA[_arg_1.target.itemIndex].action["function"], EntriesA[_arg_1.target.itemIndex].action.params);
+				cqf(EntriesA[_arg_1.target.itemIndex].action.form, EntriesA[_arg_1.target.itemIndex].action["function"], parseButtonParams(EntriesA[_arg_1.target.itemIndex].action.params));
 				break;
 			case "CallGlobalFunction": 
-				cgf(EntriesA[_arg_1.target.itemIndex].action.script, EntriesA[_arg_1.target.itemIndex].action["function"], EntriesA[_arg_1.target.itemIndex].action.params);
+				cgf(EntriesA[_arg_1.target.itemIndex].action.script, EntriesA[_arg_1.target.itemIndex].action["function"], parseButtonParams(EntriesA[_arg_1.target.itemIndex].action.params));
+				break;
+			case "CallExternalFunction": 
+				cef(EntriesA[_arg_1.target.itemIndex].action.plugin, EntriesA[_arg_1.target.itemIndex].action["function"], parseButtonParams(EntriesA[_arg_1.target.itemIndex].action.params));
 				break;
 			default: 
 				trace("unknown button action");
@@ -290,6 +329,19 @@ package mcm
 			catch (e:Error)
 			{
 				trace("Failed to CallGlobalFunction");
+			}
+		}
+		
+		public function cef(aPlugin:String, aFunc:String, aArgs:Array = null):void
+		{
+			trace(aPlugin,aFunc,aArgs);
+			try
+			{
+				stage.getChildAt(0).f4se.plugins[aPlugin][aFunc].apply(null,aArgs);
+			}
+			catch (e:Error)
+			{
+				trace("Failed to CallExternalFunction");
 			}
 		}
 		
