@@ -459,17 +459,17 @@ package mcm
 		public function loadWelcomePage():void
 		{
 			var temparray:Array = new Array();
-			temparray.push({"type": "empty"});
-			temparray.push({"type": "empty"});
-			temparray.push({"type": "empty"});
-			temparray.push({"type": "empty"});
-			temparray.push({"type": "empty"});
-			temparray.push({"type": "empty"});
-			temparray.push({"type": "empty"});
+			temparray.push({"type": "spacer"});
+			temparray.push({"type": "spacer"});
+			temparray.push({"type": "spacer"});
+			temparray.push({"type": "spacer"});
+			temparray.push({"type": "spacer"});
+			temparray.push({"type": "spacer"});
+			temparray.push({"type": "spacer"});
 			temparray.push({"type": "image", "libName": "builtin", "className": "logotest", "width": 345});
-			temparray.push({"type": "empty"});
-			temparray.push({"type": "empty"});
-			temparray.push({"type": "empty"});
+			temparray.push({"type": "spacer"});
+			temparray.push({"type": "spacer"});
+			temparray.push({"type": "spacer"});
 			temparray.push({"text": "MCM FALLOUT 4 EDITION", "align": "center", "type": "text"});
 			temparray.push({"text": "VERSION " + String(GetVersionCode()), "align": "center", "type": "text"});
 			this.configPanel_mc.configList_mc.entryList = processDataObj(temparray);
@@ -711,9 +711,9 @@ package mcm
 			if ((reqsstatus.length > 0) || !mcmstatus)
 			{
 				var temparray:Array = new Array();
-				temparray.push({"type": "empty"});
+				temparray.push({"type": "spacer"});
 				temparray.push({"type": "image", "libName": "builtin", "className": "exclamation_icon"});
-				temparray.push({"type": "empty"});
+				temparray.push({"type": "spacer"});
 				if ((reqsstatus.length > 0))
 				{
 					temparray.push({"text": Translator("$MCM_MISSING_PLUGINS"), "align": "center", "type": "text"});
@@ -721,7 +721,7 @@ package mcm
 					{
 						temparray.push({"text": String(count + 1) + ". " + reqsstatus[count], "align": "center", "type": "text"});
 					}
-					temparray.push({"type": "empty"});
+					temparray.push({"type": "spacer"});
 				}
 				
 				if (!mcmstatus)
@@ -859,7 +859,7 @@ package mcm
 				case "section": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_SECTION;
 					break;
-				case "empty": 
+				case "spacer": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE;
 					break;
 				case "dropdown": 
@@ -1009,7 +1009,7 @@ package mcm
 						{
 							if (tempmodname != "")
 							{
-								hotkeyManagerList.push({"type": "empty"});
+								hotkeyManagerList.push({"type": "spacer"});
 							}
 							tempmodname = obj.modName;
 							hotkeyManagerList.push({"type": "section", "text": tempmodname});

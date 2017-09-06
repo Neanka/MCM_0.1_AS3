@@ -257,6 +257,18 @@ package mcm
 			case MOVIETYPE_EMPTY_LINE: 
 				this.border.alpha = 0;
 				GlobalFunc.SetText(this.textField, " ", true);
+				if (_arg_1.hasOwnProperty("numLines")) 
+				{
+					this.border.height = _arg_1.numLines*ORIG_BORDER_HEIGHT;
+				}
+				else if (_arg_1.hasOwnProperty("height")) 
+				{
+					this.border.height = _arg_1.height;
+				}
+				else
+				{
+					this.border.height = ORIG_BORDER_HEIGHT
+				}
 				return;
 				break;
 			case MOVIETYPE_TEXT: 

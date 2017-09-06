@@ -13,8 +13,6 @@
 	public class MCM_Main extends MovieClip
 	{
 		
-		private var done:Boolean = false;
-		
 		private var MainMenu:MovieClip;
 		private var savedMenuProperties:Object = new Object();
 		public var mcmMenu:MCM_Menu = new mcm.MCM_Menu();
@@ -165,23 +163,19 @@
 		
 		private function enterFrameHandler(e:Event):void
 		{
-			if (!done)
+			removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
+			var menu:MovieClip = stage.getChildAt(0)["Menu_mc"];
+			if (menu["PauseMode"]) 
 			{
-				var menu:MovieClip = stage.getChildAt(0)["Menu_mc"];
-				
-				if (menu["MainPanel_mc"].List_mc.entryList.length > 4)
-				{
-					done = true;
-					if (menu["MainPanel_mc"].List_mc.entryList.length < 8)
-					{
-						makeChanges();
-					}
-				}
+				makeChanges();	
 			}
 			else
 			{
-				removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
+				//menu["MainPanel_mc"].getChildAt(3).y = -120;
 			}
+			//menu["MainPanel_mc"].getChildAt(0).height = 308;
+			//menu["MainPanel_mc"].getChildAt(1).height = 308;
+			//menu["MainPanel_mc"].y = 432;
 		}
 		
 		// *********************************

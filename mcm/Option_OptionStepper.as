@@ -71,6 +71,8 @@ package mcm
             var _local_1:TextLineMetrics = this.textField.getLineMetrics(0);
             this.LeftArrow_mc.x = (this.textField.x + _local_1.x);
             this.RightArrow_mc.x = (((this.textField.x + _local_1.x) + _local_1.width) + 6);
+			this.LeftArrow_mc.visible = (this.uiSelectedIndex != 0);
+			this.RightArrow_mc.visible = (this.uiSelectedIndex != this.OptionArray.length-1);
         }
 
         private function Decrement()
