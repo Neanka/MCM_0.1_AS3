@@ -25,7 +25,7 @@ package mcm
 		private function onMouseOut(event:MouseEvent)
 		{
 			dispatchEvent(new Event(MOUSE_OUT, true, true));
-			if (this.name == "HelpList_mc") 
+			if (this.name == "HelpList_mc")
 			{
 				this.selectedIndex = MCM_Menu.instance.selectedPage;
 			}

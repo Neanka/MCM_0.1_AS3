@@ -5,11 +5,9 @@
 	import flash.events.Event;
 	import flash.events.FocusEvent;
 	import flash.events.TimerEvent;
+	import flash.geom.Point;
 	import flash.utils.Timer;
 	import flash.utils.getQualifiedClassName;
-	import flash.geom.Point;
-	import Shared.AS3.BSButtonHintData;
-	
 	import scaleform.gfx.Extensions;
 	
 	public class MCM_Main extends MovieClip
@@ -144,6 +142,11 @@
 				mcmCodeObj.DisableMenuInput(true);
 				mcmMenu.PopulateButtonBar();
 				mcmCodeObj.OnMCMOpen();
+				if (stage && MCM_Menu.mcmLoaded) 
+				{
+					//MCM_Menu.instance.loadWelcomePage();
+					stage.focus = MCM_Menu.instance.HelpPanel_mc.HelpList_mc;
+				}
 				break;
 			
 			default: 
@@ -197,7 +200,8 @@
 			//log("Key event! keyCode: " + keyCode + " isDown: " + isDown);
 		}
 		
-		public function ProcessUserEvent(controlName:String, isDown:Boolean, deviceType:int):void {
+		public function ProcessUserEvent(controlName:String, isDown:Boolean, deviceType:int):void
+		{
 			mcmMenu.ProcessUserEvent(controlName, isDown, deviceType);
 		}
 		

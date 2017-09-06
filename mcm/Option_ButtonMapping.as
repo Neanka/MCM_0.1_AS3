@@ -1,14 +1,12 @@
 ﻿package mcm
 {
+	import com.greensock.*;
 	import flash.display.MovieClip;
 	import flash.events.Event;
-	import flash.events.KeyboardEvent;
 	import flash.events.TimerEvent;
 	import flash.text.TextField;
 	import flash.ui.Keyboard;
 	import flash.utils.Timer;
-	import com.greensock.*;
-	import Shared.AS3.BSButtonHintData;
 	
 	public dynamic class Option_ButtonMapping extends MovieClip
 	{
@@ -26,8 +24,7 @@
 		
 		public static const MODIFIER_SHIFT:int = (1 << 0);
 		public static const MODIFIER_CONTROL:int = (1 << 1);
-		public static const MODIFIER_ALT:int = (1<<2);
-		
+		public static const MODIFIER_ALT:int = (1 << 2);
 		
 		public var _shiftpressed:Boolean = false;
 		public var _ctrlpressed:Boolean = false;
@@ -62,14 +59,14 @@
 		}
 		
 		public function onItemPressed()
-		{			
+		{
 			MCM_Menu.iMode = MCM_Menu.MCM_REMAP_MODE;
 			MCM_Menu.instance.configPanel_mc.configList_mc.disableInput = true;
 			MCM_Menu.instance.configPanel_mc.configList_mc.disableSelection = true;
 			MCM_Menu.instance.HelpPanel_mc.HelpList_mc.disableInput = true;
 			MCM_Menu.instance.HelpPanel_mc.HelpList_mc.disableSelection = true;
 			dispatchEvent(new Event(START_INPUT, true, true));
-			tween = new TweenMax(PCKey_tf, 0.5, {alpha:0, yoyo: true, repeat: -1});
+			tween = new TweenMax(PCKey_tf, 0.5, {alpha: 0, yoyo: true, repeat: -1});
 			_shiftpressed = false;
 			_altpressed = false;
 			_ctrlpressed = false;
@@ -77,17 +74,17 @@
 		
 		public function ProcessKeyEvent(keyCode:int, isDown:Boolean):void
 		{
-			if (keyCode == Keyboard.ESCAPE && !isDown) 
+			if (keyCode == Keyboard.ESCAPE && !isDown)
 			{
 				onEscPressed();
 				return;
 			}
-			if (keyCode == Keyboard.TAB && !isDown) 
+			if (keyCode == Keyboard.TAB && !isDown)
 			{
 				onTabPressed();
 				return;
 			}
-			var temparray: Array = new Array();
+			var temparray:Array = new Array();
 			if (allowModifierKeys == 1)
 			{
 				switch (keyCode)
@@ -99,7 +96,7 @@
 					break;
 				case Keyboard.ALTERNATE: 
 				case KEY_LALT: 
-				case KEY_RALT:
+				case KEY_RALT: 
 					_altpressed = isDown;
 					break;
 				case Keyboard.CONTROL: 
@@ -108,18 +105,18 @@
 					_ctrlpressed = isDown;
 					break;
 				default: 
-					if (!isDown) 
+					if (!isDown)
 					{
-						var modifiers: uint = 0;
-						if (_shiftpressed) 
+						var modifiers:uint = 0;
+						if (_shiftpressed)
 						{
 							modifiers |= MODIFIER_SHIFT;
 						}
-						if (_ctrlpressed) 
+						if (_ctrlpressed)
 						{
 							modifiers |= MODIFIER_CONTROL;
 						}
-						if (_altpressed) 
+						if (_altpressed)
 						{
 							modifiers |= MODIFIER_ALT;
 						}
@@ -129,7 +126,7 @@
 					}
 				}
 			}
-			else 
+			else
 			{
 				if (!isDown)
 				{
@@ -141,10 +138,10 @@
 			}
 		}
 		
-		public function onTabPressed():void 
+		public function onTabPressed():void
 		{
-			var temparray: Array = new Array();
-			if (keys[0] != 0) 
+			var temparray:Array = new Array();
+			if (keys[0] != 0)
 			{
 				temparray.push(0);
 				temparray.push(0);
@@ -155,44 +152,45 @@
 			DelayTimer.start();
 		}
 		
-		public function onEscPressed():void 
+		public function onEscPressed():void
 		{
 			dispatchEvent(new Event(END_INPUT, true, true));
 			DelayTimer.start();
 		}
 		
-		private function StartConfirm(temparray:Array):void 
+		private function StartConfirm(temparray:Array):void
 		{
 			dispatchEvent(new Event(END_INPUT, true, true));
-			if (this.type == mcm.SettingsOptionItem.MOVIETYPE_KEYINPUT) 
+			if (this.type == mcm.SettingsOptionItem.MOVIETYPE_KEYINPUT)
 			{
 				EndConfirm(temparray);
 			}
-			else 
+			else
 			{
-				try 
+				try
 				{
 					var tempobj = MCM_Menu.instance.mcmCodeObj.GetKeybind(int(temparray[0]), int(temparray[1]));
-					if (tempobj) 
+					if (tempobj)
 					{
-						if (tempobj.modName == this.modName && tempobj.keybindID == this.id) {
+						if (tempobj.modName == this.modName && tempobj.keybindID == this.id)
+						{
 							EndConfirm(temparray);
 						}
-						else 
+						else
 						{
-							switch (tempobj.keybindType) 
+							switch (tempobj.keybindType)
 							{
-								case 0:
-									EndConfirm(temparray);
+							case 0: 
+								EndConfirm(temparray);
 								break;
-								case 1:								
-									MCM_Menu.instance.configPanel_mc.hotkey_conflict_mc.Open(1,temparray,tempobj.modName,tempobj.keybindName,this);
+							case 1: 
+								MCM_Menu.instance.configPanel_mc.hotkey_conflict_mc.Open(1, temparray, tempobj.modName, tempobj.keybindName, this);
 								break;
-								case 2:
-									MCM_Menu.instance.configPanel_mc.hotkey_conflict_mc.Open(2,temparray,tempobj.modName,tempobj.keybindName,this);
+							case 2: 
+								MCM_Menu.instance.configPanel_mc.hotkey_conflict_mc.Open(2, temparray, tempobj.modName, tempobj.keybindName, this);
 								break;
-								default:
-							}	
+							default: 
+							}
 						}
 					}
 				}
@@ -201,20 +199,18 @@
 					trace("Failed to GetKeybind");
 				}
 			}
-
-
+		
 		}
 		
-		public function EndConfirm(temparray:Array):void 
+		public function EndConfirm(temparray:Array):void
 		{
-			if (temparray) 
+			if (temparray)
 			{
 				keys = temparray;
 				dispatchEvent(new Event(VALUE_CHANGE, true, true));
 			}
 			DelayTimer.start();
 		}
-
 		
 		public function get keys():Array
 		{
@@ -229,48 +225,48 @@
 		
 		public function RefreshText()
 		{
-			/*if (modName != "" && id != "" && !_changed) 
-			{
-				try 
-				{
-					var tempobj = MCM_Menu.instance.mcmCodeObj.GetKeybind(modName, id);
-					if (tempobj) 
-					{
-						KeysArray[0] = tempobj.keycode;
-						KeysArray[1] = tempobj.modifiers;
-					}
-					else 
-					{
-						KeysArray[0] = 0;
-						KeysArray[1] = 0;
-					}
-				}
-				catch (err:Error)
-				{
-					trace("Failed to GetKeybind");
-				}
-			}*/
+			/*if (modName != "" && id != "" && !_changed)
+			   {
+			   try
+			   {
+			   var tempobj = MCM_Menu.instance.mcmCodeObj.GetKeybind(modName, id);
+			   if (tempobj)
+			   {
+			   KeysArray[0] = tempobj.keycode;
+			   KeysArray[1] = tempobj.modifiers;
+			   }
+			   else
+			   {
+			   KeysArray[0] = 0;
+			   KeysArray[1] = 0;
+			   }
+			   }
+			   catch (err:Error)
+			   {
+			   trace("Failed to GetKeybind");
+			   }
+			   }*/
 			//_changed = false;
-
+			
 			var tempText:String = "";
-			if (KeysArray.length>1) 
+			if (KeysArray.length > 1)
 			{
-				var modifiers: uint = KeysArray[1];
-				if ((modifiers & MODIFIER_CONTROL) != 0) 
+				var modifiers:uint = KeysArray[1];
+				if ((modifiers & MODIFIER_CONTROL) != 0)
 				{
-					tempText += keytostring(Keyboard.CONTROL)+"-";
+					tempText += keytostring(Keyboard.CONTROL) + "-";
 				}
-				if ((modifiers & MODIFIER_ALT) != 0) 
+				if ((modifiers & MODIFIER_ALT) != 0)
 				{
-					tempText += keytostring(Keyboard.ALTERNATE)+"-";
+					tempText += keytostring(Keyboard.ALTERNATE) + "-";
 				}
-				if ((modifiers & MODIFIER_SHIFT) != 0) 
+				if ((modifiers & MODIFIER_SHIFT) != 0)
 				{
-					tempText += keytostring(Keyboard.SHIFT)+"-";
+					tempText += keytostring(Keyboard.SHIFT) + "-";
 				}
 			}
-
-			tempText += keytostring(KeysArray[0])+")";
+			
+			tempText += keytostring(KeysArray[0]) + ")";
 			this.PCKey_tf.text = tempText;
 		}
 		

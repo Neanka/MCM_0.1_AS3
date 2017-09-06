@@ -12,8 +12,8 @@
 		
 		public var opened:Boolean;
 		public var DD_popup_list_mc:mcm.DD_popup_list;
-		public var dd_popup_bg_mc: BSUIComponent;
-		private var _target: InteractiveObject;
+		public var dd_popup_bg_mc:BSUIComponent;
+		private var _target:InteractiveObject;
 		
 		public function DD_popup_window()
 		{
@@ -31,21 +31,21 @@
 			visible = true;
 			opened = true;
 			stage.focus = this.DD_popup_list_mc;
-
-			if (aTarget.localToGlobal(new Point(0, 0)).y<280)
+			
+			if (aTarget.localToGlobal(new Point(0, 0)).y < 280)
 			{
-				this.y = parent.globalToLocal(aTarget.localToGlobal(new Point(0, 0))).y + aTarget.height+2;
+				this.y = parent.globalToLocal(aTarget.localToGlobal(new Point(0, 0))).y + aTarget.height + 2;
 			}
-			else 
+			else
 			{
-				this.y = parent.globalToLocal(aTarget.localToGlobal(new Point(0, 0))).y-2-this.dd_popup_bg_mc.height;
+				this.y = parent.globalToLocal(aTarget.localToGlobal(new Point(0, 0))).y - 2 - this.dd_popup_bg_mc.height;
 			}
-
+		
 		}
 		
-		public function Close(bNoSave: Boolean)
+		public function Close(bNoSave:Boolean)
 		{
-			if (!bNoSave) 
+			if (!bNoSave)
 			{
 				_target.index = this.DD_popup_list_mc.selectedIndex;
 				_target.dispatchEvent(new Event(Option_DropDown.VALUE_CHANGE, true, true));
@@ -58,14 +58,14 @@
 			_target = null;
 			visible = false;
 			opened = false;
-			MCM_Menu.iMode = MCM_Menu.MCM_MAIN_MODE;			
+			MCM_Menu.iMode = MCM_Menu.MCM_MAIN_MODE;
 		}
 		
 		function listprocedures():*
 		{
 			
 			this.DD_popup_list_mc.InvalidateData();
-			this.dd_popup_bg_mc.height = 12+this.DD_popup_list_mc.itemsShown*28;
+			this.dd_popup_bg_mc.height = 12 + this.DD_popup_list_mc.itemsShown * 28;
 			this.DD_popup_list_mc.UpdateList();
 			this.DD_popup_list_mc.selectedIndex = _target.index;//this.DD_popup_list_mc.GetEntryFromClipIndex(0);
 			stage.focus = this.DD_popup_list_mc;

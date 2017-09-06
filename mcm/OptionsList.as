@@ -5,12 +5,10 @@
 
 package mcm
 {
-	import Shared.AS3.BSScrollingList1;
-	import fl.controls.Slider;
-	import flash.events.KeyboardEvent;
+	import Shared.AS3.BSScrollingListEntry;
 	import flash.display.MovieClip;
 	import flash.events.Event;
-	import Shared.AS3.BSScrollingListEntry;
+	import flash.events.KeyboardEvent;
 	import flash.ui.Keyboard;
 	
 	public class OptionsList extends mcm.ItemList
@@ -45,34 +43,34 @@ package mcm
 		public function onValueChange(_arg_1:Event)
 		{
 			EntriesA[_arg_1.target.itemIndex].value = _arg_1.target.value;
-			if (_arg_1.target.movieType == mcm.SettingsOptionItem.MOVIETYPE_KEYINPUT) 
+			if (_arg_1.target.movieType == mcm.SettingsOptionItem.MOVIETYPE_KEYINPUT)
 			{
 				EntriesA[_arg_1.target.itemIndex].keys = _arg_1.target.OptionItem.keys;
 				EntriesA[_arg_1.target.itemIndex].valueString = _arg_1.target.OptionItem.keys.join();
 			}
-			if (_arg_1.target.movieType == mcm.SettingsOptionItem.MOVIETYPE_HOTKEY) 
+			if (_arg_1.target.movieType == mcm.SettingsOptionItem.MOVIETYPE_HOTKEY)
 			{
 				EntriesA[_arg_1.target.itemIndex].keys = _arg_1.target.OptionItem.keys;
 				try
 				{
-					var modName: String = EntriesA[_arg_1.target.itemIndex].modName;// MCM_Menu.instance.HelpPanel_mc.HelpList_mc.entryList[MCM_Menu.instance.selectedPage]["modName"];
-					var keybindID: String = EntriesA[_arg_1.target.itemIndex].id;
-					var keycode: int = EntriesA[_arg_1.target.itemIndex].keys[0];
+					var modName:String = EntriesA[_arg_1.target.itemIndex].modName;// MCM_Menu.instance.HelpPanel_mc.HelpList_mc.entryList[MCM_Menu.instance.selectedPage]["modName"];
+					var keybindID:String = EntriesA[_arg_1.target.itemIndex].id;
+					var keycode:int = EntriesA[_arg_1.target.itemIndex].keys[0];
 					//trace(modName, keybindID,keycode);
-					if (keycode == 0) 
+					if (keycode == 0)
 					{
 						parent.parent.mcmCodeObj.ClearKeybind(modName, keybindID);
 					}
-					else 
+					else
 					{
-						var modifiers: int = EntriesA[_arg_1.target.itemIndex].keys[1];
-						var keyobj: Object = parent.parent.mcmCodeObj.GetKeybind(modName, keybindID);
+						var modifiers:int = EntriesA[_arg_1.target.itemIndex].keys[1];
+						var keyobj:Object = parent.parent.mcmCodeObj.GetKeybind(modName, keybindID);
 						//trace(keyobj.keycode);
-						if (keyobj.keycode != 0) 
+						if (keyobj.keycode != 0)
 						{
 							parent.parent.mcmCodeObj.RemapKeybind(modName, keybindID, keycode, modifiers);
 						}
-						else 
+						else
 						{
 							parent.parent.mcmCodeObj.SetKeybind(modName, keybindID, keycode, modifiers);
 						}
@@ -82,8 +80,8 @@ package mcm
 				{
 					trace("Failed to handle Keybind");
 				}
-				//trace("MCM_Menu.instance.requestHotkeyControlsUpdate();");
-				//MCM_Menu.instance.requestHotkeyControlsUpdate();
+					//trace("MCM_Menu.instance.requestHotkeyControlsUpdate();");
+					//MCM_Menu.instance.requestHotkeyControlsUpdate();
 			}
 			if (EntriesA[_arg_1.target.itemIndex].valueOptions)
 			{
@@ -161,7 +159,7 @@ package mcm
 				}
 			}
 			stage.getChildAt(0).f4se.SendExternalEvent("OnMCMSettingChange", EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].id);
-			stage.getChildAt(0).f4se.SendExternalEvent("OnMCMSettingChange|"+EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].id);
+			stage.getChildAt(0).f4se.SendExternalEvent("OnMCMSettingChange|" + EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].id);
 		}
 		
 		public function onButtonPressed(_arg_1:Event)
@@ -253,12 +251,13 @@ package mcm
 					}
 					if (_arg_2.keys != undefined)
 					{
-						if (_arg_2.valueOptions != undefined && _arg_2.valueOptions.allowModifierKeys != undefined) 
+						if (_arg_2.valueOptions != undefined && _arg_2.valueOptions.allowModifierKeys != undefined)
 						{
-							_local_3.SetOptionKeyInput(_arg_2.keys,_arg_2.valueOptions.allowModifierKeys,_arg_2.modName,_arg_2.id);
-						} else 
+							_local_3.SetOptionKeyInput(_arg_2.keys, _arg_2.valueOptions.allowModifierKeys, _arg_2.modName, _arg_2.id);
+						}
+						else
 						{
-							_local_3.SetOptionKeyInput(_arg_2.keys,1,_arg_2.modName,_arg_2.id);
+							_local_3.SetOptionKeyInput(_arg_2.keys, 1, _arg_2.modName, _arg_2.id);
 						}
 					}
 					;
@@ -384,8 +383,8 @@ package mcm
 						{
 						case mcm.SettingsOptionItem.MOVIETYPE_SECTION: 
 						case mcm.SettingsOptionItem.MOVIETYPE_EMPTY_LINE: 
-						case mcm.SettingsOptionItem.MOVIETYPE_TEXT:
-						case mcm.SettingsOptionItem.MOVIETYPE_IMAGE: 
+						case mcm.SettingsOptionItem.MOVIETYPE_TEXT: 
+						case mcm.SettingsOptionItem.MOVIETYPE_IMAGE:
 							
 							break;
 						default: 

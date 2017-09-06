@@ -2,14 +2,13 @@
 {
 	
 	import Shared.AS3.BSUIComponent;
+	import Shared.GlobalFunc;
 	import flash.display.InteractiveObject;
-	import flash.display.MovieClip;
 	import flash.events.TimerEvent;
 	import flash.text.TextField;
 	import flash.utils.Timer;
 	import scaleform.gfx.Extensions;
 	import scaleform.gfx.TextFieldEx;
-	import Shared.GlobalFunc;
 	
 	public class hotkey_conflict_window extends BSUIComponent
 	{

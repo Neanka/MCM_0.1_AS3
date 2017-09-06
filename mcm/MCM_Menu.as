@@ -1,6 +1,7 @@
 package mcm
 {
 	import Shared.AS3.*;
+	import Shared.AS3.BSButtonHintData;
 	import Shared.GlobalFunc;
 	import com.adobe.serialization.json.*;
 	import flash.display.InteractiveObject;
@@ -8,7 +9,6 @@ package mcm
 	import flash.display.LoaderInfo;
 	import flash.display.MovieClip;
 	import flash.events.Event;
-	import flash.events.FocusEvent;
 	import flash.events.IOErrorEvent;
 	import flash.events.KeyboardEvent;
 	import flash.events.TimerEvent;
@@ -20,7 +20,6 @@ package mcm
 	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
 	import scaleform.gfx.Extensions;
-	import Shared.AS3.BSButtonHintData;
 	
 	/**
 	 * ...
@@ -52,6 +51,8 @@ package mcm
 		static public var MCM_REMAP_MODE:uint = 1;
 		static public var MCM_CONFLICT_MODE:uint = 2;
 		static public var MCM_DD_MODE:uint = 3;
+		
+		static public var mcmLoaded:Boolean = false;
 
 		public function MCM_Menu()
 		{
@@ -112,11 +113,11 @@ package mcm
 				break;
 			default: 
 			}
-		/*	if (stage) 
-			{
-				this.SwitchButtonLeft.ButtonVisible = (iMode == MCM_MAIN_MODE) && (stage.focus != this.HelpPanel_mc.HelpList_mc);
-				this.SwitchButtonRight.ButtonVisible = (iMode == MCM_MAIN_MODE) && (stage.focus == this.HelpPanel_mc.HelpList_mc);
-			}*/
+		/*	if (stage)
+		   {
+		   this.SwitchButtonLeft.ButtonVisible = (iMode == MCM_MAIN_MODE) && (stage.focus != this.HelpPanel_mc.HelpList_mc);
+		   this.SwitchButtonRight.ButtonVisible = (iMode == MCM_MAIN_MODE) && (stage.focus == this.HelpPanel_mc.HelpList_mc);
+		   }*/
 		}
 		
 		private function onAddedToStage(e:Event):void
@@ -140,7 +141,10 @@ package mcm
 		
 		public function onQuitPressed():void
 		{
-			stage.getChildAt(0)["Menu_mc"].EndState();
+			if (iMode == MCM_MAIN_MODE)
+			{
+				stage.getChildAt(0)["Menu_mc"].EndState();
+			}
 		}
 		
 		private function onCancelPress():void
@@ -148,16 +152,17 @@ package mcm
 			switch (iMode)
 			{
 			case MCM_MAIN_MODE: 
-				if (stage.focus == this.HelpPanel_mc.HelpList_mc) 
+				if (stage.focus == this.HelpPanel_mc.HelpList_mc)
 				{
 					onQuitPressed();
 				}
-				else 
+				else
 				{
 					stage.focus = this.HelpPanel_mc.HelpList_mc;
 					this.configPanel_mc.configList_mc.selectedIndex = -1;
+					this.HelpPanel_mc.HelpList_mc.UpdateEntry(this.HelpPanel_mc.HelpList_mc.selectedEntry);
 				}
-
+				
 				break;
 			case MCM_CONFLICT_MODE: 
 				this.configPanel_mc.hotkey_conflict_mc.Close(true);
@@ -210,24 +215,24 @@ package mcm
 		{
 			for each (var entry in this.HelpPanel_mc.HelpList_mc.entryList)
 			{
-				if (entry.dataobj) 
+				if (entry.dataobj)
 				{
 					checkHotkeyByRequest(entry.dataobj);
-				}				
+				}
 			}
 			checkHotkeyByRequest(this.configPanel_mc.configList_mc.entryList); //TODO: needs only for hotkey manager ?
 			this.configPanel_mc.configList_mc.UpdateList();
-			/*for each (var entry1 in this.configPanel_mc.configList_mc.entryList)
-			{
-				if (getQualifiedClassName(entry1) == "Object" && entry1.hasOwnProperty("movieType") && entry1.movieType == mcm.SettingsOptionItem.MOVIETYPE_HOTKEY)
-				{
-					this.configPanel_mc.configList_mc.UpdateEntry(entry1);
-				}
-
-			}*/
+		/*for each (var entry1 in this.configPanel_mc.configList_mc.entryList)
+		   {
+		   if (getQualifiedClassName(entry1) == "Object" && entry1.hasOwnProperty("movieType") && entry1.movieType == mcm.SettingsOptionItem.MOVIETYPE_HOTKEY)
+		   {
+		   this.configPanel_mc.configList_mc.UpdateEntry(entry1);
+		   }
+		
+		   }*/
 		}
 		
-		public function checkHotkeyByRequest(obj: Object):void 
+		public function checkHotkeyByRequest(obj:Object):void
 		{
 			for each (var control in obj)
 			{
@@ -261,16 +266,16 @@ package mcm
 		{
 			for each (var entry in this.HelpPanel_mc.HelpList_mc.entryList)
 			{
-				if (entry.dataobj) 
+				if (entry.dataobj)
 				{
 					checkEntriesByRequest(entry.dataobj);
-				}				
+				}
 			}
 			//checkEntriesByRequest(this.configPanel_mc.configList_mc.entryList);
 			this.configPanel_mc.configList_mc.UpdateList();
 		}
 		
-		public function checkEntriesByRequest(obj: Object):void 
+		public function checkEntriesByRequest(obj:Object):void
 		{
 			trace("checkEntriesByRequest");
 			var filterFlagControl:uint = uint.MAX_VALUE;
@@ -360,7 +365,7 @@ package mcm
 			try
 			{
 				bmForInput = e.target;
-				//mcmCodeObj.StartKeyCapture();
+					//mcmCodeObj.StartKeyCapture();
 			}
 			catch (e:Error)
 			{
@@ -373,7 +378,7 @@ package mcm
 			try
 			{
 				bmForInput = null;
-				//mcmCodeObj.StopKeyCapture();
+					//mcmCodeObj.StopKeyCapture();
 			}
 			catch (e:Error)
 			{
@@ -451,7 +456,7 @@ package mcm
 			}
 		}
 		
-		private function loadWelcomePage():void
+		public function loadWelcomePage():void
 		{
 			var temparray:Array = new Array();
 			temparray.push({"type": "empty"});
@@ -518,7 +523,7 @@ package mcm
 						GlobalFunc.SetText(this.configPanel_mc.hint_tf, " ", true);
 					}
 					
-					//stage.focus = this.configPanel_mc.configList_mc; // temp string
+						//stage.focus = this.configPanel_mc.configList_mc; // temp string
 				}
 				break;
 			default: 
@@ -561,19 +566,19 @@ package mcm
 					GlobalFunc.SetText(this.configPanel_mc.hint_tf, " ", true);
 				}
 				this.configPanel_mc.configList_mc.InvalidateData();
-
+				
 				if (this.HelpPanel_mc.HelpList_mc.selectedEntry.filterFlag == 1)
 				{
-					if (this.HelpPanel_mc.HelpList_mc.filterer.modName == this.HelpPanel_mc.HelpList_mc.selectedEntry.modName) 
+					if (this.HelpPanel_mc.HelpList_mc.filterer.modName == this.HelpPanel_mc.HelpList_mc.selectedEntry.modName)
 					{
 						tryToSelectRightPanel();
-					} 
-					else 
+					}
+					else
 					{
 						this.HelpPanel_mc.HelpList_mc.filterer.modName = this.HelpPanel_mc.HelpList_mc.selectedEntry.modName;
 					}
 				}
-				else 
+				else
 				{
 					tryToSelectRightPanel();
 				}
@@ -596,14 +601,20 @@ package mcm
 			}
 		}
 		
-		function tryToSelectRightPanel():void 
+		function tryToSelectRightPanel():void
 		{
 			this.configPanel_mc.configList_mc.selectedIndex = -1;
 			this.configPanel_mc.configList_mc.moveSelectionDown();
-			if (this.configPanel_mc.configList_mc.selectedIndex != -1) 
+			if (this.configPanel_mc.configList_mc.selectedIndex != -1)
 			{
 				stage.focus = this.configPanel_mc.configList_mc;
-			}			
+			}
+			else 
+			{
+				stage.focus = this.HelpPanel_mc.HelpList_mc;
+				SetButtons();
+				this.HelpPanel_mc.HelpList_mc.UpdateEntry(this.HelpPanel_mc.HelpList_mc.selectedEntry);
+			}
 		}
 		
 		public function JSONLoader(filename:String)
@@ -621,9 +632,9 @@ package mcm
 				path = path.substring(0, path.lastIndexOf("\\"));
 				path = path.substring(path.lastIndexOf("\\") + 1);
 			}
-			else 
+			else
 			{
-				path = path.substring(0, path.lastIndexOf("/")); 
+				path = path.substring(0, path.lastIndexOf("/"));
 				path = path.substring(path.lastIndexOf("/") + 1);
 			}
 			swfsobject[path] = (event.target as LoaderInfo).loader;
@@ -966,11 +977,13 @@ package mcm
 			});
 			this.HelpPanel_mc.HelpList_mc.InvalidateData();
 			this.HelpPanel_mc.HelpList_mc.selectedIndex = 0;
-			if (stage) 
+			if (stage)
 			{
 				stage.focus = this.HelpPanel_mc.HelpList_mc;
 				SetButtons();
+				this.HelpPanel_mc.HelpList_mc.UpdateEntry(this.HelpPanel_mc.HelpList_mc.selectedEntry);
 			}
+			mcmLoaded = true;
 		}
 		
 		public function populateHotkeyArray():void
@@ -1011,54 +1024,61 @@ package mcm
 				trace("Failed to GetAllKeybinds");
 			}
 		}
-				
+		
 		public function ProcessKeyEvent(keyCode:int, isDown:Boolean):void
 		{
 			if (bmForInput)
 			{
 				bmForInput.ProcessKeyEvent(keyCode, isDown);
 			}
-			else 
+			else
 			{
-				if (!isDown && iMode == MCM_MAIN_MODE) 
+				if (!isDown)
 				{
-					switch (keyCode) 
+					switch (keyCode)
 					{
-						case Keyboard.TAB:
-							onCancelPress();
+					case Keyboard.TAB: 
+						onCancelPress();
 						break;
-					case Keyboard.ESCAPE:
-							onQuitPressed();
-						default:
+					case Keyboard.ESCAPE: 
+						onQuitPressed();
+					default: 
 					}
 				}
 			}
 			//log("Key event! keyCode: " + keyCode + " isDown: " + isDown);
 		}
 		
-		public function ProcessUserEvent(controlName:String, isDown:Boolean, deviceType:int):void {
+		public function ProcessUserEvent(controlName:String, isDown:Boolean, deviceType:int):void
+		{
 			//log("User event! controlName: " + controlName + " isDown: " + isDown);
-			/*if (!isDown && iMode == MCM_MAIN_MODE && deviceType == 2) 
+			/*if (!isDown && iMode == MCM_MAIN_MODE && deviceType == 2)
+			   {
+			   switch (controlName)
+			   {
+			   case "LShoulder":
+			   switchToLeft();
+			   break;
+			   case "RShoulder":
+			   switchToRight();
+			   break;
+			   default:
+			   }
+			   }*/
+			if (!isDown && deviceType == 2 && controlName == "Cancel")
 			{
-				switch (controlName) 
-				{
-					case "LShoulder":
-						switchToLeft();
-					break;
-					case "RShoulder":
-						switchToRight();
-					break;
-					default:
-				}
-			}*/
+				onCancelPress();
+			}
 		}
 		
-		private function switchToLeft(){
+		private function switchToLeft()
+		{ //unused
 			stage.focus = this.HelpPanel_mc.HelpList_mc;
 			SetButtons();
 		}
 		
-		private function switchToRight(){
+		private function switchToRight()
+		{ //unused
 			stage.focus = this.configPanel_mc.configList_mc;
 			this.configPanel_mc.configList_mc.selectedIndex = -1;
 			this.configPanel_mc.configList_mc.moveSelectionDown();
@@ -1125,6 +1145,22 @@ package mcm
 			str = translator.text;
 			translator = null;
 			return str;
+		}
+		
+		private function delay(func:Function, params:Array, delay:int = 350, repeat:int = 1):void
+		{
+			var f:Function;
+			var timer:Timer = new Timer(delay, repeat);
+			timer.addEventListener(TimerEvent.TIMER, f = function():void
+			{
+				func.apply(null, params);
+				if (timer.currentCount == repeat)
+				{
+					timer.removeEventListener(TimerEvent.TIMER, f);
+					timer = null;
+				}
+			});
+			timer.start();
 		}
 	
 	}

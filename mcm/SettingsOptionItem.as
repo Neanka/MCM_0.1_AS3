@@ -6,17 +6,16 @@
 package mcm
 {
 	import Shared.AS3.BSScrollingListEntry;
+	import Shared.GlobalFunc;
+	import flash.display.LineScaleMode;
 	import flash.display.MovieClip;
-	import flash.text.TextField;
+	import flash.events.Event;
+	import flash.events.KeyboardEvent;
+	import flash.geom.ColorTransform;
 	import flash.text.TextFormat;
+	import flash.text.TextLineMetrics;
 	import scaleform.gfx.Extensions;
 	import scaleform.gfx.TextFieldEx;
-	import flash.geom.ColorTransform;
-	import Shared.GlobalFunc;
-	import flash.events.KeyboardEvent;
-	import flash.events.Event;
-	import flash.display.LineScaleMode;
-	import flash.text.TextLineMetrics;
 	
 	public class SettingsOptionItem extends BSScrollingListEntry
 	{
@@ -301,7 +300,9 @@ package mcm
 					if (_arg_1.width)
 					{
 						tempMc.x = (690 - _arg_1.width) / 2 + 10;
-					} else {
+					}
+					else
+					{
 						tempMc.x = (690 - tempMc.width) / 2 + 10;
 					}
 					this.OptionItem.addChild(tempMc);
@@ -309,7 +310,7 @@ package mcm
 					{
 						this.border.height = _arg_1.height;
 					}
-					else 
+					else
 					{
 						this.border.height = ORIG_BORDER_HEIGHT;
 					}
