@@ -33,6 +33,7 @@ package mcm
 		public static const MOVIETYPE_KEYINPUT:int = 8;
 		public static const MOVIETYPE_IMAGE:int = 9;
 		public static const MOVIETYPE_HOTKEY:int = 10;
+		public static const MOVIETYPE_DD_FILES:int = 11;
 		
 		private var OptionItem:MovieClip;
 		private var uiMovieType:uint;
@@ -87,6 +88,7 @@ package mcm
 				this.textField.x = 5;
 				break;
 			case MOVIETYPE_DROPDOWN: 
+			case MOVIETYPE_DD_FILES: 
 				this.OptionItem = new mcm.Option_DropDown();
 				break;
 			case MOVIETYPE_TEXT: 
@@ -163,6 +165,7 @@ package mcm
 				_local_1 = (((this.OptionItem as mcm.Option_Switcher).checked) ? 1 : 0);
 				break;
 			case MOVIETYPE_DROPDOWN: 
+			case MOVIETYPE_DD_FILES: 
 				_local_1 = (this.OptionItem as mcm.Option_DropDown).index;
 				break;
 			default: 
@@ -187,6 +190,7 @@ package mcm
 				(this.OptionItem as mcm.Option_Switcher).checked = (((_arg_1 == 1)) ? true : false);
 				return;
 			case MOVIETYPE_DROPDOWN: 
+			case MOVIETYPE_DD_FILES: 
 				(this.OptionItem as mcm.Option_DropDown).index = _arg_1;
 				return;
 			default:
@@ -227,7 +231,10 @@ package mcm
 			{
 				(this.OptionItem as mcm.Option_DropDown).options = _arg_1;
 			}
-			;
+			else if (this.uiMovieType == MOVIETYPE_DD_FILES)
+			{
+				(this.OptionItem as mcm.Option_DropDown).options = _arg_1;
+			}
 		}
 		
 		public function SetOptionSlider(minvalue:Number, maxvalue:Number, step:Number)
@@ -380,6 +387,7 @@ package mcm
 					(this.OptionItem as mcm.Option_Switcher).onItemPressed();
 					return;
 				case MOVIETYPE_DROPDOWN: 
+				case MOVIETYPE_DD_FILES: 
 					(this.OptionItem as mcm.Option_DropDown).onItemPressed();
 					return;
 				case MOVIETYPE_BUTTON: 

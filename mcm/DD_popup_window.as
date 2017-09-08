@@ -65,7 +65,7 @@
 		{
 			
 			this.DD_popup_list_mc.InvalidateData();
-			this.dd_popup_bg_mc.height = 12 + this.DD_popup_list_mc.itemsShown * 28;
+			this.dd_popup_bg_mc.height = 12 + this.DD_popup_list_mc.itemsShown * 30;
 			this.DD_popup_list_mc.UpdateList();
 			this.DD_popup_list_mc.selectedIndex = _target.index;//this.DD_popup_list_mc.GetEntryFromClipIndex(0);
 			stage.focus = this.DD_popup_list_mc;

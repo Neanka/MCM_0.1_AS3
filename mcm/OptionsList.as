@@ -44,6 +44,10 @@ package mcm
 		public function onValueChange(_arg_1:Event)
 		{
 			EntriesA[_arg_1.target.itemIndex].value = _arg_1.target.value;
+			if (_arg_1.target.movieType == mcm.SettingsOptionItem.MOVIETYPE_DD_FILES)
+			{
+				EntriesA[_arg_1.target.itemIndex].valueString = _arg_1.target.OptionItem.options[_arg_1.target.value];
+			}
 			if (_arg_1.target.movieType == mcm.SettingsOptionItem.MOVIETYPE_KEYINPUT)
 			{
 				EntriesA[_arg_1.target.itemIndex].keys = _arg_1.target.OptionItem.keys;
@@ -334,7 +338,6 @@ package mcm
 		
 		public function cef(aPlugin:String, aFunc:String, aArgs:Array = null):void
 		{
-			trace(aPlugin,aFunc,aArgs);
 			try
 			{
 				stage.getChildAt(0).f4se.plugins[aPlugin][aFunc].apply(null,aArgs);
@@ -379,7 +382,6 @@ package mcm
 					{
 						_local_3.SetOptionStepperOptions(_arg_2.options);
 					}
-					;
 					if (_arg_2.maxvalue != undefined)
 					{
 						_local_3.SetOptionSlider(_arg_2.minvalue, _arg_2.maxvalue, _arg_2.step);
@@ -395,7 +397,10 @@ package mcm
 							_local_3.SetOptionKeyInput(_arg_2.keys, 1, _arg_2.modName, _arg_2.id);
 						}
 					}
-					;
+					if (_arg_2.valueOptions != undefined && _arg_2.valueOptions.path != undefined)
+					{
+
+					}
 					_local_3.ID = _arg_2.ID;
 					_local_3.value = _arg_2.value;
 					_local_3.hudColorUpdate = _arg_2.hudColorUpdate;

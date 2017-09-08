@@ -133,7 +133,7 @@ package mcm
 						//var atemp:Number = ((_arg_1.currentTarget.mouseX / this.BarCatcher_mc.width) * (this.fMaxValue - this.fMinValue));
 						//atemp = Math.round(atemp / fStepSize) * fStepSize;
 						//this.value = atemp;
-						this.value = (_arg_1.currentTarget.mouseX / this.BarCatcher_mc.width) * (this.fMaxValue - this.fMinValue);
+						this.value = ((_arg_1.currentTarget.mouseX-3) / this.BarCatcher_mc.width) * (this.fMaxValue - this.fMinValue); //-3 to tune position thumb sunder mouse
                         dispatchEvent(new Event(VALUE_CHANGE, true, true));
                     };
                 };

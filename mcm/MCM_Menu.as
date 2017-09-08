@@ -141,9 +141,19 @@ package mcm
 		
 		public function onQuitPressed():void
 		{
-			if (iMode == MCM_MAIN_MODE)
+			switch (iMode)
 			{
-				stage.getChildAt(0)["Menu_mc"].EndState();
+			case MCM_MAIN_MODE: 
+				stage.getChildAt(0)["Menu_mc"].EndState();				
+				break;
+			case MCM_CONFLICT_MODE: 
+				this.configPanel_mc.hotkey_conflict_mc.Close(true);
+				break;
+			case MCM_DD_MODE: 
+				this.configPanel_mc.DD_popup_mc.Close(true);
+				this.configPanel_mc.configList_mc.UpdateList();
+				break;
+			default: 
 			}
 		}
 		
@@ -417,8 +427,9 @@ package mcm
 					modsNum = jsonsArray.length;
 					if (modsNum == 0)
 					{
-						this.HelpPanel_mc.HelpList_mc.entryList.push({text: "No supported mods installed"})
-						this.HelpPanel_mc.HelpList_mc.InvalidateData();
+						//this.HelpPanel_mc.HelpList_mc.entryList.push({text: "No supported mods installed"})
+						//this.HelpPanel_mc.HelpList_mc.InvalidateData();
+						onAllModsLoad();
 					}
 					else
 					{
@@ -542,6 +553,10 @@ package mcm
 			}
 			else if (_arg_1.target == this.HelpPanel_mc.HelpList_mc)
 			{
+				if (stage.focus != this.HelpPanel_mc.HelpList_mc) 
+				{
+					stage.focus = this.HelpPanel_mc.HelpList_mc;
+				}
 				for each (var obj in this.HelpPanel_mc.HelpList_mc.entryList)
 				{
 					obj.pageSelected = false;
@@ -866,6 +881,32 @@ package mcm
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_DROPDOWN;
 					tempObj[num].options = tempObj[num]["valueOptions"]["options"];
 					break;
+				case "dropdownFiles": 
+					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_DD_FILES;
+					try 
+					{
+						var filesArray: Array = stage.getChildAt(0).f4se.GetDirectoryListing(tempObj[num]["valueOptions"].path, tempObj[num]["valueOptions"].mask);
+						var optionsArray: Array = new Array();
+						optionsArray.push("None");
+						tempObj[num].value = 0;
+						var fileName: String = "";
+						for (var i:int = 0; i < filesArray.length; i++) 
+						{
+							fileName = filesArray[i].name.substring(filesArray[i].name.lastIndexOf("\\") + 1);
+							optionsArray.push(fileName);
+							if (fileName == tempObj[num].valueString) 
+							{
+								tempObj[num].value = i+1;
+							}
+						}
+						tempObj[num].options = optionsArray;
+					}
+					catch (err:Error)
+					{
+						trace("Failed to GetDirectoryListing");
+					}
+
+					break;
 				case "text": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_TEXT;
 					break;
@@ -1027,6 +1068,7 @@ package mcm
 		
 		public function ProcessKeyEvent(keyCode:int, isDown:Boolean):void
 		{
+			//stage.getChildAt(0).f4se.plugins.def_plugin.papMessageBox(String(keyCode));
 			if (bmForInput)
 			{
 				bmForInput.ProcessKeyEvent(keyCode, isDown);

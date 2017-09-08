@@ -21,6 +21,16 @@
 		public static const KEY_LALT:int = 164;
 		public static const KEY_RALT:int = 165;
 		public static const KEY_NONE:int = 0;
+		public static const MOUSE_1:int = 256;
+		public static const MOUSE_2:int = 257;
+		public static const MOUSE_3:int = 258;
+		public static const MOUSE_4:int = 259;
+		public static const MOUSE_5:int = 260;
+		public static const MOUSE_6:int = 261;
+		public static const MOUSE_7:int = 262;
+		public static const MOUSE_8:int = 263;
+		public static const MOUSE_WHEEL_UP:int = 264;
+		public static const MOUSE_WHEEL_DOWN:int = 265;
 		
 		public static const MODIFIER_SHIFT:int = (1 << 0);
 		public static const MODIFIER_CONTROL:int = (1 << 1);
@@ -161,6 +171,11 @@
 		private function StartConfirm(temparray:Array):void
 		{
 			dispatchEvent(new Event(END_INPUT, true, true));
+			if (keytostring(temparray[0]) == "") 
+			{
+				EndConfirm(null);
+				return;
+			}
 			if (this.type == mcm.SettingsOptionItem.MOVIETYPE_KEYINPUT)
 			{
 				EndConfirm(temparray);
@@ -570,6 +585,21 @@
 				break;
 			case KEY_NONE: 
 				return "None";
+				break;
+			case MOUSE_4: 
+				return "Mouse4";
+				break;
+			case MOUSE_5: 
+				return "Mouse5";
+				break;
+			case MOUSE_6: 
+				return "Mouse6";
+				break;
+			case MOUSE_7: 
+				return "Mouse7";
+				break;
+			case MOUSE_8: 
+				return "Mouse8";
 				break;
 			default: 
 				return "";
