@@ -38,11 +38,13 @@ package mcm
 		private var modsNum:int = 0;
 		private var modsCount:int = 0;
 		private var hotkeyManagerList:Array = new Array();
+		private var MCMConfigObject: Object = new Object();
 		
 		private var standardButtonHintDataV:Vector.<BSButtonHintData>;
 		private var ConfirmButton:BSButtonHintData;
 		private var CancelButton:BSButtonHintData;
 		private var BackButton:BSButtonHintData;
+		private var ConfigButton:BSButtonHintData;
 		//private var SwitchButtonLeft:BSButtonHintData;
 		//private var SwitchButtonRight:BSButtonHintData;
 		
@@ -60,6 +62,7 @@ package mcm
 			this.ConfirmButton = new BSButtonHintData("$CONFIRM", "Enter", "PSN_A", "Xenon_A", 1, this.onAcceptPress);
 			this.BackButton = new BSButtonHintData("$Back", "Tab", "PSN_X", "Xenon_X", 1, this.onBackPress);
 			this.CancelButton = new BSButtonHintData("$Cancel", "Esc", "PSN_B", "Xenon_B", 1, this.onCancelPress);
+			this.ConfigButton = new BSButtonHintData("$MCM_settings", "Q", "PSN_Select", "Xenon_Select", 1, this.onConfigButtonPress); //TODO: need translation
 			//this.SwitchButtonLeft = new BSButtonHintData("$MCM_SWITCH_TO_LEFT", "Q", "PSN_L1", "Xenon_L1", 1, this.switchToLeft);
 			//this.SwitchButtonRight = new BSButtonHintData("$MCM_SWITCH_TO_RIGHT", "D", "PSN_R1", "Xenon_R1", 1, this.switchToRight);
 			MCM_Menu._instance = this;
@@ -78,6 +81,15 @@ package mcm
 				addEventListener(Event.ADDED_TO_STAGE, onAddedToStage)
 			}
 			iMode = 0;
+		}
+		
+		private function onConfigButtonPress():void 
+		{
+			this.configPanel_mc.configList_mc.disableInput = false;
+			this.configPanel_mc.configList_mc.disableSelection = false;
+			this.configPanel_mc.configList_mc.entryList = MCMConfigObject;
+			this.configPanel_mc.configList_mc.InvalidateData();
+			tryToSelectRightPanel();
 		}
 		
 		public function SetButtons():void
@@ -113,6 +125,7 @@ package mcm
 				break;
 			default: 
 			}
+			this.ConfigButton.ButtonVisible = (iMode == MCM_MAIN_MODE);
 		/*	if (stage)
 		   {
 		   this.SwitchButtonLeft.ButtonVisible = (iMode == MCM_MAIN_MODE) && (stage.focus != this.HelpPanel_mc.HelpList_mc);
@@ -218,6 +231,7 @@ package mcm
 			this.standardButtonHintDataV.push(this.ConfirmButton);
 			this.standardButtonHintDataV.push(this.BackButton);
 			this.standardButtonHintDataV.push(this.CancelButton);
+			this.standardButtonHintDataV.push(this.ConfigButton);
 			this.ButtonHintBar_mc.SetButtonHintData(this.standardButtonHintDataV);
 		}
 		
@@ -282,6 +296,7 @@ package mcm
 				}
 			}
 			//checkEntriesByRequest(this.configPanel_mc.configList_mc.entryList);
+			this.configPanel_mc.configList_mc.filterer.itemFilter = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj["filterFlagControl"];
 			this.configPanel_mc.configList_mc.UpdateList();
 		}
 		
@@ -482,7 +497,7 @@ package mcm
 			temparray.push({"type": "spacer"});
 			temparray.push({"type": "spacer"});
 			temparray.push({"text": "MCM FALLOUT 4 EDITION", "align": "center", "type": "text"});
-			temparray.push({"text": "VERSION " + String(GetVersionCode()), "align": "center", "type": "text"});
+			temparray.push({"text": "VERSION " + String(GetMCMVersionString()), "align": "center", "type": "text"});
 			this.configPanel_mc.configList_mc.entryList = processDataObj(temparray);
 			this.configPanel_mc.configList_mc.InvalidateData();
 		}
@@ -1013,8 +1028,21 @@ package mcm
 		private function onAllModsLoad():void
 		{
 			trace(modsCount + "/" + modsNum + " mod configs loaded");
-			this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: null, text: "$MCM_HOTKEY_MANAGER", modName: "Hotkey manager", hotkeyManager: true, filterFlag: 1, pageSelected: false
-			
+			/*this.HelpPanel_mc.HelpList_mc.entryList.push({
+				dataobj: createMCMConfigObject(), 
+				text: "MCM Settings", //TODO: need translation
+				modName: "MCM", 
+				filterFlag: 1, 
+				pageSelected: false			
+			});		*/
+			this.MCMConfigObject = createMCMConfigObject();
+			this.HelpPanel_mc.HelpList_mc.entryList.push({
+				dataobj: null, 
+				text: "$MCM_HOTKEY_MANAGER", 
+				modName: "Hotkey manager", 
+				hotkeyManager: true, 
+				filterFlag: 1, 
+				pageSelected: false			
 			});
 			this.HelpPanel_mc.HelpList_mc.InvalidateData();
 			this.HelpPanel_mc.HelpList_mc.selectedIndex = 0;
@@ -1025,6 +1053,27 @@ package mcm
 				this.HelpPanel_mc.HelpList_mc.UpdateEntry(this.HelpPanel_mc.HelpList_mc.selectedEntry);
 			}
 			mcmLoaded = true;
+		}
+		
+		private function createMCMConfigObject(): Object 
+		{
+			var temparray:Array = new Array();
+			temparray.push({
+				"type": "section",
+				"text": "MCM settings" //TODO: need translation
+			});
+			temparray.push({
+				"id": "iPosition:Main",
+				"type": "slider",
+				"text": "MCM position in the main menu", //TODO: need translation
+				"valueOptions": {
+					"min": 0,
+					"max": 7,
+					"step": 1,
+					"sourceType": "ModSettingInt"
+				}
+			});
+			return processDataObj(temparray);
 		}
 		
 		public function populateHotkeyArray():void
@@ -1084,6 +1133,13 @@ package mcm
 						break;
 					case Keyboard.ESCAPE: 
 						onQuitPressed();
+						break;
+					case Keyboard.Q: 
+						if (iMode == MCM_MAIN_MODE) 
+						{
+							onConfigButtonPress();
+						}
+						break;
 					default: 
 					}
 				}
@@ -1107,10 +1163,25 @@ package mcm
 			   default:
 			   }
 			   }*/
-			if (!isDown && deviceType == 2 && controlName == "Cancel")
+			if (!isDown && deviceType == 2)
 			{
-				onCancelPress();
+				switch (controlName) 
+				{
+					case "Cancel":
+						onCancelPress();
+					break;
+					case "Select":
+						if (iMode == MCM_MAIN_MODE) 
+						{
+							onConfigButtonPress();
+						}
+					break;
+					default:
+				}
+				
+				
 			}
+
 		}
 		
 		private function switchToLeft()
@@ -1168,6 +1239,16 @@ package mcm
 			}
 			return mcmCodeObj.GetMCMVersionCode();
 		}
+		
+		private function GetMCMVersionString():String
+		{
+			if (!Extensions.isScaleform)
+			{
+				return String("1.0.0");
+			}
+			return mcmCodeObj.GetMCMVersionString();
+		}
+		
 		
 		static public function Translator(str:String):String
 		{

@@ -4,3 +4,23 @@ sometimes maxscrollposition calculated wrong after page change
 TODO: tune left panel width
 TODO:  add json parsing error warnings
 TODO: Make dropdown wider
+TODO conditions for pages
+
+
+,
+    {
+	  "id": "sConfigFile:Main",
+      "type": "dropdownFiles",
+	  "text": "dropdownFiles control!",
+      "valueOptions": {
+	    "path": "Data/Interface/DEF_CONF",
+	    "mask": "DEF_HUD*.xml",
+        "sourceType": "ModSettingString"
+      },
+      "action": {
+        "type": "CallGlobalFunction",
+        "script": "Debug",
+        "function": "MessageBox",
+        "params": ["Loading {value}!"]
+      }
+    }

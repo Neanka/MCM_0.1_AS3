@@ -45,23 +45,6 @@
 		{
 			MainMenu = stage.getChildAt(0)["Menu_mc"];
 			
-			savedMenuProperties.LoadPanelBackground_X = MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.x;
-			savedMenuProperties.LoadPanelBackground_Y = MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.y;
-			savedMenuProperties.LoadPanelBackground_Height = MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.height;
-			
-			savedMenuProperties.HelpPanelBackground_X = MainMenu.BackgroundAndBracketsHelpTopic_mc.x;
-			savedMenuProperties.HelpPanelBackground_Y = MainMenu.BackgroundAndBracketsHelpTopic_mc.y;
-			savedMenuProperties.HelpPanelBackground_Height = MainMenu.BackgroundAndBracketsHelpTopic_mc.height;
-			savedMenuProperties.HelpPanelBackground_Width = MainMenu.BackgroundAndBracketsHelpTopic_mc.width;
-			
-			MainMenu["MainPanel_mc"].List_mc.entryList.unshift({"text": "$MOD_CONFIG", "index": 100});
-			MainMenu["MainPanel_mc"].List_mc.InvalidateData();
-			MainMenu.addEventListener("BSScrollingList::itemPress", itemPressedHandler);
-			
-			//traceObj(MainMenu["MainPanel_mc"].List_mc.entryList);
-			
-			log("Successfully injected into MainMenu.");
-			
 			if (stage.getChildAt(0)["mcm"])
 			{
 				mcmCodeObj = stage.getChildAt(0)["mcm"];
@@ -72,6 +55,33 @@
 			{
 				log("FATAL: MCM native code object not available.");
 			}
+			var pos: int = 0;
+			try 
+			{
+				pos = mcmCodeObj.GetModSettingInt("MCM", "iPosition:Main");
+			}
+			catch (err:Error)
+			{
+				trace("Failed to GetModSettingInt for MCM position");
+			}
+			savedMenuProperties.LoadPanelBackground_X = MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.x;
+			savedMenuProperties.LoadPanelBackground_Y = MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.y;
+			savedMenuProperties.LoadPanelBackground_Height = MainMenu.BackgroundAndBrackets_mc.LoadPanelBackground_mc.height;
+			
+			savedMenuProperties.HelpPanelBackground_X = MainMenu.BackgroundAndBracketsHelpTopic_mc.x;
+			savedMenuProperties.HelpPanelBackground_Y = MainMenu.BackgroundAndBracketsHelpTopic_mc.y;
+			savedMenuProperties.HelpPanelBackground_Height = MainMenu.BackgroundAndBracketsHelpTopic_mc.height;
+			savedMenuProperties.HelpPanelBackground_Width = MainMenu.BackgroundAndBracketsHelpTopic_mc.width;
+			
+			MainMenu["MainPanel_mc"].List_mc.entryList.splice(pos,0,{"text": "$MOD_CONFIG", "index": 100});
+			MainMenu["MainPanel_mc"].List_mc.InvalidateData();
+			MainMenu.addEventListener("BSScrollingList::itemPress", itemPressedHandler);
+			
+			//traceObj(MainMenu["MainPanel_mc"].List_mc.entryList);
+			
+			log("Successfully injected into MainMenu.");
+			
+
 		}
 		
 		private function focusInHandler(event:FocusEvent):void
