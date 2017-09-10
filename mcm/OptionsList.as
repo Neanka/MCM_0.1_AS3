@@ -23,6 +23,13 @@ package mcm
 			addEventListener(KeyboardEvent.KEY_DOWN, this.onKeyDown);
 			addEventListener(mcm.SettingsOptionItem.VALUE_CHANGE, this.onValueChange);
 			addEventListener(mcm.SettingsOptionItem.BUTTON_PRESSED, this.onButtonPressed);
+			addEventListener(mcm.SettingsOptionItem.START_POS, this.onStartPos);
+		}
+		
+		private function onStartPos(e:Event):void 
+		{
+			trace("START POS");
+			MCM_Menu.instance.POS_WIN.Open();
 		}
 		
 		public function get allowValueOverwrite():Boolean

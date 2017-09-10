@@ -24,3 +24,13 @@ TODO conditions for pages
         "params": ["Loading {value}!"]
       }
     }
+	
+	
+	
+	changelog ui v2
+	fixed filter applying after refreshMCM
+	condition switcher now accept globalvariable
+	add control "hiddenSwitcher"
+	add mcm settings: position in menu
+	add mouse3 to bindings
+	add plugin requirements for pages, show/hide page if missing reqs, optional show message if missing reqs

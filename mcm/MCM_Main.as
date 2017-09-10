@@ -44,7 +44,7 @@
 		private function makeChanges():void
 		{
 			MainMenu = stage.getChildAt(0)["Menu_mc"];
-			
+			mcmMenu.MainMenu = MainMenu;
 			if (stage.getChildAt(0)["mcm"])
 			{
 				mcmCodeObj = stage.getChildAt(0)["mcm"];
@@ -73,6 +73,13 @@
 			savedMenuProperties.HelpPanelBackground_Height = MainMenu.BackgroundAndBracketsHelpTopic_mc.height;
 			savedMenuProperties.HelpPanelBackground_Width = MainMenu.BackgroundAndBracketsHelpTopic_mc.width;
 			
+			savedMenuProperties.BGSLogo_visible = MainMenu.BethesdaLogo_mc.visible;
+			savedMenuProperties.BGSLogo_X = MainMenu.BethesdaLogo_mc.x;
+			savedMenuProperties.BGSLogo_Y = MainMenu.BethesdaLogo_mc.y;
+			savedMenuProperties.BGSLogo_SCALEX = MainMenu.BethesdaLogo_mc.scaleX;
+			savedMenuProperties.BGSLogo_SCALEY = MainMenu.BethesdaLogo_mc.scaleY;
+			savedMenuProperties.BGSLogo_index = MainMenu.getChildIndex(MainMenu.BethesdaLogo_mc);
+			
 			MainMenu["MainPanel_mc"].List_mc.entryList.splice(pos,0,{"text": "$MOD_CONFIG", "index": 100});
 			MainMenu["MainPanel_mc"].List_mc.InvalidateData();
 			MainMenu.addEventListener("BSScrollingList::itemPress", itemPressedHandler);
@@ -90,6 +97,12 @@
 			MCMCloseDelayTimer.start();
 			mcmCodeObj.OnMCMClose();
 			stage.getChildAt(0)["Menu_mc"].PopulateButtonBar();
+			MainMenu.BethesdaLogo_mc.visible = savedMenuProperties.BGSLogo_visible;
+			MainMenu.BethesdaLogo_mc.x = savedMenuProperties.BGSLogo_X;
+			MainMenu.BethesdaLogo_mc.y = savedMenuProperties.BGSLogo_Y;
+			MainMenu.BethesdaLogo_mc.scaleX = savedMenuProperties.BGSLogo_SCALEX;
+			MainMenu.BethesdaLogo_mc.scaleY = savedMenuProperties.BGSLogo_SCALEY;
+			MainMenu.setChildIndex(MainMenu.BethesdaLogo_mc,savedMenuProperties.BGSLogo_index);
 			MainMenu["MainPanel_mc"].List_mc.removeEventListener(FocusEvent.FOCUS_IN, focusInHandler);
 		}
 		
@@ -146,6 +159,13 @@
 				
 				MainMenu.BGSCodeObj.SetBackgroundVisible(uint(2), true);								// HELP_TOPIC_BACKGROUND
 				MainMenu.BackgroundAndBracketsHelpTopic_mc.visible = true;
+				
+				//MainMenu.BethesdaLogo_mc.visible = true;
+				MainMenu.BethesdaLogo_mc.x = 0;
+				MainMenu.BethesdaLogo_mc.y = 0;
+				MainMenu.BethesdaLogo_mc.scaleX = 1;
+				MainMenu.BethesdaLogo_mc.scaleY = 1;
+				//MainMenu.setChildIndex(MainMenu.BethesdaLogo_mc,MainMenu.numChildren-1);
 				
 				mcmCodeObj.DisableMenuInput(true);
 				mcmMenu.PopulateButtonBar();

@@ -11,7 +11,9 @@ package mcm
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
 	import flash.events.KeyboardEvent;
+	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
+	import flash.geom.Rectangle;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.text.TextField;
@@ -26,7 +28,9 @@ package mcm
 	 */
 	public class MCM_Menu extends MovieClip
 	{
-		
+		static public var MCM_UI_VERSION:uint = 2;
+				
+		public var MainMenu:MovieClip;
 		public var configPanel_mc:mcm.ConfigPanel;
 		public var HelpPanel_mc:mcm.LeftPanel;
 		public var ButtonHintBar_mc:Shared.AS3.BSButtonHintBar;
@@ -39,6 +43,7 @@ package mcm
 		private var modsCount:int = 0;
 		private var hotkeyManagerList:Array = new Array();
 		private var MCMConfigObject: Object = new Object();
+		public var POS_WIN: POS_WINDOW = new POS_WINDOW();
 		
 		private var standardButtonHintDataV:Vector.<BSButtonHintData>;
 		private var ConfirmButton:BSButtonHintData;
@@ -53,6 +58,7 @@ package mcm
 		static public var MCM_REMAP_MODE:uint = 1;
 		static public var MCM_CONFLICT_MODE:uint = 2;
 		static public var MCM_DD_MODE:uint = 3;
+		static public var MCM_POSITIONER_MODE:uint = 4;
 		
 		static public var mcmLoaded:Boolean = false;
 
@@ -123,6 +129,12 @@ package mcm
 				this.CancelButton.ButtonVisible = true;
 				this.BackButton.ButtonVisible = false;
 				break;
+			case MCM_POSITIONER_MODE:				
+				this.ConfirmButton.ButtonVisible = false;
+				this.CancelButton.ButtonText = "$Back";
+				this.CancelButton.ButtonVisible = true;
+				this.BackButton.ButtonVisible = false;
+				break;
 			default: 
 			}
 			this.ConfigButton.ButtonVisible = (iMode == MCM_MAIN_MODE);
@@ -137,7 +149,8 @@ package mcm
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			//stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUpHandler);
-			this.ButtonHintBar_mc = stage.getChildAt(0)["Menu_mc"].ButtonHintBar_mc;
+			this.ButtonHintBar_mc = MainMenu.ButtonHintBar_mc;
+			MainMenu["BethesdaLogo_mc"].addChild(POS_WIN);
 			SetButtons();
 		}
 		
@@ -196,6 +209,9 @@ package mcm
 			case MCM_DD_MODE: 
 				this.configPanel_mc.DD_popup_mc.Close(true);
 				this.configPanel_mc.configList_mc.UpdateList();
+				break;
+			case MCM_POSITIONER_MODE: 
+				POS_WIN.Close();
 				break;
 			default: 
 			}
@@ -303,7 +319,7 @@ package mcm
 		public function checkEntriesByRequest(obj:Object):void
 		{
 			trace("checkEntriesByRequest");
-			var filterFlagControl:uint = uint.MAX_VALUE;
+			var filterFlagControl:uint = 2147483647;// uint.MAX_VALUE;
 			for each (var control in obj)
 			{
 				if (getQualifiedClassName(control) == "Object")
@@ -336,6 +352,13 @@ package mcm
 								try
 								{
 									control.value = mcmCodeObj.GetGlobalValue(control["valueOptions"]["sourceForm"]);
+									if (control["groupControl"])
+									{
+										if (control.value == 0)
+										{
+											filterFlagControl = filterFlagControl & ~Math.pow(2, control["groupControl"]);
+										}
+									}
 								}
 								catch (e:Error)
 								{
@@ -587,12 +610,12 @@ package mcm
 				{
 					populateHotkeyArray();
 					this.configPanel_mc.configList_mc.entryList = processDataObj(hotkeyManagerList, "Hotkey manager");
-					this.configPanel_mc.configList_mc.filterer.itemFilter = uint.MAX_VALUE;
+					this.configPanel_mc.configList_mc.filterer.itemFilter = 2147483647;// uint.MAX_VALUE;
 				}
 				else
 				{
 					this.configPanel_mc.configList_mc.entryList = new Array();
-					this.configPanel_mc.configList_mc.filterer.itemFilter = uint.MAX_VALUE;
+					this.configPanel_mc.configList_mc.filterer.itemFilter = 2147483647;// uint.MAX_VALUE;
 					GlobalFunc.SetText(this.configPanel_mc.hint_tf, " ", true);
 				}
 				this.configPanel_mc.configList_mc.InvalidateData();
@@ -720,7 +743,6 @@ package mcm
 					catch (err:Error)
 					{
 						trace("Failed to check IsPluginInstalled");
-							//reqsstatus.push(dataObj["pluginRequirements"][reqs]);
 					}
 				}
 			}
@@ -777,7 +799,22 @@ package mcm
 			}
 			for (var i in dataObj["pages"])
 			{
-				this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(dataObj["pages"][i]["content"], dataObj["modName"]), text: dataObj["pages"][i]["pageDisplayName"], modName: dataObj["modName"], ownerModName: dataObj["modName"], filterFlag: 2, pageSelected: false});
+				var checkreqsarray: Array = checkreqs(dataObj["pages"][i]);
+				if (checkreqsarray.length >0) 
+				{
+					if (!dataObj["pages"][i].hideIfMissingReqs) 
+					{
+						if (dataObj["pages"][i].messageIfMissingReqs) 
+						{
+							checkreqsarray.push({"text": dataObj["pages"][i].messageIfMissingReqs, "align": "center", "type": "text"});
+						}
+						this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(checkreqsarray, dataObj["modName"]), text: dataObj["pages"][i]["pageDisplayName"], modName: dataObj["modName"], ownerModName: dataObj["modName"], filterFlag: 2, pageSelected: false});
+					}
+				}
+				else 
+				{
+					this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(dataObj["pages"][i]["content"], dataObj["modName"]), text: dataObj["pages"][i]["pageDisplayName"], modName: dataObj["modName"], ownerModName: dataObj["modName"], filterFlag: 2, pageSelected: false});
+				}
 			}
 			
 			this.HelpPanel_mc.HelpList_mc.InvalidateData();
@@ -788,9 +825,71 @@ package mcm
 		
 		}
 		
+		private function checkreqs(dataObj: Object): Array
+		{
+			var reqsstatus:Array = new Array();
+			var mcmstatus:Boolean = true;
+			if (dataObj["pluginRequirements"])
+			{
+				
+				for (var reqs in dataObj["pluginRequirements"])
+				{
+					try
+					{
+						if (!mcmCodeObj.IsPluginInstalled(dataObj["pluginRequirements"][reqs]))
+						{
+							reqsstatus.push(dataObj["pluginRequirements"][reqs]);
+						}
+					}
+					catch (err:Error)
+					{
+						trace("Failed to check IsPluginInstalled");
+					}
+				}
+			}
+			if (dataObj["minMcmVersion"])
+			{
+				try
+				{
+					if (Number(dataObj["minMcmVersion"]) > Number(GetVersionCode()))
+					{
+						mcmstatus = false;
+					}
+				}
+				catch (err:Error)
+				{
+					trace("Failed to check GetVersionCode");
+				}
+			}
+			if ((reqsstatus.length > 0) || !mcmstatus)
+			{
+				var temparray:Array = new Array();
+				temparray.push({"type": "spacer"});
+				temparray.push({"type": "image", "libName": "builtin", "className": "exclamation_icon"});
+				temparray.push({"type": "spacer"});
+				if ((reqsstatus.length > 0))
+				{
+					temparray.push({"text": Translator("$MCM_MISSING_PLUGINS"), "align": "center", "type": "text"});
+					for (var count in reqsstatus)
+					{
+						temparray.push({"text": String(count + 1) + ". " + reqsstatus[count], "align": "center", "type": "text"});
+					}
+					temparray.push({"type": "spacer"});
+				}				
+				if (!mcmstatus)
+				{
+					temparray.push({"text": Translator("$MCM_WRONG_VERSION") + " " + String(GetVersionCode()) + " (" + Translator("$MCM_REQUIRED") + " " + dataObj["minMcmVersion"] + ")", "align": "center", "type": "text"});
+					temparray.push({"type": "spacer"});
+				}
+
+				return temparray;
+			}
+			return new Array();
+		}
+		
 		private function processDataObj(dataObj:Object, modName:String = "MCM"):Object
 		{
-			var filterFlagControl:uint = uint.MAX_VALUE;
+			var filterFlagControl:uint = 2147483647;// uint.MAX_VALUE;
 			var tempObj:Object = dataObj;
 			for (var num in tempObj)
 			{
@@ -826,6 +925,13 @@ package mcm
 							try
 							{
 								tempObj[num].value = mcmCodeObj.GetGlobalValue(tempObj[num]["valueOptions"]["sourceForm"]);
+								if (tempObj[num]["groupControl"])
+								{
+									if (tempObj[num].value == 0)
+									{
+										filterFlagControl = filterFlagControl & ~Math.pow(2, tempObj[num]["groupControl"]);
+									}
+								}
 							}
 							catch (e:Error)
 							{
@@ -876,6 +982,10 @@ package mcm
 				case "switcher": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_SWITCHER;
 					break;
+				case "hiddenSwitcher": 
+					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_SWITCHER;
+					//tempObj[num].filterFlag = 2147483648;
+					break;
 				case "stepper": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_STEPPER;
 					tempObj[num].options = tempObj[num]["valueOptions"]["options"];
@@ -924,6 +1034,9 @@ package mcm
 					break;
 				case "text": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_TEXT;
+					break;
+				case "positioner": 
+					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_POSITIONER;
 					break;
 				case "button": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_BUTTON;
@@ -1010,6 +1123,10 @@ package mcm
 				{
 					tempObj[num].filterOperator = "OR";
 					tempObj[num].filterFlag = 1;
+				}
+				if (tempObj[num].type == "hiddenSwitcher") 
+				{
+					tempObj[num].filterFlag = 2147483648;
 				}
 			}
 			tempObj.filterFlagControl = filterFlagControl;

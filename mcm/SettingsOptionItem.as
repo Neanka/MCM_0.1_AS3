@@ -22,6 +22,7 @@ package mcm
 		
 		public static const VALUE_CHANGE:String = "mcmSettingsOptionItem::value_change";
 		public static const BUTTON_PRESSED:String = "mcmSettingsOptionItem::button_pressed";
+		public static const START_POS:String = "mcmSettingsOptionItem::start_pos";
 		public static const MOVIETYPE_SCROLLBAR:int = 0;
 		public static const MOVIETYPE_STEPPER:int = 1;
 		public static const MOVIETYPE_SWITCHER:int = 2;
@@ -34,6 +35,7 @@ package mcm
 		public static const MOVIETYPE_IMAGE:int = 9;
 		public static const MOVIETYPE_HOTKEY:int = 10;
 		public static const MOVIETYPE_DD_FILES:int = 11;
+		public static const MOVIETYPE_POSITIONER:int = 12;
 		
 		private var OptionItem:MovieClip;
 		private var uiMovieType:uint;
@@ -392,6 +394,9 @@ package mcm
 					return;
 				case MOVIETYPE_BUTTON: 
 					dispatchEvent(new Event(BUTTON_PRESSED, true, true));
+					return;
+				case MOVIETYPE_POSITIONER: 
+					dispatchEvent(new Event(START_POS, true, true));
 					return;
 				case MOVIETYPE_KEYINPUT: 
 					(this.OptionItem as mcm.Option_ButtonMapping).onItemPressed();

@@ -586,6 +586,9 @@
 			case KEY_NONE: 
 				return "None";
 				break;
+			case MOUSE_3: 
+				return "Mouse3";
+				break;
 			case MOUSE_4: 
 				return "Mouse4";
 				break;
