@@ -68,7 +68,7 @@ package mcm
 			this.ConfirmButton = new BSButtonHintData("$CONFIRM", "Enter", "PSN_A", "Xenon_A", 1, this.onAcceptPress);
 			this.BackButton = new BSButtonHintData("$Back", "Tab", "PSN_X", "Xenon_X", 1, this.onBackPress);
 			this.CancelButton = new BSButtonHintData("$Cancel", "Esc", "PSN_B", "Xenon_B", 1, this.onCancelPress);
-			this.ConfigButton = new BSButtonHintData("$MCM_settings", "Q", "PSN_Select", "Xenon_Select", 1, this.onConfigButtonPress); //TODO: need translation
+			//this.ConfigButton = new BSButtonHintData("$MCM_settings", "Q", "PSN_Select", "Xenon_Select", 1, this.onConfigButtonPress); //TODO: need translation
 			//this.SwitchButtonLeft = new BSButtonHintData("$MCM_SWITCH_TO_LEFT", "Q", "PSN_L1", "Xenon_L1", 1, this.switchToLeft);
 			//this.SwitchButtonRight = new BSButtonHintData("$MCM_SWITCH_TO_RIGHT", "D", "PSN_R1", "Xenon_R1", 1, this.switchToRight);
 			MCM_Menu._instance = this;
@@ -89,14 +89,14 @@ package mcm
 			iMode = 0;
 		}
 		
-		private function onConfigButtonPress():void 
+		/*private function onConfigButtonPress():void 
 		{
 			this.configPanel_mc.configList_mc.disableInput = false;
 			this.configPanel_mc.configList_mc.disableSelection = false;
 			this.configPanel_mc.configList_mc.entryList = MCMConfigObject;
 			this.configPanel_mc.configList_mc.InvalidateData();
 			tryToSelectRightPanel();
-		}
+		}*/
 		
 		public function SetButtons():void
 		{
@@ -137,7 +137,7 @@ package mcm
 				break;
 			default: 
 			}
-			this.ConfigButton.ButtonVisible = (iMode == MCM_MAIN_MODE);
+			//this.ConfigButton.ButtonVisible = (iMode == MCM_MAIN_MODE);
 		/*	if (stage)
 		   {
 		   this.SwitchButtonLeft.ButtonVisible = (iMode == MCM_MAIN_MODE) && (stage.focus != this.HelpPanel_mc.HelpList_mc);
@@ -247,7 +247,7 @@ package mcm
 			this.standardButtonHintDataV.push(this.ConfirmButton);
 			this.standardButtonHintDataV.push(this.BackButton);
 			this.standardButtonHintDataV.push(this.CancelButton);
-			this.standardButtonHintDataV.push(this.ConfigButton);
+			//this.standardButtonHintDataV.push(this.ConfigButton);
 			this.ButtonHintBar_mc.SetButtonHintData(this.standardButtonHintDataV);
 		}
 		
@@ -334,13 +334,6 @@ package mcm
 								try
 								{
 									control.value = mcmCodeObj.GetModSettingBool(control.modName, control["id"]) ? 1 : 0;
-									if (control["groupControl"])
-									{
-										if (control.value == 0)
-										{
-											filterFlagControl = filterFlagControl & ~Math.pow(2, control["groupControl"]);
-										}
-									}
 								}
 								catch (e:Error)
 								{
@@ -352,13 +345,6 @@ package mcm
 								try
 								{
 									control.value = mcmCodeObj.GetGlobalValue(control["valueOptions"]["sourceForm"]);
-									if (control["groupControl"])
-									{
-										if (control.value == 0)
-										{
-											filterFlagControl = filterFlagControl & ~Math.pow(2, control["groupControl"]);
-										}
-									}
 								}
 								catch (e:Error)
 								{
@@ -399,7 +385,58 @@ package mcm
 									trace("Failed to GetModSettingFloat");
 								}
 								break;
+							case "PropertyValueBool": 
+								try
+								{
+									control.value = mcmCodeObj.GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]) ? 1 : 0;
+								}
+								catch (e:Error)
+								{
+									control.value = 0;
+									trace("Failed to GetPropertyValueBool");
+								}
+								break;
+							case "PropertyValueString": 
+								try
+								{
+									control.valueString = GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]);
+								}
+								catch (e:Error)
+								{
+									control.valueString = " ";
+									trace("Failed to GetPropertyValueString");
+								}
+								break;
+							case "PropertyValueInt": 
+								try
+								{
+									control.value = GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]);
+								}
+								catch (e:Error)
+								{
+									control.value = 0;
+									trace("Failed to GetPropertyValueInt");
+								}
+								break;
+							case "PropertyValueFloat": 
+								try
+								{
+									control.value = GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]);
+								}
+								catch (e:Error)
+								{
+									control.value = 0.0;
+									trace("Failed to GetPropertyValueFloat");
+								}
+								break;
 							default: 
+							}
+							if (control["groupControl"])
+							{
+								if (control.value == 0)
+								{
+									filterFlagControl = filterFlagControl & ~Math.pow(2, control["groupControl"]);
+								}
 							}
 						}
 					}
@@ -605,6 +642,8 @@ package mcm
 				{
 					this.configPanel_mc.configList_mc.entryList = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj;
 					this.configPanel_mc.configList_mc.filterer.itemFilter = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj["filterFlagControl"];
+					stage.getChildAt(0).f4se.SendExternalEvent("OnMCMMenuOpen");
+					stage.getChildAt(0).f4se.SendExternalEvent("OnMCMMenuOpen");
 				}
 				else if (this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].hotkeyManager)
 				{
@@ -622,6 +661,7 @@ package mcm
 				
 				if (this.HelpPanel_mc.HelpList_mc.selectedEntry.filterFlag == 1)
 				{
+					stage.getChildAt(0).f4se.SendExternalEvent("OnMCMMenuOpen|"+this.HelpPanel_mc.HelpList_mc.selectedEntry.modName);
 					if (this.HelpPanel_mc.HelpList_mc.filterer.modName == this.HelpPanel_mc.HelpList_mc.selectedEntry.modName)
 					{
 						tryToSelectRightPanel();
@@ -907,13 +947,6 @@ package mcm
 							try
 							{
 								tempObj[num].value = mcmCodeObj.GetModSettingBool(tempObj[num].modName, tempObj[num]["id"]) ? 1 : 0;
-								if (tempObj[num]["groupControl"])
-								{
-									if (tempObj[num].value == 0)
-									{
-										filterFlagControl = filterFlagControl & ~Math.pow(2, tempObj[num]["groupControl"]);
-									}
-								}
 							}
 							catch (e:Error)
 							{
@@ -925,13 +958,6 @@ package mcm
 							try
 							{
 								tempObj[num].value = mcmCodeObj.GetGlobalValue(tempObj[num]["valueOptions"]["sourceForm"]);
-								if (tempObj[num]["groupControl"])
-								{
-									if (tempObj[num].value == 0)
-									{
-										filterFlagControl = filterFlagControl & ~Math.pow(2, tempObj[num]["groupControl"]);
-									}
-								}
 							}
 							catch (e:Error)
 							{
@@ -972,7 +998,58 @@ package mcm
 								trace("Failed to GetModSettingFloat");
 							}
 							break;
+						case "PropertyValueInt":
+							try
+							{
+								tempObj[num].value = mcmCodeObj.GetPropertyValue(tempObj[num]["valueOptions"]["sourceForm"], tempObj[num]["valueOptions"]["propertyName"]);
+							}
+							catch (e:Error)
+							{
+								tempObj[num].value = 0;
+								trace("Failed to GetPropertyValueInt");
+							}
+							break;
+						case "PropertyValueFloat": 
+							try
+							{
+								tempObj[num].value = mcmCodeObj.GetPropertyValue(tempObj[num]["valueOptions"]["sourceForm"], tempObj[num]["valueOptions"]["propertyName"]);
+							}
+							catch (e:Error)
+							{
+								tempObj[num].value = 0.0;
+								trace("Failed to GetPropertyValueFloat");
+							}
+							break;
+						case "PropertyValueString": 
+							try
+							{
+								tempObj[num].valueString = mcmCodeObj.GetPropertyValue(tempObj[num]["valueOptions"]["sourceForm"], tempObj[num]["valueOptions"]["propertyName"]);
+							}
+							catch (e:Error)
+							{
+								tempObj[num].valueString = " ";
+								trace("Failed to GetPropertyValueString");
+							}
+							break;
+						case "PropertyValueBool": 
+							try
+							{
+								tempObj[num].value = mcmCodeObj.GetPropertyValue(tempObj[num]["valueOptions"]["sourceForm"], tempObj[num]["valueOptions"]["propertyName"]) ? 1 : 0;;
+							}
+							catch (e:Error)
+							{
+								tempObj[num].value = 0;
+								trace("Failed to GetPropertyValueBool");
+							}
+							break;
 						default: 
+						}
+						if (tempObj[num]["groupControl"])
+						{
+							if (tempObj[num].value == 0)
+							{
+								filterFlagControl = filterFlagControl & ~Math.pow(2, tempObj[num]["groupControl"]);
+							}
 						}
 					}
 				}
@@ -1145,13 +1222,13 @@ package mcm
 		private function onAllModsLoad():void
 		{
 			trace(modsCount + "/" + modsNum + " mod configs loaded");
-			/*this.HelpPanel_mc.HelpList_mc.entryList.push({
+			this.HelpPanel_mc.HelpList_mc.entryList.push({
 				dataobj: createMCMConfigObject(), 
 				text: "MCM Settings", //TODO: need translation
 				modName: "MCM", 
 				filterFlag: 1, 
 				pageSelected: false			
-			});		*/
+			});		
 			this.MCMConfigObject = createMCMConfigObject();
 			this.HelpPanel_mc.HelpList_mc.entryList.push({
 				dataobj: null, 
@@ -1177,7 +1254,7 @@ package mcm
 			var temparray:Array = new Array();
 			temparray.push({
 				"type": "section",
-				"text": "MCM settings" //TODO: need translation
+				"text": "MCM Settings" //TODO: need translation
 			});
 			temparray.push({
 				"id": "iPosition:Main",
@@ -1251,12 +1328,12 @@ package mcm
 					case Keyboard.ESCAPE: 
 						onQuitPressed();
 						break;
-					case Keyboard.Q: 
+				/*	case Keyboard.Q: 
 						if (iMode == MCM_MAIN_MODE) 
 						{
 							onConfigButtonPress();
 						}
-						break;
+						break;*/
 					default: 
 					}
 				}
@@ -1287,11 +1364,17 @@ package mcm
 					case "Cancel":
 						onCancelPress();
 					break;
-					case "Select":
+				/*	case "Select":
 						if (iMode == MCM_MAIN_MODE) 
 						{
 							onConfigButtonPress();
 						}
+					break;*/
+					case "LShoulder":
+						switchToLeft();
+					break;
+					case "RShoulder":
+						switchToRight();
 					break;
 					default:
 				}
@@ -1302,13 +1385,13 @@ package mcm
 		}
 		
 		private function switchToLeft()
-		{ //unused
+		{ //used for LShoulder
 			stage.focus = this.HelpPanel_mc.HelpList_mc;
 			SetButtons();
 		}
 		
 		private function switchToRight()
-		{ //unused
+		{ //used for RShoulder
 			stage.focus = this.configPanel_mc.configList_mc;
 			this.configPanel_mc.configList_mc.selectedIndex = -1;
 			this.configPanel_mc.configList_mc.moveSelectionDown();

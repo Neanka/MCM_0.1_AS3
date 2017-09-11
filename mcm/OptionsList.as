@@ -29,7 +29,10 @@ package mcm
 		private function onStartPos(e:Event):void 
 		{
 			trace("START POS");
-			MCM_Menu.instance.POS_WIN.Open();
+			MCM_Menu.instance.POS_WIN.Open("asd|asd", 200, 500);
+			trace(parent.parent.mcmCodeObj.GetPropertyValue("DEF_WIDGETS_SURVIVAL1.esp|F99", "_scale_x"));
+			trace(parent.parent.mcmCodeObj.GetPropertyValue("DEF_WIDGETS_SURVIVAL1.esp|F99", "_x"));
+			
 		}
 		
 		public function get allowValueOverwrite():Boolean
@@ -139,7 +142,6 @@ package mcm
 						valueType = "Number";
 						try
 						{
-							//trace(Number(EntriesA[_arg_1.target.itemIndex].value));
 							parent.parent.mcmCodeObj.SetModSettingFloat(EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].id, Number(EntriesA[_arg_1.target.itemIndex].value));
 						}
 						catch (e:Error)
@@ -156,6 +158,50 @@ package mcm
 						catch (e:Error)
 						{
 							trace("Failed to SetModSettingBool");
+						}
+						break;
+					case "PropertyValueString": 
+						valueType = "String";
+						try
+						{
+							parent.parent.mcmCodeObj.SetPropertyValue(EntriesA[_arg_1.target.itemIndex].valueOptions.sourceForm, EntriesA[_arg_1.target.itemIndex].valueOptions.propertyName, EntriesA[_arg_1.target.itemIndex].valueString);
+						}
+						catch (e:Error)
+						{
+							trace("Failed to SetPropertyValueString");
+						}
+						break;
+					case "PropertyValueInt": 
+						valueType = "int";
+						try
+						{
+							parent.parent.mcmCodeObj.SetPropertyValue(EntriesA[_arg_1.target.itemIndex].valueOptions.sourceForm, EntriesA[_arg_1.target.itemIndex].valueOptions.propertyName, int(EntriesA[_arg_1.target.itemIndex].value));
+						}
+						catch (e:Error)
+						{
+							trace("Failed to SetPropertyValueInt");
+						}
+						break;
+					case "PropertyValueFloat": 
+						valueType = "Number";
+						try
+						{
+							parent.parent.mcmCodeObj.SetPropertyValue(EntriesA[_arg_1.target.itemIndex].valueOptions.sourceForm, EntriesA[_arg_1.target.itemIndex].valueOptions.propertyName, Number(EntriesA[_arg_1.target.itemIndex].value));
+						}
+						catch (e:Error)
+						{
+							trace("Failed to SetPropertyValueFloat");
+						}
+						break;
+					case "PropertyValueBool": 
+						valueType = "Boolean";
+						try
+						{
+							parent.parent.mcmCodeObj.SetPropertyValue(EntriesA[_arg_1.target.itemIndex].valueOptions.sourceForm, EntriesA[_arg_1.target.itemIndex].valueOptions.propertyName, Boolean(EntriesA[_arg_1.target.itemIndex].value));
+						}
+						catch (e:Error)
+						{
+							trace("Failed to SetPropertyValueBool");
 						}
 						break;
 					default:
