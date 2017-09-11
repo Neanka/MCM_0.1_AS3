@@ -28,11 +28,7 @@ package mcm
 		
 		private function onStartPos(e:Event):void 
 		{
-			trace("START POS");
-			MCM_Menu.instance.POS_WIN.Open("asd|asd", 200, 500);
-			trace(parent.parent.mcmCodeObj.GetPropertyValue("DEF_WIDGETS_SURVIVAL1.esp|F99", "_scale_x"));
-			trace(parent.parent.mcmCodeObj.GetPropertyValue("DEF_WIDGETS_SURVIVAL1.esp|F99", "_x"));
-			
+			MCM_Menu.instance.POS_WIN.Open(e.target);
 		}
 		
 		public function get allowValueOverwrite():Boolean
@@ -63,12 +59,24 @@ package mcm
 				EntriesA[_arg_1.target.itemIndex].keys = _arg_1.target.OptionItem.keys;
 				EntriesA[_arg_1.target.itemIndex].valueString = _arg_1.target.OptionItem.keys.join();
 			}
+			if (_arg_1.target.movieType == mcm.SettingsOptionItem.MOVIETYPE_POSITIONER)
+			{
+				var tempOI: Option_pos = (_arg_1.target.OptionItem as Option_pos);
+				EntriesA[_arg_1.target.itemIndex]._x = tempOI._x;
+				EntriesA[_arg_1.target.itemIndex]._y = tempOI._y;
+				EntriesA[_arg_1.target.itemIndex]._scalex = tempOI._scalex;
+				EntriesA[_arg_1.target.itemIndex]._scaley = tempOI._scaley;
+				EntriesA[_arg_1.target.itemIndex]._rotation = tempOI._rotation;
+				EntriesA[_arg_1.target.itemIndex]._alpha = tempOI._alpha;
+				MCM_Menu.instance.processPositionerWrite(EntriesA[_arg_1.target.itemIndex]);
+			}
 			if (_arg_1.target.movieType == mcm.SettingsOptionItem.MOVIETYPE_HOTKEY)
 			{
+				var modName:String = EntriesA[_arg_1.target.itemIndex].modName;
 				EntriesA[_arg_1.target.itemIndex].keys = _arg_1.target.OptionItem.keys;
 				try
 				{
-					var modName:String = EntriesA[_arg_1.target.itemIndex].modName;// MCM_Menu.instance.HelpPanel_mc.HelpList_mc.entryList[MCM_Menu.instance.selectedPage]["modName"];
+					// MCM_Menu.instance.HelpPanel_mc.HelpList_mc.entryList[MCM_Menu.instance.selectedPage]["modName"];
 					var keybindID:String = EntriesA[_arg_1.target.itemIndex].id;
 					var keycode:int = EntriesA[_arg_1.target.itemIndex].keys[0];
 					//trace(modName, keybindID,keycode);
@@ -453,6 +461,10 @@ package mcm
 					if (_arg_2.valueOptions != undefined && _arg_2.valueOptions.path != undefined)
 					{
 
+					}
+					if (_arg_2.valueOptions != undefined && _arg_2.valueOptions.clipSource != undefined)
+					{
+						_local_3.SetOptionPositioner(_arg_2.valueOptions.clipSource,_arg_2._x,_arg_2._y,_arg_2._scalex,_arg_2._scaley,_arg_2._rotation,_arg_2._alpha);
 					}
 					_local_3.ID = _arg_2.ID;
 					_local_3.value = _arg_2.value;

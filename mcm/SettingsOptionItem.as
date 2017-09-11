@@ -54,6 +54,7 @@ package mcm
 			addEventListener(mcm.Option_Scrollbar.VALUE_CHANGE, this.onValueChange);
 			addEventListener(mcm.Option_DropDown.VALUE_CHANGE, this.onValueChange);
 			addEventListener(mcm.Option_ButtonMapping.VALUE_CHANGE, this.onValueChange);
+			addEventListener(mcm.Option_pos.VALUE_CHANGE, this.onValueChange);
 			Extensions.enabled = true;
 			TextFieldEx.setTextAutoSize(textField, "shrink");
 		}
@@ -101,6 +102,9 @@ package mcm
 				break;
 			case MOVIETYPE_HOTKEY: 
 				this.OptionItem = new mcm.Option_ButtonMapping();
+				break;
+			case MOVIETYPE_POSITIONER: 
+				this.OptionItem = new mcm.Option_pos();
 				break;
 			default: 
 				this.OptionItem = new MovieClip();
@@ -247,7 +251,18 @@ package mcm
 				(this.OptionItem as mcm.Option_Scrollbar).MaxValue = maxvalue;
 				(this.OptionItem as mcm.Option_Scrollbar).StepSize = step;
 			}
-			;
+		}
+		
+		public function SetOptionPositioner(_clip:String, _x:Number, _y:Number, _scalex:Number, _scaley:Number, _rotation:Number, _alpha:Number)
+		{
+			(this.OptionItem as mcm.Option_pos)._clip = _clip;
+			(this.OptionItem as mcm.Option_pos)._x = _x;
+			(this.OptionItem as mcm.Option_pos)._y = _y;
+			(this.OptionItem as mcm.Option_pos)._scalex = _scalex;
+			(this.OptionItem as mcm.Option_pos)._scaley = _scaley;
+			(this.OptionItem as mcm.Option_pos)._rotation = _rotation;
+			(this.OptionItem as mcm.Option_pos)._alpha = _alpha;
+			(this.OptionItem as mcm.Option_pos).value = 0;
 		}
 		
 		override public function SetEntryText(_arg_1:Object, _arg_2:String)
@@ -266,11 +281,11 @@ package mcm
 			case MOVIETYPE_EMPTY_LINE: 
 				this.border.alpha = 0;
 				GlobalFunc.SetText(this.textField, " ", true);
-				if (_arg_1.hasOwnProperty("numLines")) 
+				if (_arg_1.hasOwnProperty("numLines"))
 				{
-					this.border.height = _arg_1.numLines*ORIG_BORDER_HEIGHT;
+					this.border.height = _arg_1.numLines * ORIG_BORDER_HEIGHT;
 				}
-				else if (_arg_1.hasOwnProperty("height")) 
+				else if (_arg_1.hasOwnProperty("height"))
 				{
 					this.border.height = _arg_1.height;
 				}
@@ -342,6 +357,9 @@ package mcm
 				}
 				
 				return;
+				break;
+			case MOVIETYPE_POSITIONER:
+
 				break;
 			default: 
 			}

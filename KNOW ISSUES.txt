@@ -37,3 +37,4 @@ TODO: CAPITALIZE all buttonhints
 	add set/getPropertyValue
 	add SendExternalEvent("OnMCMMenuOpen|modName")
 	add LShoulder RShoulder switching between panels
+	add positioner control (unfinished)

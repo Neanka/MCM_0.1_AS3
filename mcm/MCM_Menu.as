@@ -29,7 +29,7 @@ package mcm
 	public class MCM_Menu extends MovieClip
 	{
 		static public var MCM_UI_VERSION:uint = 2;
-				
+		
 		public var MainMenu:MovieClip;
 		public var configPanel_mc:mcm.ConfigPanel;
 		public var HelpPanel_mc:mcm.LeftPanel;
@@ -42,8 +42,8 @@ package mcm
 		private var modsNum:int = 0;
 		private var modsCount:int = 0;
 		private var hotkeyManagerList:Array = new Array();
-		private var MCMConfigObject: Object = new Object();
-		public var POS_WIN: POS_WINDOW = new POS_WINDOW();
+		private var MCMConfigObject:Object = new Object();
+		public var POS_WIN:POS_WINDOW = new POS_WINDOW();
 		
 		private var standardButtonHintDataV:Vector.<BSButtonHintData>;
 		private var ConfirmButton:BSButtonHintData;
@@ -61,7 +61,7 @@ package mcm
 		static public var MCM_POSITIONER_MODE:uint = 4;
 		
 		static public var mcmLoaded:Boolean = false;
-
+		
 		public function MCM_Menu()
 		{
 			super();
@@ -89,14 +89,14 @@ package mcm
 			iMode = 0;
 		}
 		
-		/*private function onConfigButtonPress():void 
-		{
-			this.configPanel_mc.configList_mc.disableInput = false;
-			this.configPanel_mc.configList_mc.disableSelection = false;
-			this.configPanel_mc.configList_mc.entryList = MCMConfigObject;
-			this.configPanel_mc.configList_mc.InvalidateData();
-			tryToSelectRightPanel();
-		}*/
+		/*private function onConfigButtonPress():void
+		   {
+		   this.configPanel_mc.configList_mc.disableInput = false;
+		   this.configPanel_mc.configList_mc.disableSelection = false;
+		   this.configPanel_mc.configList_mc.entryList = MCMConfigObject;
+		   this.configPanel_mc.configList_mc.InvalidateData();
+		   tryToSelectRightPanel();
+		   }*/
 		
 		public function SetButtons():void
 		{
@@ -129,7 +129,7 @@ package mcm
 				this.CancelButton.ButtonVisible = true;
 				this.BackButton.ButtonVisible = false;
 				break;
-			case MCM_POSITIONER_MODE:				
+			case MCM_POSITIONER_MODE: 
 				this.ConfirmButton.ButtonVisible = false;
 				this.CancelButton.ButtonText = "$Back";
 				this.CancelButton.ButtonVisible = true;
@@ -170,7 +170,7 @@ package mcm
 			switch (iMode)
 			{
 			case MCM_MAIN_MODE: 
-				stage.getChildAt(0)["Menu_mc"].EndState();				
+				stage.getChildAt(0)["Menu_mc"].EndState();
 				break;
 			case MCM_CONFLICT_MODE: 
 				this.configPanel_mc.hotkey_conflict_mc.Close(true);
@@ -328,115 +328,17 @@ package mcm
 					{
 						if (control["valueOptions"]["sourceType"])
 						{
-							switch (control["valueOptions"]["sourceType"])
-							{
-							case "ModSettingBool": 
-								try
-								{
-									control.value = mcmCodeObj.GetModSettingBool(control.modName, control["id"]) ? 1 : 0;
-								}
-								catch (e:Error)
-								{
-									control.value = 0;
-									trace("Failed to GetModSettingBool");
-								}
-								break;
-							case "GlobalValue": 
-								try
-								{
-									control.value = mcmCodeObj.GetGlobalValue(control["valueOptions"]["sourceForm"]);
-								}
-								catch (e:Error)
-								{
-									control.value = 0;
-									trace("Failed to GetGlobalValue");
-								}
-								break;
-							case "ModSettingString": 
-								try
-								{
-									control.valueString = mcmCodeObj.GetModSettingString(control.modName, control["id"]);
-								}
-								catch (e:Error)
-								{
-									control.valueString = " ";
-									trace("Failed to GetModSettingString");
-								}
-								break;
-							case "ModSettingInt": 
-								try
-								{
-									control.value = mcmCodeObj.GetModSettingInt(control.modName, control["id"]);
-								}
-								catch (e:Error)
-								{
-									control.value = 0;
-									trace("Failed to GetModSettingInt");
-								}
-								break;
-							case "ModSettingFloat": 
-								try
-								{
-									control.value = mcmCodeObj.GetModSettingFloat(control.modName, control["id"]);
-								}
-								catch (e:Error)
-								{
-									control.value = 0.0;
-									trace("Failed to GetModSettingFloat");
-								}
-								break;
-							case "PropertyValueBool": 
-								try
-								{
-									control.value = mcmCodeObj.GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]) ? 1 : 0;
-								}
-								catch (e:Error)
-								{
-									control.value = 0;
-									trace("Failed to GetPropertyValueBool");
-								}
-								break;
-							case "PropertyValueString": 
-								try
-								{
-									control.valueString = GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]);
-								}
-								catch (e:Error)
-								{
-									control.valueString = " ";
-									trace("Failed to GetPropertyValueString");
-								}
-								break;
-							case "PropertyValueInt": 
-								try
-								{
-									control.value = GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]);
-								}
-								catch (e:Error)
-								{
-									control.value = 0;
-									trace("Failed to GetPropertyValueInt");
-								}
-								break;
-							case "PropertyValueFloat": 
-								try
-								{
-									control.value = GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]);
-								}
-								catch (e:Error)
-								{
-									control.value = 0.0;
-									trace("Failed to GetPropertyValueFloat");
-								}
-								break;
-							default: 
-							}
+							readValue(control);
 							if (control["groupControl"])
 							{
 								if (control.value == 0)
 								{
 									filterFlagControl = filterFlagControl & ~Math.pow(2, control["groupControl"]);
 								}
+							}
+							if (control["valueOptions"]["clipSource"])
+							{
+								processPositioner(control);
 							}
 						}
 					}
@@ -628,7 +530,7 @@ package mcm
 			}
 			else if (_arg_1.target == this.HelpPanel_mc.HelpList_mc)
 			{
-				if (stage.focus != this.HelpPanel_mc.HelpList_mc) 
+				if (stage.focus != this.HelpPanel_mc.HelpList_mc)
 				{
 					stage.focus = this.HelpPanel_mc.HelpList_mc;
 				}
@@ -661,7 +563,7 @@ package mcm
 				
 				if (this.HelpPanel_mc.HelpList_mc.selectedEntry.filterFlag == 1)
 				{
-					stage.getChildAt(0).f4se.SendExternalEvent("OnMCMMenuOpen|"+this.HelpPanel_mc.HelpList_mc.selectedEntry.modName);
+					stage.getChildAt(0).f4se.SendExternalEvent("OnMCMMenuOpen|" + this.HelpPanel_mc.HelpList_mc.selectedEntry.modName);
 					if (this.HelpPanel_mc.HelpList_mc.filterer.modName == this.HelpPanel_mc.HelpList_mc.selectedEntry.modName)
 					{
 						tryToSelectRightPanel();
@@ -702,7 +604,7 @@ package mcm
 			{
 				stage.focus = this.configPanel_mc.configList_mc;
 			}
-			else 
+			else
 			{
 				stage.focus = this.HelpPanel_mc.HelpList_mc;
 				SetButtons();
@@ -839,19 +741,19 @@ package mcm
 			}
 			for (var i in dataObj["pages"])
 			{
-				var checkreqsarray: Array = checkreqs(dataObj["pages"][i]);
-				if (checkreqsarray.length >0) 
+				var checkreqsarray:Array = checkreqs(dataObj["pages"][i]);
+				if (checkreqsarray.length > 0)
 				{
-					if (!dataObj["pages"][i].hideIfMissingReqs) 
+					if (!dataObj["pages"][i].hideIfMissingReqs)
 					{
-						if (dataObj["pages"][i].messageIfMissingReqs) 
+						if (dataObj["pages"][i].messageIfMissingReqs)
 						{
 							checkreqsarray.push({"text": dataObj["pages"][i].messageIfMissingReqs, "align": "center", "type": "text"});
 						}
 						this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(checkreqsarray, dataObj["modName"]), text: dataObj["pages"][i]["pageDisplayName"], modName: dataObj["modName"], ownerModName: dataObj["modName"], filterFlag: 2, pageSelected: false});
 					}
 				}
-				else 
+				else
 				{
 					this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(dataObj["pages"][i]["content"], dataObj["modName"]), text: dataObj["pages"][i]["pageDisplayName"], modName: dataObj["modName"], ownerModName: dataObj["modName"], filterFlag: 2, pageSelected: false});
 				}
@@ -865,7 +767,7 @@ package mcm
 		
 		}
 		
-		private function checkreqs(dataObj: Object): Array
+		private function checkreqs(dataObj:Object):Array
 		{
 			var reqsstatus:Array = new Array();
 			var mcmstatus:Boolean = true;
@@ -915,13 +817,13 @@ package mcm
 						temparray.push({"text": String(count + 1) + ". " + reqsstatus[count], "align": "center", "type": "text"});
 					}
 					temparray.push({"type": "spacer"});
-				}				
+				}
 				if (!mcmstatus)
 				{
 					temparray.push({"text": Translator("$MCM_WRONG_VERSION") + " " + String(GetVersionCode()) + " (" + Translator("$MCM_REQUIRED") + " " + dataObj["minMcmVersion"] + ")", "align": "center", "type": "text"});
 					temparray.push({"type": "spacer"});
 				}
-
+				
 				return temparray;
 			}
 			return new Array();
@@ -941,109 +843,7 @@ package mcm
 				{
 					if (tempObj[num]["valueOptions"]["sourceType"])
 					{
-						switch (tempObj[num]["valueOptions"]["sourceType"])
-						{
-						case "ModSettingBool": 
-							try
-							{
-								tempObj[num].value = mcmCodeObj.GetModSettingBool(tempObj[num].modName, tempObj[num]["id"]) ? 1 : 0;
-							}
-							catch (e:Error)
-							{
-								tempObj[num].value = 0;
-								trace("Failed to GetModSettingBool");
-							}
-							break;
-						case "GlobalValue": 
-							try
-							{
-								tempObj[num].value = mcmCodeObj.GetGlobalValue(tempObj[num]["valueOptions"]["sourceForm"]);
-							}
-							catch (e:Error)
-							{
-								tempObj[num].value = 0;
-								trace("Failed to GetGlobalValue");
-							}
-							break;
-						case "ModSettingString": 
-							try
-							{
-								tempObj[num].valueString = mcmCodeObj.GetModSettingString(tempObj[num].modName, tempObj[num]["id"]);
-							}
-							catch (e:Error)
-							{
-								tempObj[num].valueString = " ";
-								trace("Failed to GetModSettingString");
-							}
-							break;
-						case "ModSettingInt": 
-							try
-							{
-								tempObj[num].value = mcmCodeObj.GetModSettingInt(tempObj[num].modName, tempObj[num]["id"]);
-							}
-							catch (e:Error)
-							{
-								tempObj[num].value = 0;
-								trace("Failed to GetModSettingInt");
-							}
-							break;
-						case "ModSettingFloat": 
-							try
-							{
-								tempObj[num].value = mcmCodeObj.GetModSettingFloat(tempObj[num].modName, tempObj[num]["id"]);
-							}
-							catch (e:Error)
-							{
-								tempObj[num].value = 0.0;
-								trace("Failed to GetModSettingFloat");
-							}
-							break;
-						case "PropertyValueInt":
-							try
-							{
-								tempObj[num].value = mcmCodeObj.GetPropertyValue(tempObj[num]["valueOptions"]["sourceForm"], tempObj[num]["valueOptions"]["propertyName"]);
-							}
-							catch (e:Error)
-							{
-								tempObj[num].value = 0;
-								trace("Failed to GetPropertyValueInt");
-							}
-							break;
-						case "PropertyValueFloat": 
-							try
-							{
-								tempObj[num].value = mcmCodeObj.GetPropertyValue(tempObj[num]["valueOptions"]["sourceForm"], tempObj[num]["valueOptions"]["propertyName"]);
-							}
-							catch (e:Error)
-							{
-								tempObj[num].value = 0.0;
-								trace("Failed to GetPropertyValueFloat");
-							}
-							break;
-						case "PropertyValueString": 
-							try
-							{
-								tempObj[num].valueString = mcmCodeObj.GetPropertyValue(tempObj[num]["valueOptions"]["sourceForm"], tempObj[num]["valueOptions"]["propertyName"]);
-							}
-							catch (e:Error)
-							{
-								tempObj[num].valueString = " ";
-								trace("Failed to GetPropertyValueString");
-							}
-							break;
-						case "PropertyValueBool": 
-							try
-							{
-								tempObj[num].value = mcmCodeObj.GetPropertyValue(tempObj[num]["valueOptions"]["sourceForm"], tempObj[num]["valueOptions"]["propertyName"]) ? 1 : 0;;
-							}
-							catch (e:Error)
-							{
-								tempObj[num].value = 0;
-								trace("Failed to GetPropertyValueBool");
-							}
-							break;
-						default: 
-						}
+						readValue(tempObj[num]);
 						if (tempObj[num]["groupControl"])
 						{
 							if (tempObj[num].value == 0)
@@ -1051,6 +851,10 @@ package mcm
 								filterFlagControl = filterFlagControl & ~Math.pow(2, tempObj[num]["groupControl"]);
 							}
 						}
+					}
+					if (tempObj[num]["valueOptions"]["clipSource"])
+					{
+						processPositioner(tempObj[num]);
 					}
 				}
 				
@@ -1085,20 +889,20 @@ package mcm
 					break;
 				case "dropdownFiles": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_DD_FILES;
-					try 
+					try
 					{
-						var filesArray: Array = stage.getChildAt(0).f4se.GetDirectoryListing(tempObj[num]["valueOptions"].path, tempObj[num]["valueOptions"].mask);
-						var optionsArray: Array = new Array();
+						var filesArray:Array = stage.getChildAt(0).f4se.GetDirectoryListing(tempObj[num]["valueOptions"].path, tempObj[num]["valueOptions"].mask);
+						var optionsArray:Array = new Array();
 						optionsArray.push("None");
 						tempObj[num].value = 0;
-						var fileName: String = "";
-						for (var i:int = 0; i < filesArray.length; i++) 
+						var fileName:String = "";
+						for (var i:int = 0; i < filesArray.length; i++)
 						{
 							fileName = filesArray[i].name.substring(filesArray[i].name.lastIndexOf("\\") + 1);
 							optionsArray.push(fileName);
-							if (fileName == tempObj[num].valueString) 
+							if (fileName == tempObj[num].valueString)
 							{
-								tempObj[num].value = i+1;
+								tempObj[num].value = i + 1;
 							}
 						}
 						tempObj[num].options = optionsArray;
@@ -1107,7 +911,7 @@ package mcm
 					{
 						trace("Failed to GetDirectoryListing");
 					}
-
+					
 					break;
 				case "text": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_TEXT;
@@ -1201,13 +1005,247 @@ package mcm
 					tempObj[num].filterOperator = "OR";
 					tempObj[num].filterFlag = 1;
 				}
-				if (tempObj[num].type == "hiddenSwitcher") 
+				if (tempObj[num].type == "hiddenSwitcher")
 				{
 					tempObj[num].filterFlag = 2147483648;
 				}
 			}
 			tempObj.filterFlagControl = filterFlagControl;
 			return tempObj;
+		}
+		
+		private function processPositioner(control:Object):void
+		{
+			if (control.valueOptions.xSource)
+			{
+				control._x = readFloatValue(control.valueOptions.xSource, control.modName);
+			}
+			else
+			{
+				control._x = int.MAX_VALUE;
+			}
+			if (control.valueOptions.ySource)
+			{
+				control._y = readFloatValue(control.valueOptions.ySource, control.modName);
+			}
+			else
+			{
+				control._y = int.MAX_VALUE;
+			}
+			if (control.valueOptions.scalexSource)
+			{
+				control._scalex = readFloatValue(control.valueOptions.scalexSource, control.modName);
+			}
+			else
+			{
+				control._scalex = int.MAX_VALUE;
+			}
+			if (control.valueOptions.scaleySource)
+			{
+				control._scaley = readFloatValue(control.valueOptions.scaleySource, control.modName);
+			}
+			else
+			{
+				control._scaley = int.MAX_VALUE;
+			}
+			if (control.valueOptions.rotationSource)
+			{
+				control._rotation = readFloatValue(control.valueOptions.rotationSource, control.modName);
+			}
+			else
+			{
+				control._rotation = int.MAX_VALUE;
+			}
+			if (control.valueOptions.alphaSource)
+			{
+				control._alpha = readFloatValue(control.valueOptions.alphaSource, control.modName);
+			}
+			else
+			{
+				control._alpha = int.MAX_VALUE;
+			}
+		}
+		
+		private function readFloatValue(object:Object, modName: String):Number
+		{
+			var val:* = int.MAX_VALUE;
+			switch (object.sourceType)
+			{
+			case "PropertyValueFloat": 
+			case "PropertyValueInt": 
+				val = mcmCodeObj.GetPropertyValue(object.sourceForm, object.propertyName);
+				break;
+
+			case "ModSettingInt": 
+				val = mcmCodeObj.GetModSettingInt(modName, object.id);
+				break;
+			case "ModSettingFloat": 
+				val = mcmCodeObj.GetModSettingFloat(modName, object.id);
+				break;
+			case "GlobalValue": 
+				val = mcmCodeObj.GetGlobalValue(object.sourceForm);
+				break;
+			default: 
+			}
+			return GlobalFunc.RoundDecimal(val,2)
+		}
+		
+		public function processPositionerWrite(control:Object):void
+		{
+			if (control.valueOptions.xSource)
+			{
+				writeFloatValue(control.valueOptions.xSource, control.modName, control._x);
+			}
+			if (control.valueOptions.ySource)
+			{
+				writeFloatValue(control.valueOptions.ySource, control.modName, control._y);
+			}
+			if (control.valueOptions.scalexSource)
+			{
+				writeFloatValue(control.valueOptions.scalexSource, control.modName, control._scalex);
+			}
+			if (control.valueOptions.scaleySource)
+			{
+				writeFloatValue(control.valueOptions.scaleySource, control.modName, control._scaley);
+			}
+			if (control.valueOptions.rotationSource)
+			{
+				writeFloatValue(control.valueOptions.rotationSource, control.modName, control._rotation);
+			}
+			if (control.valueOptions.alphaSource)
+			{
+				writeFloatValue(control.valueOptions.alphaSource, control.modName, control._alpha);
+			}
+		}
+		
+		private function writeFloatValue(control:Object, modName: String, val: Number):void
+		{
+			switch (control.sourceType) 
+			{
+				case "PropertyValueFloat":
+					mcmCodeObj.SetPropertyValue(control.sourceForm, control.propertyName, val);
+				break;
+				case "PropertyValueInt":
+					mcmCodeObj.SetPropertyValue(control.sourceForm, control.propertyName, int(val));
+				break;
+				case "ModSettingInt":
+					mcmCodeObj.SetModSettingInt(modName, control.id, int(val));
+				break;
+				case "ModSettingFloat":
+					mcmCodeObj.SetModSettingFloat(modName, control.id, val);
+				break;
+				case "GlobalValue":
+					mcmCodeObj.SetGlobalValue(control.sourceForm, val);
+				break;
+				default:
+			}
+		}
+		
+		function readValue(control:Object):void
+		{
+			switch (control["valueOptions"]["sourceType"])
+			{
+			case "ModSettingBool": 
+				try
+				{
+					control.value = mcmCodeObj.GetModSettingBool(control.modName, control["id"]) ? 1 : 0;
+				}
+				catch (e:Error)
+				{
+					control.value = 0;
+					trace("Failed to GetModSettingBool");
+				}
+				break;
+			case "GlobalValue": 
+				try
+				{
+					control.value = mcmCodeObj.GetGlobalValue(control["valueOptions"]["sourceForm"]);
+				}
+				catch (e:Error)
+				{
+					control.value = 0;
+					trace("Failed to GetGlobalValue");
+				}
+				break;
+			case "ModSettingString": 
+				try
+				{
+					control.valueString = mcmCodeObj.GetModSettingString(control.modName, control["id"]);
+				}
+				catch (e:Error)
+				{
+					control.valueString = " ";
+					trace("Failed to GetModSettingString");
+				}
+				break;
+			case "ModSettingInt": 
+				try
+				{
+					control.value = mcmCodeObj.GetModSettingInt(control.modName, control["id"]);
+				}
+				catch (e:Error)
+				{
+					control.value = 0;
+					trace("Failed to GetModSettingInt");
+				}
+				break;
+			case "ModSettingFloat": 
+				try
+				{
+					control.value = mcmCodeObj.GetModSettingFloat(control.modName, control["id"]);
+				}
+				catch (e:Error)
+				{
+					control.value = 0.0;
+					trace("Failed to GetModSettingFloat");
+				}
+				break;
+			case "PropertyValueBool": 
+				try
+				{
+					control.value = mcmCodeObj.GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]) ? 1 : 0;
+				}
+				catch (e:Error)
+				{
+					control.value = 0;
+					trace("Failed to GetPropertyValueBool");
+				}
+				break;
+			case "PropertyValueString": 
+				try
+				{
+					control.valueString = mcmCodeObj.GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]);
+				}
+				catch (e:Error)
+				{
+					control.valueString = " ";
+					trace("Failed to GetPropertyValueString");
+				}
+				break;
+			case "PropertyValueInt": 
+				try
+				{
+					control.value = mcmCodeObj.GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]);
+				}
+				catch (e:Error)
+				{
+					control.value = 0;
+					trace("Failed to GetPropertyValueInt");
+				}
+				break;
+			case "PropertyValueFloat": 
+				try
+				{
+					control.value = mcmCodeObj.GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]);
+				}
+				catch (e:Error)
+				{
+					control.value = 0.0;
+					trace("Failed to GetPropertyValueFloat");
+				}
+				break;
+			default: 
+			}
 		}
 		
 		private function checkModsLoad():void
@@ -1222,22 +1260,10 @@ package mcm
 		private function onAllModsLoad():void
 		{
 			trace(modsCount + "/" + modsNum + " mod configs loaded");
-			this.HelpPanel_mc.HelpList_mc.entryList.push({
-				dataobj: createMCMConfigObject(), 
-				text: "MCM Settings", //TODO: need translation
-				modName: "MCM", 
-				filterFlag: 1, 
-				pageSelected: false			
-			});		
+			this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: createMCMConfigObject(), text: "MCM Settings", //TODO: need translation
+				modName: "MCM", filterFlag: 1, pageSelected: false});
 			this.MCMConfigObject = createMCMConfigObject();
-			this.HelpPanel_mc.HelpList_mc.entryList.push({
-				dataobj: null, 
-				text: "$MCM_HOTKEY_MANAGER", 
-				modName: "Hotkey manager", 
-				hotkeyManager: true, 
-				filterFlag: 1, 
-				pageSelected: false			
-			});
+			this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: null, text: "$MCM_HOTKEY_MANAGER", modName: "Hotkey manager", hotkeyManager: true, filterFlag: 1, pageSelected: false});
 			this.HelpPanel_mc.HelpList_mc.InvalidateData();
 			this.HelpPanel_mc.HelpList_mc.selectedIndex = 0;
 			if (stage)
@@ -1249,24 +1275,13 @@ package mcm
 			mcmLoaded = true;
 		}
 		
-		private function createMCMConfigObject(): Object 
+		private function createMCMConfigObject():Object
 		{
 			var temparray:Array = new Array();
-			temparray.push({
-				"type": "section",
-				"text": "MCM Settings" //TODO: need translation
+			temparray.push({"type": "section", "text": "MCM Settings" //TODO: need translation
 			});
-			temparray.push({
-				"id": "iPosition:Main",
-				"type": "slider",
-				"text": "MCM position in the main menu", //TODO: need translation
-				"valueOptions": {
-					"min": 0,
-					"max": 7,
-					"step": 1,
-					"sourceType": "ModSettingInt"
-				}
-			});
+			temparray.push({"id": "iPosition:Main", "type": "slider", "text": "MCM position in the main menu", //TODO: need translation
+				"valueOptions": {"min": 0, "max": 7, "step": 1, "sourceType": "ModSettingInt"}});
 			return processDataObj(temparray);
 		}
 		
@@ -1328,12 +1343,12 @@ package mcm
 					case Keyboard.ESCAPE: 
 						onQuitPressed();
 						break;
-				/*	case Keyboard.Q: 
-						if (iMode == MCM_MAIN_MODE) 
-						{
-							onConfigButtonPress();
-						}
-						break;*/
+					/*	case Keyboard.Q:
+					   if (iMode == MCM_MAIN_MODE)
+					   {
+					   onConfigButtonPress();
+					   }
+					   break;*/
 					default: 
 					}
 				}
@@ -1359,29 +1374,28 @@ package mcm
 			   }*/
 			if (!isDown && deviceType == 2)
 			{
-				switch (controlName) 
+				switch (controlName)
 				{
-					case "Cancel":
-						onCancelPress();
+				case "Cancel": 
+					onCancelPress();
 					break;
 				/*	case "Select":
-						if (iMode == MCM_MAIN_MODE) 
-						{
-							onConfigButtonPress();
-						}
-					break;*/
-					case "LShoulder":
-						switchToLeft();
+				   if (iMode == MCM_MAIN_MODE)
+				   {
+				   onConfigButtonPress();
+				   }
+				   break;*/
+				case "LShoulder": 
+					switchToLeft();
 					break;
-					case "RShoulder":
-						switchToRight();
+				case "RShoulder": 
+					switchToRight();
 					break;
-					default:
+				default: 
 				}
 				
-				
 			}
-
+		
 		}
 		
 		private function switchToLeft()
@@ -1448,7 +1462,6 @@ package mcm
 			}
 			return mcmCodeObj.GetMCMVersionString();
 		}
-		
 		
 		static public function Translator(str:String):String
 		{
