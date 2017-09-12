@@ -47,8 +47,11 @@
 		{
 			if (!bNoSave)
 			{
-				_target.index = this.DD_popup_list_mc.selectedIndex;
-				_target.dispatchEvent(new Event(Option_DropDown.VALUE_CHANGE, true, true));
+				if (_target.index != this.DD_popup_list_mc.selectedIndex) 
+				{
+					_target.index = this.DD_popup_list_mc.selectedIndex;
+					_target.dispatchEvent(new Event(Option_DropDown.VALUE_CHANGE, true, true));
+				}
 			}
 			MCM_Menu.instance.configPanel_mc.configList_mc.disableInput = false;
 			MCM_Menu.instance.configPanel_mc.configList_mc.disableSelection = false;

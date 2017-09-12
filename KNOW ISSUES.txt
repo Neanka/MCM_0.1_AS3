@@ -7,6 +7,7 @@ TODO: Make dropdown wider
 TODO conditions for pages - done
 TODO: CAPITALIZE all buttonhints
 
+
 ,
     {
 	  "id": "sConfigFile:Main",
@@ -38,3 +39,4 @@ TODO: CAPITALIZE all buttonhints
 	add SendExternalEvent("OnMCMMenuOpen|modName")
 	add LShoulder RShoulder switching between panels
 	add positioner control (unfinished)
+	not send valuechange event in dropdown control if value was not changed

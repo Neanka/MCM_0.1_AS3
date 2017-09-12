@@ -179,6 +179,9 @@ package mcm
 				this.configPanel_mc.DD_popup_mc.Close(true);
 				this.configPanel_mc.configList_mc.UpdateList();
 				break;
+			case MCM_POSITIONER_MODE: 
+				POS_WIN.Close();
+				break;
 			default: 
 			}
 		}
@@ -1327,7 +1330,11 @@ package mcm
 		public function ProcessKeyEvent(keyCode:int, isDown:Boolean):void
 		{
 			//stage.getChildAt(0).f4se.plugins.def_plugin.papMessageBox(String(keyCode));
-			if (bmForInput)
+			if (iMode == MCM_POSITIONER_MODE) 
+			{
+				this.POS_WIN.ProcessKeyEvent(keyCode,isDown);
+			}
+			else if (bmForInput)
 			{
 				bmForInput.ProcessKeyEvent(keyCode, isDown);
 			}
@@ -1343,12 +1350,6 @@ package mcm
 					case Keyboard.ESCAPE: 
 						onQuitPressed();
 						break;
-					/*	case Keyboard.Q:
-					   if (iMode == MCM_MAIN_MODE)
-					   {
-					   onConfigButtonPress();
-					   }
-					   break;*/
 					default: 
 					}
 				}

@@ -2,6 +2,7 @@
 	
 	import flash.display.MovieClip;
 	import flash.text.TextField;
+	import flash.text.TextFieldAutoSize;
 	import scaleform.gfx.Extensions;
 	import scaleform.gfx.TextFieldEx;
 	import Shared.GlobalFunc;
@@ -56,7 +57,8 @@
 			{
 				astr += "alpha: " + _alpha + "   ";
 			}
-			GlobalFunc.SetText(textArea,astr,false);
+			GlobalFunc.SetText(textArea, astr, false);
+			textArea.x = (textArea.textWidth < 175) ? -330 - (175 - textArea.textWidth) / 2: -330;
 		}
 	}
 	
