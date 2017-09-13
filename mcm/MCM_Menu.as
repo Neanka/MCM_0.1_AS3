@@ -75,7 +75,7 @@ package mcm
 			this.ConfirmButton = new BSButtonHintData("$CONFIRM", "Enter", "PSN_A", "Xenon_A", 1, this.onAcceptPress);
 			this.BackButton = new BSButtonHintData("$BACK", "Tab", "PSN_X", "Xenon_X", 1, this.onBackPress);
 			this.CancelButton = new BSButtonHintData("$CANCEL", "Esc", "PSN_B", "Xenon_B", 1, this.onCancelPress);
-			this.POS_Move_Button = new BSButtonHintData("$MOVE", "LMouse", "", "", 1, null);
+			this.POS_Move_Button = new BSButtonHintData("$MOVE", "LMouse", "s", "s", 1, null);
 			this.POS_ScaleX_Button = new BSButtonHintData("$MCM_SCALEX", "Shift-MWheel", "", "", 1, null);
 			this.POS_ScaleY_Button = new BSButtonHintData("$MCM_SCALEY", "Ctrl-MWheel", "", "", 1, null);
 			this.POS_Rot_Button = new BSButtonHintData("$ROTATE", "Q", "", "", 1, null);
@@ -1456,17 +1456,26 @@ package mcm
 				case "Cancel": 
 					onCancelPress();
 					break;
-				/*	case "Select":
-				   if (iMode == MCM_MAIN_MODE)
-				   {
-				   onConfigButtonPress();
-				   }
-				   break;*/
 				case "LShoulder": 
 					switchToLeft();
 					break;
 				case "RShoulder": 
 					switchToRight();
+					break;
+				case "ResetToDefault": 
+					onResetButtonClicked();
+					break;
+				case "Up":
+					ProcessKeyEvent(Keyboard.W, false)	
+					break;
+				case "Down":
+					ProcessKeyEvent(Keyboard.S, false)	
+					break;
+				case "Left":
+					ProcessKeyEvent(Keyboard.A, false)	
+					break;
+				case "Right":
+					ProcessKeyEvent(Keyboard.D, false)	
 					break;
 				default: 
 				}
@@ -1477,17 +1486,23 @@ package mcm
 		
 		private function switchToLeft()
 		{ //used for LShoulder
+			if (iMode == MCM_MAIN_MODE) 
+			{
 			stage.focus = this.HelpPanel_mc.HelpList_mc;
 			SetButtons();
+			}
 		}
 		
 		private function switchToRight()
 		{ //used for RShoulder
+			if (iMode == MCM_MAIN_MODE) 
+			{
 			stage.focus = this.configPanel_mc.configList_mc;
 			this.configPanel_mc.configList_mc.selectedIndex = -1;
 			this.configPanel_mc.configList_mc.moveSelectionDown();
 			this.HelpPanel_mc.HelpList_mc.selectedIndex = selectedPage;
 			SetButtons();
+			}
 		}
 		
 		public function RefreshMCM():void
