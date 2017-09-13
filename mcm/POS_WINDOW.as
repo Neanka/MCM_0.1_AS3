@@ -14,7 +14,7 @@
 	
 	public class POS_WINDOW extends MovieClip
 	{
-		
+		public var CONFIRM_POP:confirm_popup;
 		public var request:URLRequest;
 		public var loader:Loader;
 		
@@ -24,10 +24,22 @@
 		public var allowScale:Boolean;
 		public var allowRot:Boolean;
 		public var allowAlpha:Boolean;
+		public var linkedXYscale:Boolean;
+		
+		public var cname:String;
+		public var posx:Number;
+		public var posy:Number;
+		public var scalex:Number;
+		public var scaley:Number;
+		public var arotation:Number;
+		public var aalpha:Number;
+		
 		public var text_mc:pos_window_text;
 		private var _shift: Boolean;
 		private var _alt: Boolean;
 		private var _ctrl: Boolean;
+		public var numOptions: uint;
+		private var _dataChanged: Boolean = true;
 		
 		public function POS_WINDOW()
 		{
@@ -37,52 +49,55 @@
 		
 		function completeHandler(event:Event):void
 		{
+			loader.contentLoaderInfo.removeEventListener(Event.COMPLETE, completeHandler);
 			plch.addChild(loader.content);
 			fillplch();
 		}
 		
 		function fillplch():void
 		{
-			plch.graphics.beginFill(0xFFFFFF, 0.01);
-			plch.graphics.drawRect(0, 0, plch.width, plch.height);
-			plch.graphics.endFill();
+			plch.getChildAt(0).graphics.beginFill(0xFFFFFF, 0.01);
+			plch.getChildAt(0).graphics.drawRect(0, 0, plch.getChildAt(0).width, plch.getChildAt(0).height);
+			plch.getChildAt(0).graphics.endFill();
 			plch.addEventListener(MouseEvent.MOUSE_DOWN, this.onThumbMouseDown);
 		}
 		
-		public function Open(target:InteractiveObject) //, name: String = "DEF_WIDGETS_SURVIVAL1.swf", posx: Number = int.MAX_VALUE, posy: Number = int.MAX_VALUE, scalex: Number = int.MAX_VALUE, scaley: Number = int.MAX_VALUE, rotation: Number = int.MAX_VALUE, alpha: Number = int.MAX_VALUE)
+		public function Open(target:InteractiveObject)
 		{
+			numOptions = 0;
 			allowMove = false;
 			allowScale = false;
 			allowRot = false;
 			allowAlpha = false;
+			linkedXYscale = true;
 			_shift = false;
 			_alt = false;
 			_ctrl = false;
 			_target = target;
-			var name:String = _target.OptionItem._clip;
-			var posx:Number = _target.OptionItem._x;
-			var posy:Number = _target.OptionItem._y;
-			var scalex:Number = _target.OptionItem._scalex;
-			var scaley:Number = _target.OptionItem._scaley;
-			var rotation:Number = _target.OptionItem._rotation;
-			var alpha:Number = _target.OptionItem._alpha;
+			cname = _target.OptionItem._clip;
+			posx = _target.OptionItem._x;
+			posy = _target.OptionItem._y;
+			scalex = _target.OptionItem._scalex;
+			scaley = _target.OptionItem._scaley;
+			arotation = _target.OptionItem._rotation;
+			aalpha = _target.OptionItem._alpha;
 			plch = new MovieClip();
 			this.addChild(plch);
 			
 			loader = new Loader();
-			if (name.indexOf("|") > 0)
+			if (cname.indexOf("|") > 0)
 			{
-				plch.addChild(MCM_Menu.instance.getMcFromLib("MCM_Demo", "s1"));
+				plch.addChild(MCM_Menu.instance.getMcFromLib(cname.substring(0,cname.indexOf("|")), cname.substring(cname.indexOf("|") + 1)));
 				fillplch();
 			}
 			else
 			{
-				request = new URLRequest(name);
+				request = new URLRequest(cname);
 				loader.contentLoaderInfo.addEventListener(Event.COMPLETE, completeHandler);
 				loader.load(request);
 			}
 			parent.visible = true;
-			MCM_Menu.iMode = MCM_Menu.MCM_POSITIONER_MODE;
+			
 			MCM_Menu.instance.configPanel_mc.configList_mc.disableInput = true;
 			MCM_Menu.instance.configPanel_mc.configList_mc.disableSelection = true;
 			MCM_Menu.instance.HelpPanel_mc.HelpList_mc.disableInput = true;
@@ -95,52 +110,83 @@
 			{
 				plch.x = posx;
 				allowMove = true;
-			}
-			if (posy != int.MAX_VALUE)
-			{
-				plch.y = posy;
+				text_mc.tf_x.y = 14+30*numOptions;
+				numOptions++;
+				if (posy != int.MAX_VALUE)
+				{
+					plch.y = posy;
+					text_mc.tf_y.y = 14+30*numOptions;
+					numOptions++;
+				}
 			}
 			if (scalex != int.MAX_VALUE)
 			{
 				plch.scaleX = scalex;
 				allowScale = true;
+				text_mc.tf_scalex.y = 14+30*numOptions;
+				numOptions++;
+				if (scaley != int.MAX_VALUE)
+				{
+					plch.scaleY = scaley;
+					text_mc.tf_scaley.y = 14+30*numOptions;
+					numOptions++;
+					linkedXYscale = false;
+				}
+				else 
+				{
+					plch.scaleY = plch.scaleX;
+				}
 			}
-			if (scaley != int.MAX_VALUE)
+			if (arotation != int.MAX_VALUE)
 			{
-				plch.scaleY = scaley;
-			}
-			if (rotation != int.MAX_VALUE)
-			{
-				plch.rotation = rotation;
+				plch.rotation = arotation;
 				allowRot = true;
+				text_mc.tf_rotation.y = 14+30*numOptions;
+				numOptions++;
 			}
-			if (alpha != int.MAX_VALUE)
+			if (aalpha != int.MAX_VALUE)
 			{
-				plch.alpha = alpha;
+				plch.alpha = aalpha;
 				allowAlpha = true;
+				text_mc.tf_alpha.y = 14+30*numOptions;
+				numOptions++;
 			}
-			
+			this.text_mc.bg.height = 20 + numOptions * 30;
 			text_mc.tf_x.visible = allowMove;
 			text_mc.tf_y.visible = allowMove;
 			text_mc.tf_scalex.visible = allowScale;
-			text_mc.tf_scaley.visible = allowScale;
+			text_mc.tf_scaley.visible = allowScale && !linkedXYscale;
 			text_mc.tf_rotation.visible = allowRot;
 			text_mc.tf_alpha.visible = allowAlpha;
 			
 			RefreshText();
+			MCM_Menu.iMode = MCM_Menu.MCM_POSITIONER_MODE;
 			stage.addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
+			this.setChildIndex(CONFIRM_POP, this.numChildren-1);
+		}
+		
+		public function startlisteners():void 
+		{
+			plch.addEventListener(MouseEvent.MOUSE_DOWN, this.onThumbMouseDown);
+			stage.addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
+		}
+		
+		public function stoplisteners():void 
+		{
+			plch.removeEventListener(MouseEvent.MOUSE_DOWN, this.onThumbMouseDown);
+			stage.removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
 		}
 		
 		public function RefreshText():void
 		{
 			text_mc.x = (plch.x > 640) ? 30 : 1100;
-			text_mc.y = (plch.y > 360) ? 30 : 490;
-			text_mc.tf_x.text = "x: " + GlobalFunc.RoundDecimal(plch.x, 2);
-			text_mc.tf_y.text = "y: " + GlobalFunc.RoundDecimal(plch.y, 2);
-			text_mc.tf_scalex.text = "scaleX: " + GlobalFunc.RoundDecimal(plch.scaleX, 2);
-			text_mc.tf_scaley.text = "scaleY: " + GlobalFunc.RoundDecimal(plch.scaleY, 2);
-			text_mc.tf_rotation.text = "rotation: " + GlobalFunc.RoundDecimal(plch.rotation, 2);
-			text_mc.tf_alpha.text = "alpha: " + GlobalFunc.RoundDecimal(plch.alpha, 2);
+			text_mc.y = (plch.y > 360) ? 30 : 440+(30*(6-numOptions)); //490
+			text_mc.tf_x.text = "x: " + MCM_Menu.RoundDecimal(plch.x);
+			text_mc.tf_y.text = "y: " + MCM_Menu.RoundDecimal(plch.y);
+			text_mc.tf_scalex.text = (linkedXYscale?"scale: ":"scaleX: ") + MCM_Menu.RoundDecimal(plch.scaleX);
+			text_mc.tf_scaley.text = "scaleY: " + MCM_Menu.RoundDecimal(plch.scaleY);
+			text_mc.tf_rotation.text = "rotation: " + MCM_Menu.RoundDecimal(plch.rotation);
+			text_mc.tf_alpha.text = "alpha: " + MCM_Menu.RoundDecimal(plch.alpha);
 		}
 		
 		private function onThumbMouseDown(e:MouseEvent):void
@@ -162,16 +208,14 @@
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, this.onThumbMouseMove);
 		}
 		
-		public function Close()
+		public function Close(bNoSave: Boolean = true)
 		{
-			if (true)
+			if (bNoSave)
 			{
-				trace(allowAlpha);
-				trace();
 				_target.OptionItem._x = allowMove ? plch.x : int.MAX_VALUE;
 				_target.OptionItem._y = allowMove ? plch.y : int.MAX_VALUE;
 				_target.OptionItem._scalex = allowScale ? plch.scaleX : int.MAX_VALUE;
-				_target.OptionItem._scaley = allowScale ? plch.scaleY : int.MAX_VALUE;
+				_target.OptionItem._scaley = (allowScale && !linkedXYscale) ? plch.scaleY : int.MAX_VALUE;
 				_target.OptionItem._rotation = allowRot ? plch.rotation : int.MAX_VALUE;
 				_target.OptionItem._alpha = allowAlpha ? plch.alpha : int.MAX_VALUE;
 				_target.OptionItem.value = 0;
@@ -200,11 +244,11 @@
 		{
 			if (e.shiftKey) 
 			{
-				scalex(e.delta);
+				fscalex(e.delta);
 			}
 			else if (e.ctrlKey) 
 			{
-				scaley(e.delta);
+				fscaley(e.delta);
 			}
 			else if (e.altKey) 
 			{
@@ -225,6 +269,9 @@
 				case Keyboard.ESCAPE: 
 					MCM_Menu.instance.onQuitPressed();
 					break;
+				case Keyboard.T: 
+					MCM_Menu.instance.onResetButtonClicked();
+					break;
 				case mcm.Option_ButtonMapping.KEY_LSHIFT: 
 				case mcm.Option_ButtonMapping.KEY_RSHIFT: 
 					_shift = false;
@@ -238,22 +285,22 @@
 					_alt = false;
 					break;
 				case Keyboard.Q: 
-					rot(_alt?-20:(_ctrl?-1:(_shift?-5:-10)));
+					frot(_alt?-20:(_ctrl?-1:(_shift?-5:-10)));
 					break;
 				case Keyboard.E: 
-					rot(_alt?20:(_ctrl?1:(_shift?5:10)));
+					frot(_alt?20:(_ctrl?1:(_shift?5:10)));
 					break;
 				case Keyboard.W: 
-					posy(_alt?-100:(_ctrl?-1:(_shift?-5:-10)));
+					fposy(_alt?-100:(_ctrl?-1:(_shift?-5:-10)));
 					break;
 				case Keyboard.S: 
-					posy(_alt?100:(_ctrl?1:(_shift?5:10)));
+					fposy(_alt?100:(_ctrl?1:(_shift?5:10)));
 					break;
 				case Keyboard.A: 
-					posx(_alt?-100:(_ctrl?-1:(_shift?-5:-10)));
+					fposx(_alt?-100:(_ctrl?-1:(_shift?-5:-10)));
 					break;
 				case Keyboard.D: 
-					posx(_alt?100:(_ctrl?1:(_shift?5:10)));
+					fposx(_alt?100:(_ctrl?1:(_shift?5:10)));
 					break;
 				default: 
 				}
@@ -280,16 +327,50 @@
 			}
 		}
 		
-		private function rot(val: Number):void 
+		public function Reset():void 
+		{
+			if (posx != int.MAX_VALUE)
+			{
+				plch.x = posx;
+				if (posy != int.MAX_VALUE)
+				{
+					plch.y = posy;
+				}
+			}
+			if (scalex != int.MAX_VALUE)
+			{
+				plch.scaleX = scalex;
+				if (scaley != int.MAX_VALUE)
+				{
+					plch.scaleY = scaley;
+				}
+				else 
+				{
+					plch.scaleY = plch.scaleX;
+				}
+			}
+			if (arotation != int.MAX_VALUE)
+			{
+				plch.rotation = arotation;
+			}
+			if (aalpha != int.MAX_VALUE)
+			{
+				plch.alpha = aalpha;
+			}
+			RefreshText();
+		}
+		
+		private function frot(val: Number):void 
 		{
 			if (allowRot) 
 			{
-				plch.rotation += val;
+				plch.rotation = ((plch.rotation + val) % 360);
+				//plch.rotation += val;
 				RefreshText();
 			}
 		}
 		
-		private function posx(val: Number):void 
+		private function fposx(val: Number):void 
 		{
 			if (allowMove) 
 			{
@@ -298,7 +379,7 @@
 			}
 		}
 		
-		private function posy(val: Number):void 
+		private function fposy(val: Number):void 
 		{
 			if (allowMove) 
 			{
@@ -307,31 +388,49 @@
 			}
 		}
 		
-		private function scalex(val: Number):void 
+		private function fscalex(val: Number):void 
 		{
 			if (allowScale) 
 			{
-				plch.scaleX += val*0.1;
+				plch.scaleX += val * 0.1;
+				if (linkedXYscale) 
+				{
+					plch.scaleY = plch.scaleX;
+				}
 				RefreshText();
 			}
 		}
 		
-		private function scaley(val: Number):void 
+		private function fscaley(val: Number):void 
 		{
 			if (allowScale) 
 			{
-				plch.scaleY += val*0.1;
+				plch.scaleY += val * 0.1;
+				if (linkedXYscale) 
+				{
+					plch.scaleX = plch.scaleY;
+				}
 				RefreshText();
 			}
 		}
 		
 		private function falpha(val: Number):void 
 		{
-			if (allowAlpha && plch.alpha> 0.04 && plch.alpha < 0.96) 
+			if (allowAlpha && ((plch.alpha> 0.04 && val<0) || (plch.alpha < 0.96 && val>0)))
 			{
 				plch.alpha += val*0.05;
 				RefreshText();
 			}
+		}
+		
+		public function get dataChanged():Boolean 
+		{
+			return _dataChanged;
+		}
+		
+		public function set dataChanged(value:Boolean):void 
+		{
+			_dataChanged = value;
 		}
 	}
 

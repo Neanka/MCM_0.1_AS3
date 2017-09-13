@@ -35,30 +35,30 @@
 			var astr: String = "";
 			if (_x != int.MAX_VALUE) 
 			{
-				astr += "x: " + _x + "   ";
+				astr += "x: " + MCM_Menu.RoundDecimal(_x) + "   ";
 			}
 			if (_y != int.MAX_VALUE) 
 			{
-				astr += "y: " + _y + "   ";
+				astr += "y: " + MCM_Menu.RoundDecimal(_y) + "   ";
 			}
 			if (_scalex != int.MAX_VALUE) 
 			{
-				astr += "scaleX: " + _scalex + "   ";
+				astr += (_scaley == int.MAX_VALUE?"scale: ":"scaleX: ") + MCM_Menu.RoundDecimal(_scalex) + "   ";
 			}
 			if (_scaley != int.MAX_VALUE) 
 			{
-				astr += "scaleY: " + _scaley + "   ";
+				astr += "scaleY: " + MCM_Menu.RoundDecimal(_scaley) + "   ";
 			}
 			if (_rotation != int.MAX_VALUE) 
 			{
-				astr += "rot: " + _rotation + "   ";
+				astr += "rot: " + MCM_Menu.RoundDecimal(_rotation) + "   ";
 			}
 			if (_alpha != int.MAX_VALUE) 
 			{
-				astr += "alpha: " + _alpha + "   ";
+				astr += "alpha: " + MCM_Menu.RoundDecimal(_alpha) + "   ";
 			}
 			GlobalFunc.SetText(textArea, astr, false);
-			textArea.x = (textArea.textWidth < 175) ? -330 - (175 - textArea.textWidth) / 2: -330;
+			textArea.x = (textArea.textWidth < 175) ? -360 - (175 - textArea.textWidth) / 2: -360;
 		}
 	}
 	

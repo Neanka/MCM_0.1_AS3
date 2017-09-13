@@ -187,7 +187,7 @@
 					var tempobj = MCM_Menu.instance.mcmCodeObj.GetKeybind(int(temparray[0]), int(temparray[1]));
 					if (tempobj)
 					{
-						if (tempobj.modName == this.modName && tempobj.keybindID == this.id)
+						if (tempobj.modName == this.modName && tempobj.keybindID.toUpperCase() == this.id.toUpperCase())
 						{
 							EndConfirm(temparray);
 						}

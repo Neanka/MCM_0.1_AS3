@@ -6,6 +6,7 @@
 package mcm
 {
 	import Shared.AS3.BSScrollingListEntry;
+	import com.greensock.TweenMax;
 	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
@@ -250,6 +251,18 @@ package mcm
 			}
 			stage.getChildAt(0).f4se.SendExternalEvent("OnMCMSettingChange", EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].id);
 			stage.getChildAt(0).f4se.SendExternalEvent("OnMCMSettingChange|" + EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].modName, EntriesA[_arg_1.target.itemIndex].id);
+			/*if (valueType == "property") 
+			{
+				TweenMax.delayedCall(0.05, MCM_Menu.instance.RefreshMCM);
+			}
+			else
+			{
+				MCM_Menu.instance.RefreshMCM();
+			}*/			
+			if (EntriesA[_arg_1.target.itemIndex].refreshMenu) 
+			{
+				TweenMax.delayedCall(0.05, MCM_Menu.instance.RefreshMCM);
+			}
 		}
 		
 		private function parseParams(params:Object, valueType:String):Array

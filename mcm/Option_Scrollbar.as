@@ -35,6 +35,7 @@ package mcm
         private var iStartDragThumb:int;
         private var fStartValue:Number;
 		private var fOldValue:Number;
+		private var _isDragging;
 
         public function Option_Scrollbar()
         {
@@ -86,7 +87,10 @@ package mcm
 			this.fValue = atemp;
             //this.fValue = Math.min(Math.max(_arg_1, this.fMinValue), this.fMaxValue);
             var _local_2:* = ((this.fValue - this.fMinValue) / (this.fMaxValue - this.fMinValue));
-            this.Thumb_mc.x = (this.fMinThumbX + (_local_2 * (this.fMaxThumbX - this.fMinThumbX)));
+            if (!_isDragging) 
+			{
+				this.Thumb_mc.x = (this.fMinThumbX + (_local_2 * (this.fMaxThumbX - this.fMinThumbX)));
+			}
 			val_tf.text = String(this.fValue);
         }
 
@@ -133,7 +137,7 @@ package mcm
 						//var atemp:Number = ((_arg_1.currentTarget.mouseX / this.BarCatcher_mc.width) * (this.fMaxValue - this.fMinValue));
 						//atemp = Math.round(atemp / fStepSize) * fStepSize;
 						//this.value = atemp;
-						this.value = ((_arg_1.currentTarget.mouseX-3) / this.BarCatcher_mc.width) * (this.fMaxValue - this.fMinValue); //-3 to tune position thumb sunder mouse
+						this.value = ((_arg_1.currentTarget.mouseX-3) / this.BarCatcher_mc.width) * (this.fMaxValue - this.fMinValue); //_arg_1.currentTarget.mouseX-3 to tune position thumb sunder mouse
                         dispatchEvent(new Event(VALUE_CHANGE, true, true));
                     };
                 };
@@ -142,6 +146,7 @@ package mcm
 
         private function onThumbMouseDown(_arg_1:MouseEvent)
         {
+			this._isDragging = true;
             this.Thumb_mc.startDrag(false, new Rectangle(3, this.Thumb_mc.y, (this.fMaxThumbX - this.fMinThumbX)+3, 0));
             stage.addEventListener(MouseEvent.MOUSE_UP, this.onThumbMouseUp);
             stage.addEventListener(MouseEvent.MOUSE_MOVE, this.onThumbMouseMove);
@@ -162,6 +167,7 @@ package mcm
         private function onThumbMouseUp(_arg_1:MouseEvent)
         {
             this.Thumb_mc.stopDrag();
+			this._isDragging = false;
 			dispatchEvent(new Event(VALUE_CHANGE, true, true));
             stage.removeEventListener(MouseEvent.MOUSE_UP, this.onThumbMouseUp);
             stage.removeEventListener(MouseEvent.MOUSE_MOVE, this.onThumbMouseMove);

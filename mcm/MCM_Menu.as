@@ -49,16 +49,23 @@ package mcm
 		private var ConfirmButton:BSButtonHintData;
 		private var CancelButton:BSButtonHintData;
 		private var BackButton:BSButtonHintData;
-		private var ConfigButton:BSButtonHintData;
+		private var ResetButton:BSButtonHintData;
+		//private var ConfigButton:BSButtonHintData;
 		//private var SwitchButtonLeft:BSButtonHintData;
 		//private var SwitchButtonRight:BSButtonHintData;
-		
+		private var POS_Move_Button:BSButtonHintData;
+		private var POS_ScaleX_Button:BSButtonHintData;
+		private var POS_ScaleY_Button:BSButtonHintData;
+		private var POS_Rot_Button:BSButtonHintData;
+		private var POS_Alpha_Button:BSButtonHintData;
+
 		static private var _iMode:uint = 0;
 		static public var MCM_MAIN_MODE:uint = 0;
 		static public var MCM_REMAP_MODE:uint = 1;
 		static public var MCM_CONFLICT_MODE:uint = 2;
 		static public var MCM_DD_MODE:uint = 3;
 		static public var MCM_POSITIONER_MODE:uint = 4;
+		static public var MCM_POSITIONER_CONFIRM_MODE:uint = 5;
 		
 		static public var mcmLoaded:Boolean = false;
 		
@@ -66,17 +73,23 @@ package mcm
 		{
 			super();
 			this.ConfirmButton = new BSButtonHintData("$CONFIRM", "Enter", "PSN_A", "Xenon_A", 1, this.onAcceptPress);
-			this.BackButton = new BSButtonHintData("$Back", "Tab", "PSN_X", "Xenon_X", 1, this.onBackPress);
-			this.CancelButton = new BSButtonHintData("$Cancel", "Esc", "PSN_B", "Xenon_B", 1, this.onCancelPress);
-			//this.ConfigButton = new BSButtonHintData("$MCM_settings", "Q", "PSN_Select", "Xenon_Select", 1, this.onConfigButtonPress); //TODO: need translation
-			//this.SwitchButtonLeft = new BSButtonHintData("$MCM_SWITCH_TO_LEFT", "Q", "PSN_L1", "Xenon_L1", 1, this.switchToLeft);
-			//this.SwitchButtonRight = new BSButtonHintData("$MCM_SWITCH_TO_RIGHT", "D", "PSN_R1", "Xenon_R1", 1, this.switchToRight);
+			this.BackButton = new BSButtonHintData("$BACK", "Tab", "PSN_X", "Xenon_X", 1, this.onBackPress);
+			this.CancelButton = new BSButtonHintData("$CANCEL", "Esc", "PSN_B", "Xenon_B", 1, this.onCancelPress);
+			this.POS_Move_Button = new BSButtonHintData("$MOVE", "LMouse", "", "", 1, null);
+			this.POS_ScaleX_Button = new BSButtonHintData("$MCM_SCALEX", "Shift-MWheel", "", "", 1, null);
+			this.POS_ScaleY_Button = new BSButtonHintData("$MCM_SCALEY", "Ctrl-MWheel", "", "", 1, null);
+			this.POS_Rot_Button = new BSButtonHintData("$ROTATE", "Q", "", "", 1, null);
+			this.POS_Rot_Button.SetSecondaryButtons("E", "", "");
+			this.ResetButton = new BSButtonHintData("$RESET", "T", "PSN_Y", "Xenon_Y", 1, onResetButtonClicked);
+			this.POS_Alpha_Button = new BSButtonHintData("$MCM_OPACITY", "Alt-MWheel", "", "", 1, null);
 			MCM_Menu._instance = this;
 			addEventListener(BSScrollingList1.LIST_ITEMS_CREATED, listcreated);
 			addEventListener(BSScrollingList1.SELECTION_CHANGE, selectionchanged);
 			addEventListener(BSScrollingList1.ITEM_PRESS, this.onListItemPress);
 			addEventListener(mcm.Option_ButtonMapping.START_INPUT, this.StartInput);
-			addEventListener(mcm.Option_ButtonMapping.END_INPUT, this.EndInput);
+			addEventListener(mcm.Option_ButtonMapping.END_INPUT, this.EndInput);			
+			POS_WIN.addEventListener(BSScrollingList1.LIST_ITEMS_CREATED, listcreated);
+			POS_WIN.addEventListener(BSScrollingList1.ITEM_PRESS, this.onListItemPress);
 			
 			if (stage)
 			{
@@ -87,6 +100,17 @@ package mcm
 				addEventListener(Event.ADDED_TO_STAGE, onAddedToStage)
 			}
 			iMode = 0;
+		}
+		
+		public function onResetButtonClicked():void 
+		{
+			switch (iMode)
+			{
+			case MCM_POSITIONER_MODE: 
+				this.POS_WIN.Reset();
+				break;
+			default: 
+			}
 		}
 		
 		/*private function onConfigButtonPress():void
@@ -102,47 +126,67 @@ package mcm
 		{
 			switch (iMode)
 			{
-			case MCM_MAIN_MODE:
-				
+			case MCM_MAIN_MODE:				
 				this.ConfirmButton.ButtonVisible = false;
-				this.CancelButton.ButtonText = "$Back";
+				this.ResetButton.ButtonVisible = false;
+				this.CancelButton.ButtonText = "$BACK";
 				this.CancelButton.ButtonVisible = true;
 				this.BackButton.ButtonVisible = false;
+				this.POS_Move_Button.ButtonVisible = false;
+				this.POS_ScaleX_Button.ButtonVisible = false;
+				this.POS_ScaleY_Button.ButtonVisible = false;
+				this.POS_Rot_Button.ButtonVisible = false;
+				this.POS_Alpha_Button.ButtonVisible = false;
 				break;
 			case MCM_REMAP_MODE: 
 				this.ConfirmButton.ButtonVisible = false;
-				this.CancelButton.ButtonText = "$Cancel";
+				this.CancelButton.ButtonText = "$CANCEL";
 				this.CancelButton.ButtonVisible = true;
 				this.BackButton.ButtonText = "$MCM_CLEAR_HOTKEY";
 				this.BackButton.ButtonVisible = true;
 				break;
 			case MCM_CONFLICT_MODE: 
 				this.ConfirmButton.ButtonVisible = false;
-				this.CancelButton.ButtonText = "$Cancel";
+				this.CancelButton.ButtonText = "$CANCEL";
 				this.CancelButton.ButtonVisible = true;
 				this.BackButton.ButtonVisible = false;
 				break;
 			case MCM_DD_MODE:
 				
 				this.ConfirmButton.ButtonVisible = false;
-				this.CancelButton.ButtonText = "$Back";
+				this.CancelButton.ButtonText = "$BACK";
 				this.CancelButton.ButtonVisible = true;
 				this.BackButton.ButtonVisible = false;
 				break;
 			case MCM_POSITIONER_MODE: 
 				this.ConfirmButton.ButtonVisible = false;
-				this.CancelButton.ButtonText = "$Back";
+				this.ResetButton.ButtonVisible = this.POS_WIN.dataChanged;
+				this.CancelButton.ButtonText = "$BACK";
 				this.CancelButton.ButtonVisible = true;
 				this.BackButton.ButtonVisible = false;
+				this.POS_Move_Button.ButtonVisible = this.POS_WIN.allowMove;
+				this.POS_ScaleX_Button.ButtonVisible = this.POS_WIN.allowScale;
+				this.POS_ScaleX_Button.ButtonText = this.POS_WIN.linkedXYscale?"$SCALE":"$MCM_SCALEX";
+				this.POS_ScaleY_Button.ButtonVisible = this.POS_WIN.allowScale && !this.POS_WIN.linkedXYscale;
+				this.POS_Rot_Button.ButtonVisible = this.POS_WIN.allowRot;
+				this.POS_Alpha_Button.ButtonVisible = this.POS_WIN.allowAlpha;
 				break;
+			case MCM_POSITIONER_CONFIRM_MODE: 
+				this.ConfirmButton.ButtonVisible = false;
+				this.ResetButton.ButtonVisible = false;
+				this.CancelButton.ButtonText = "$CANCEL";
+				this.CancelButton.ButtonVisible = true;
+				this.BackButton.ButtonVisible = false;
+				this.POS_Move_Button.ButtonVisible = false;
+				this.POS_ScaleX_Button.ButtonVisible = false;
+				this.POS_ScaleY_Button.ButtonVisible = false;
+				this.POS_Rot_Button.ButtonVisible = false;
+				this.POS_Alpha_Button.ButtonVisible = false;
+				break;
+				
+				
 			default: 
 			}
-			//this.ConfigButton.ButtonVisible = (iMode == MCM_MAIN_MODE);
-		/*	if (stage)
-		   {
-		   this.SwitchButtonLeft.ButtonVisible = (iMode == MCM_MAIN_MODE) && (stage.focus != this.HelpPanel_mc.HelpList_mc);
-		   this.SwitchButtonRight.ButtonVisible = (iMode == MCM_MAIN_MODE) && (stage.focus == this.HelpPanel_mc.HelpList_mc);
-		   }*/
 		}
 		
 		private function onAddedToStage(e:Event):void
@@ -180,7 +224,7 @@ package mcm
 				this.configPanel_mc.configList_mc.UpdateList();
 				break;
 			case MCM_POSITIONER_MODE: 
-				POS_WIN.Close();
+				POS_WIN.CONFIRM_POP.Open();
 				break;
 			default: 
 			}
@@ -214,7 +258,10 @@ package mcm
 				this.configPanel_mc.configList_mc.UpdateList();
 				break;
 			case MCM_POSITIONER_MODE: 
-				POS_WIN.Close();
+				POS_WIN.CONFIRM_POP.Open();
+				break;
+			case MCM_POSITIONER_CONFIRM_MODE: 
+				this.POS_WIN.CONFIRM_POP.Close(2);
 				break;
 			default: 
 			}
@@ -239,7 +286,10 @@ package mcm
 		
 		private function onAcceptPress():void
 		{
-			trace("onAcceptPress");
+			switch (iMode)
+			{
+			default:
+			}
 		}
 		
 		public function PopulateButtonBar():void
@@ -247,9 +297,16 @@ package mcm
 			this.standardButtonHintDataV = new Vector.<BSButtonHintData>();
 			//this.standardButtonHintDataV.push(this.SwitchButtonLeft);
 			//this.standardButtonHintDataV.push(this.SwitchButtonRight);	
-			this.standardButtonHintDataV.push(this.ConfirmButton);
+			this.standardButtonHintDataV.push(this.POS_Move_Button);
+			this.standardButtonHintDataV.push(this.POS_ScaleX_Button);
+			this.standardButtonHintDataV.push(this.POS_ScaleY_Button);
+			this.standardButtonHintDataV.push(this.POS_Rot_Button);
+			this.standardButtonHintDataV.push(this.POS_Alpha_Button);
+			//this.standardButtonHintDataV.push(this.ConfirmButton);
+			this.standardButtonHintDataV.push(this.ResetButton);			
 			this.standardButtonHintDataV.push(this.BackButton);
 			this.standardButtonHintDataV.push(this.CancelButton);
+			
 			//this.standardButtonHintDataV.push(this.ConfigButton);
 			this.ButtonHintBar_mc.SetButtonHintData(this.standardButtonHintDataV);
 		}
@@ -321,7 +378,6 @@ package mcm
 		
 		public function checkEntriesByRequest(obj:Object):void
 		{
-			trace("checkEntriesByRequest");
 			var filterFlagControl:uint = 2147483647;// uint.MAX_VALUE;
 			for each (var control in obj)
 			{
@@ -339,10 +395,10 @@ package mcm
 									filterFlagControl = filterFlagControl & ~Math.pow(2, control["groupControl"]);
 								}
 							}
-							if (control["valueOptions"]["clipSource"])
-							{
-								processPositioner(control);
-							}
+						}
+						if (control["valueOptions"]["clipSource"])
+						{
+							processPositioner(control);
 						}
 					}
 				}
@@ -442,6 +498,15 @@ package mcm
 				this.configPanel_mc.hotkey_conflict_mc.confirmlist_mc.entryList = yesno;
 				this.configPanel_mc.hotkey_conflict_mc.confirmlist_mc.InvalidateData();
 				this.configPanel_mc.hotkey_conflict_mc.confirmlist_mc.selectedIndex = 0;
+				break;
+			case "confirm_popup_list_mc": 
+				var yesnocancel:Array = new Array();
+				yesnocancel.push({text: "$YES"});
+				yesnocancel.push({text: "$NO"});
+				yesnocancel.push({text: "$CANCEL"});
+				this.POS_WIN.CONFIRM_POP.confirm_popup_list_mc.entryList = yesnocancel;
+				this.POS_WIN.CONFIRM_POP.confirm_popup_list_mc.InvalidateData();
+				this.POS_WIN.CONFIRM_POP.confirm_popup_list_mc.selectedIndex = 0;
 				break;
 			default: 
 			}
@@ -596,6 +661,10 @@ package mcm
 					break;
 				default: 
 				}
+			}
+			else if (_arg_1.target == this.POS_WIN.CONFIRM_POP.confirm_popup_list_mc)
+			{
+				this.POS_WIN.CONFIRM_POP.Close(this.POS_WIN.CONFIRM_POP.confirm_popup_list_mc.selectedIndex)
 			}
 		}
 		
@@ -1263,7 +1332,7 @@ package mcm
 		private function onAllModsLoad():void
 		{
 			trace(modsCount + "/" + modsNum + " mod configs loaded");
-			this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: createMCMConfigObject(), text: "MCM Settings", //TODO: need translation
+			this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: createMCMConfigObject(), text: "$MCM_SETTINGS",
 				modName: "MCM", filterFlag: 1, pageSelected: false});
 			this.MCMConfigObject = createMCMConfigObject();
 			this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: null, text: "$MCM_HOTKEY_MANAGER", modName: "Hotkey manager", hotkeyManager: true, filterFlag: 1, pageSelected: false});
@@ -1281,10 +1350,10 @@ package mcm
 		private function createMCMConfigObject():Object
 		{
 			var temparray:Array = new Array();
-			temparray.push({"type": "section", "text": "MCM Settings" //TODO: need translation
+			temparray.push({"type": "section", "text": "$MCM_SETTINGS"
 			});
-			temparray.push({"id": "iPosition:Main", "type": "slider", "text": "MCM position in the main menu", //TODO: need translation
-				"valueOptions": {"min": 0, "max": 7, "step": 1, "sourceType": "ModSettingInt"}});
+			temparray.push({"id": "iPosition:Main", "type": "slider", "text": "$MCM_MENU_POSITION",
+				"valueOptions": {"min": 1, "max": 8, "step": 1, "sourceType": "ModSettingInt"}});
 			return processDataObj(temparray);
 		}
 		
@@ -1333,6 +1402,13 @@ package mcm
 			if (iMode == MCM_POSITIONER_MODE) 
 			{
 				this.POS_WIN.ProcessKeyEvent(keyCode,isDown);
+			}
+			else if (iMode == MCM_POSITIONER_CONFIRM_MODE) 
+			{
+				if (!isDown && (keyCode == Keyboard.TAB || keyCode == Keyboard.ESCAPE)) 
+				{
+					this.POS_WIN.CONFIRM_POP.Close(2);
+				}
 			}
 			else if (bmForInput)
 			{
@@ -1484,20 +1560,11 @@ package mcm
 			return str;
 		}
 		
-		private function delay(func:Function, params:Array, delay:int = 350, repeat:int = 1):void
+		public static function RoundDecimal(aNumber:Number, aPrecision:int = 2) : String
 		{
-			var f:Function;
-			var timer:Timer = new Timer(delay, repeat);
-			timer.addEventListener(TimerEvent.TIMER, f = function():void
-			{
-				func.apply(null, params);
-				if (timer.currentCount == repeat)
-				{
-					timer.removeEventListener(TimerEvent.TIMER, f);
-					timer = null;
-				}
-			});
-			timer.start();
+			var str: String = String(aNumber);
+			
+			return str;
 		}
 	
 	}

@@ -13,11 +13,12 @@
 		public var tf_scaley: TextField;
 		public var tf_rotation: TextField;
 		public var tf_alpha: TextField;
+		public var bg: BSUIComponent;
 		
 		public function pos_window_text() {
-			bShowBrackets = true;
-			BracketStyle = "vertical";
-			bUseShadedBackground = true;
+			bg.bShowBrackets = true;
+			bg.BracketStyle = "vertical";
+			bg.bUseShadedBackground = true;
 		}
 	}
 	

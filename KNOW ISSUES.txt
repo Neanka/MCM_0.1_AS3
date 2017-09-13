@@ -4,8 +4,12 @@ sometimes maxscrollposition calculated wrong after page change
 TODO: tune left panel width
 TODO:  add json parsing error warnings
 TODO: Make dropdown wider
-TODO conditions for pages - done
-TODO: CAPITALIZE all buttonhints
+TODO conditions for pages - semi done
+
+TODO link dropdown/stepper entries with conditions
+
+TODO figured out how to implement secondary button
+
 
 
 ,
@@ -38,5 +42,9 @@ TODO: CAPITALIZE all buttonhints
 	add set/getPropertyValue
 	add SendExternalEvent("OnMCMMenuOpen|modName")
 	add LShoulder RShoulder switching between panels
-	add positioner control (unfinished)
+	add positioner control
 	not send valuechange event in dropdown control if value was not changed
+	CAPITALIZE all buttonhints
+	added refreshMenu to controls
+	
+	NEED TRANSLATIONS

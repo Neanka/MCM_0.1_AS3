@@ -55,10 +55,14 @@
 			{
 				log("FATAL: MCM native code object not available.");
 			}
-			var pos: int = 0;
+			var pos: int = 1;
 			try 
 			{
 				pos = mcmCodeObj.GetModSettingInt("MCM", "iPosition:Main");
+				if (pos == 0) 
+				{
+					pos = 1;
+				}
 			}
 			catch (err:Error)
 			{
@@ -80,7 +84,7 @@
 			savedMenuProperties.BGSLogo_SCALEY = MainMenu.BethesdaLogo_mc.scaleY;
 			savedMenuProperties.BGSLogo_index = MainMenu.getChildIndex(MainMenu.BethesdaLogo_mc);
 			
-			MainMenu["MainPanel_mc"].List_mc.entryList.splice(pos,0,{"text": "$MOD_CONFIG", "index": 100});
+			MainMenu["MainPanel_mc"].List_mc.entryList.splice(pos-1,0,{"text": "$MOD_CONFIG", "index": 100});
 			MainMenu["MainPanel_mc"].List_mc.InvalidateData();
 			MainMenu.addEventListener("BSScrollingList::itemPress", itemPressedHandler);
 			
