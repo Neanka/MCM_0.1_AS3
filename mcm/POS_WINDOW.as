@@ -64,6 +64,7 @@
 		
 		public function Open(target:InteractiveObject)
 		{
+			_dataChanged = false;
 			numOptions = 0;
 			allowMove = false;
 			allowScale = false;
@@ -198,6 +199,7 @@
 		
 		private function onThumbMouseMove(e:MouseEvent):void
 		{
+			_dataChanged = true;
 			RefreshText();
 		}
 		
@@ -329,6 +331,7 @@
 		
 		public function Reset():void 
 		{
+			_dataChanged = false;
 			if (posx != int.MAX_VALUE)
 			{
 				plch.x = posx;
@@ -365,7 +368,7 @@
 			if (allowRot) 
 			{
 				plch.rotation = ((plch.rotation + val) % 360);
-				//plch.rotation += val;
+				_dataChanged = true;
 				RefreshText();
 			}
 		}
@@ -375,6 +378,7 @@
 			if (allowMove) 
 			{
 				plch.x += val;
+				_dataChanged = true;
 				RefreshText();
 			}
 		}
@@ -384,6 +388,7 @@
 			if (allowMove) 
 			{
 				plch.y += val;
+				_dataChanged = true;
 				RefreshText();
 			}
 		}
@@ -393,6 +398,7 @@
 			if (allowScale) 
 			{
 				plch.scaleX += val * 0.1;
+				_dataChanged = true;
 				if (linkedXYscale) 
 				{
 					plch.scaleY = plch.scaleX;
@@ -406,6 +412,7 @@
 			if (allowScale) 
 			{
 				plch.scaleY += val * 0.1;
+				_dataChanged = true;
 				if (linkedXYscale) 
 				{
 					plch.scaleX = plch.scaleY;
@@ -418,7 +425,8 @@
 		{
 			if (allowAlpha && ((plch.alpha> 0.04 && val<0) || (plch.alpha < 0.96 && val>0)))
 			{
-				plch.alpha += val*0.05;
+				plch.alpha += val * 0.05;
+				_dataChanged = true;
 				RefreshText();
 			}
 		}

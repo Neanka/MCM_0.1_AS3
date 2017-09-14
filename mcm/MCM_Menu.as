@@ -226,7 +226,14 @@ package mcm
 				this.configPanel_mc.configList_mc.UpdateList();
 				break;
 			case MCM_POSITIONER_MODE: 
-				POS_WIN.CONFIRM_POP.Open();
+				if (this.POS_WIN.dataChanged) 
+				{
+					POS_WIN.CONFIRM_POP.Open();
+				}
+				else
+				{
+					POS_WIN.Close(false);
+				}
 				break;
 			default: 
 			}
@@ -260,7 +267,14 @@ package mcm
 				this.configPanel_mc.configList_mc.UpdateList();
 				break;
 			case MCM_POSITIONER_MODE: 
-				POS_WIN.CONFIRM_POP.Open();
+				if (this.POS_WIN.dataChanged) 
+				{
+					POS_WIN.CONFIRM_POP.Open();
+				}
+				else
+				{
+					POS_WIN.Close(false);
+				}
 				break;
 			case MCM_POSITIONER_CONFIRM_MODE: 
 				this.POS_WIN.CONFIRM_POP.Close(2);
@@ -692,7 +706,7 @@ package mcm
 		
 		public function JSONLoader(filename:String)
 		{
-			var loader:URLLoader = new URLLoader();
+			var loader:MyURLLoader = new MyURLLoader();
 			loader.addEventListener(Event.COMPLETE, decodeJSON);
 			loader.load(new URLRequest(filename));
 		}
@@ -734,8 +748,45 @@ package mcm
 		}
 		
 		private function decodeJSON(e:Event):void
-		{
-			var dataObj:Object = com.adobe.serialization.json.JSON.decode(e.target.data) as Object;
+		{	
+			try 
+			{
+				var dataObj:Object = com.adobe.serialization.json.JSON.decode(e.target.data) as Object;
+			}
+			catch (err:Error)
+			{
+				trace("\nERROR PARSE JSON\n" + (e.target as MyURLLoader).url + "\n" + err.message+"\n");
+				var errModName: String = (e.target as MyURLLoader).url; 
+				if (Extensions.isScaleform)  // no need for game but need for testing in IDE
+				{
+					errModName = errModName.substring(0, errModName.lastIndexOf("\\"));
+					errModName = errModName.substring(errModName.lastIndexOf("\\") + 1);
+				}
+				else
+				{
+					errModName = errModName.substring(0, errModName.lastIndexOf("/"));
+					errModName = errModName.substring(errModName.lastIndexOf("/") + 1);
+				}
+				trace(errModName);
+				var errarray:Array = new Array();
+				errarray.push({"type": "spacer"});
+				errarray.push({"type": "image", "libName": "builtin", "className": "error_icon"});
+				errarray.push({"type": "spacer"});
+				errarray.push({"text": Translator("$MCM_MENU_LOAD_ERROR"), "align": "center", "type": "text"});
+				errarray.push({"type": "spacer"});
+				this.HelpPanel_mc.HelpList_mc.entryList.push({
+					dataobj: processDataObj(errarray, errModName), 
+					text: errModName, 
+					modName: errModName, 
+					filterFlag: 1, 
+					pageSelected: false, 
+					reqsStatus: 2
+				});
+				
+				checkModsLoad();
+				return;
+			}
+
 			var reqsstatus:Array = new Array();
 			var mcmstatus:Boolean = true;
 			var modName:String = dataObj["modName"];
@@ -1583,9 +1634,11 @@ package mcm
 		
 		public static function RoundDecimal(aNumber:Number, aPrecision:int = 2) : String
 		{
-			var str: String = String(aNumber);
-			
-			return str;
+			var i: int = Math.pow(10, aPrecision);
+			var str: String = String(Math.round(aNumber*100)/100);
+			var idx:int = str.lastIndexOf('.');
+			if (idx == -1) return str;
+			return str.substring(0, idx + aPrecision + 1);
 		}
 	
 	}
