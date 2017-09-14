@@ -78,10 +78,11 @@ package mcm
 			this.BackButton = new BSButtonHintData("$BACK", "Tab", "PSN_X", "Xenon_X", 1, this.onBackPress);
 			this.CancelButton = new BSButtonHintData("$CANCEL", "Esc", "PSN_B", "Xenon_B", 1, this.onCancelPress);
 			this.POS_Move_Button = new BSButtonHintData("$MOVE", "LMouse", "s", "s", 1, null);
-			this.POS_ScaleX_Button = new BSButtonHintData("$MCM_SCALEX", "Shift-MWheel", "", "", 1, null);
+			this.POS_ScaleX_Button = new BSButtonHintData("$MCM_SCALEX", "Shift-MWheel", "G", "G", 1, null);
+			this.POS_ScaleX_Button.SetSecondaryButtons("", "L", "L");
 			this.POS_ScaleY_Button = new BSButtonHintData("$MCM_SCALEY", "Ctrl-MWheel", "", "", 1, null);
-			this.POS_Rot_Button = new BSButtonHintData("$ROTATE", "Q", "", "", 1, null);
-			this.POS_Rot_Button.SetSecondaryButtons("E", "", "");
+			this.POS_Rot_Button = new BSButtonHintData("$ROTATE", "Q", "PSN_L2_Alt", "Xenon_L2_Alt", 1, null);
+			this.POS_Rot_Button.SetSecondaryButtons("E", "PSN_R2_Alt", "Xenon_R2_Alt");
 			this.ResetButton = new BSButtonHintData("$RESET", "T", "PSN_Y", "Xenon_Y", 1, onResetButtonClicked);
 			this.POS_Alpha_Button = new BSButtonHintData("$MCM_OPACITY", "Alt-MWheel", "", "", 1, null);
 			MCM_Menu._instance = this;
@@ -1493,19 +1494,6 @@ package mcm
 		public function ProcessUserEvent(controlName:String, isDown:Boolean, deviceType:int):void
 		{
 			//log("User event! controlName: " + controlName + " isDown: " + isDown);
-			/*if (!isDown && iMode == MCM_MAIN_MODE && deviceType == 2)
-			   {
-			   switch (controlName)
-			   {
-			   case "LShoulder":
-			   switchToLeft();
-			   break;
-			   case "RShoulder":
-			   switchToRight();
-			   break;
-			   default:
-			   }
-			   }*/
 			if (!isDown && deviceType == 2)
 			{
 				switch (controlName)
@@ -1514,10 +1502,16 @@ package mcm
 					onCancelPress();
 					break;
 				case "LShoulder": 
-					switchToLeft();
+					LShoulderPressed();
 					break;
 				case "RShoulder": 
-					switchToRight();
+					RShoulderPressed();
+					break;
+				case "LTrigger": 
+					LTriggerPressed();
+					break;
+				case "RTrigger": 
+					RTriggerPressed();
 					break;
 				case "ResetToDefault": 
 					onResetButtonClicked();
@@ -1541,17 +1535,41 @@ package mcm
 		
 		}
 		
-		private function switchToLeft()
-		{ //used for LShoulder
+		public function RTriggerPressed():void 
+		{
+			if (iMode == MCM_POSITIONER_MODE) 
+			{
+				POS_WIN.ProcessKeyEvent(Keyboard.E, false)
+			}
+		}
+		
+		public function LTriggerPressed():void 
+		{
+			if (iMode == MCM_POSITIONER_MODE) 
+			{
+				POS_WIN.ProcessKeyEvent(Keyboard.Q, false)
+			}
+		}
+		
+		private function LShoulderPressed()
+		{ //used for LShoulder switchToLeft
 			if (iMode == MCM_MAIN_MODE) 
 			{
 			stage.focus = this.HelpPanel_mc.HelpList_mc;
 			SetButtons();
 			}
+			else if (iMode == MCM_POSITIONER_MODE) 
+			{
+				POS_WIN.fscalex( -1);
+				if (!POS_WIN.linkedXYscale) 
+				{
+					POS_WIN.fscaley( -1);
+				}
+			}
 		}
 		
-		private function switchToRight()
-		{ //used for RShoulder
+		private function RShoulderPressed()
+		{ //used for RShoulder switchToRight
 			if (iMode == MCM_MAIN_MODE) 
 			{
 			stage.focus = this.configPanel_mc.configList_mc;
@@ -1559,6 +1577,14 @@ package mcm
 			this.configPanel_mc.configList_mc.moveSelectionDown();
 			this.HelpPanel_mc.HelpList_mc.selectedIndex = selectedPage;
 			SetButtons();
+			}
+			else if (iMode == MCM_POSITIONER_MODE) 
+			{
+				POS_WIN.fscalex(1);
+				if (!POS_WIN.linkedXYscale) 
+				{
+					POS_WIN.fscaley(1);
+				}
 			}
 		}
 		
