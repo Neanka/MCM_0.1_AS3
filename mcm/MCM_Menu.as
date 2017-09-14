@@ -58,6 +58,8 @@ package mcm
 		private var POS_ScaleY_Button:BSButtonHintData;
 		private var POS_Rot_Button:BSButtonHintData;
 		private var POS_Alpha_Button:BSButtonHintData;
+		
+		private var oldModNameForEvent:String = "";
 
 		static private var _iMode:uint = 0;
 		static public var MCM_MAIN_MODE:uint = 0;
@@ -613,7 +615,6 @@ package mcm
 					this.configPanel_mc.configList_mc.entryList = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj;
 					this.configPanel_mc.configList_mc.filterer.itemFilter = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj["filterFlagControl"];
 					stage.getChildAt(0).f4se.SendExternalEvent("OnMCMMenuOpen");
-					stage.getChildAt(0).f4se.SendExternalEvent("OnMCMMenuOpen");
 				}
 				else if (this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].hotkeyManager)
 				{
@@ -631,6 +632,11 @@ package mcm
 				
 				if (this.HelpPanel_mc.HelpList_mc.selectedEntry.filterFlag == 1)
 				{
+					if (this.HelpPanel_mc.HelpList_mc.selectedEntry.modName != oldModNameForEvent) 
+					{
+						stage.getChildAt(0).f4se.SendExternalEvent("OnMCMMenuClose|" + oldModNameForEvent);
+						oldModNameForEvent = this.HelpPanel_mc.HelpList_mc.selectedEntry.modName;
+					}
 					stage.getChildAt(0).f4se.SendExternalEvent("OnMCMMenuOpen|" + this.HelpPanel_mc.HelpList_mc.selectedEntry.modName);
 					if (this.HelpPanel_mc.HelpList_mc.filterer.modName == this.HelpPanel_mc.HelpList_mc.selectedEntry.modName)
 					{

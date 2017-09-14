@@ -40,7 +40,7 @@ TODO figured out how to implement secondary button
 	add mouse3 to bindings
 	add plugin requirements for pages, show/hide page if missing reqs, optional show message if missing reqs
 	add set/getPropertyValue
-	add SendExternalEvent("OnMCMMenuOpen|modName")
+	add SendExternalEvent("OnMCMMenuOpen|modName") ("OnMCMMenuClose|modName")
 	add LShoulder RShoulder switching between panels
 	add positioner control
 	not send valuechange event in dropdown control if value was not changed
