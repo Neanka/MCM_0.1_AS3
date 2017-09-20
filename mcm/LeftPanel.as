@@ -26,7 +26,7 @@
 			{
 			}
 			this.HelpList_mc.listEntryClass = "mcm.UniversalListEntry";
-			this.HelpList_mc.numListItems = 18;
+			this.HelpList_mc.numListItems = 17;
 			this.HelpList_mc.restoreListIndex = false;
 			this.HelpList_mc.textOption = "None";
 			this.HelpList_mc.verticalSpacing = 0; // 0 by default, -3 for properly tree wiev lines

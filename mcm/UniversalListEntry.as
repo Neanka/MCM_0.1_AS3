@@ -31,7 +31,9 @@ package mcm
 				textField.x = 10;
 				textField.width = 238;
 			}
-			
+			//if (_arg_1.hasOwnProperty("numPages")){ //for debug
+			//	textField.text = textField.text + " " + String(_arg_1.numPages);
+			//}
 			/*if (_arg_1.hasOwnProperty("pageSelected"))
 			   {
 			   this.textField.textColor = ((_arg_1.pageSelected) ? 0 : 0xFFFFFF);

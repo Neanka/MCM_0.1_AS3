@@ -27,7 +27,7 @@ package mcm
 			dispatchEvent(new Event(MOUSE_OUT, true, true));
 			if (this.name == "HelpList_mc")
 			{
-				this.selectedIndex = MCM_Menu.instance.selectedPage;
+				//this.selectedIndex = MCM_Menu.instance.selectedPage; // caused bug: scroll to selected index on mouse move
 			}
 		}
 	}

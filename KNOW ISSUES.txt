@@ -10,7 +10,7 @@ TODO link dropdown/stepper entries with conditions
 
 TODO figured out how to implement secondary button
 
-
+	NEED TRANSLATIONS
 
 ,
     {
@@ -47,4 +47,9 @@ TODO figured out how to implement secondary button
 	CAPITALIZE all buttonhints
 	added refreshMenu to controls
 	
-	NEED TRANSLATIONS
+	
+	
+	changelog ui v3
+	fix left panel scrolling bugs
+	added "ONLY" operator for conditions
+	add optional field into header "ownerModName":

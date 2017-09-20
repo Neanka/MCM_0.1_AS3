@@ -28,7 +28,7 @@ package mcm
 	 */
 	public class MCM_Menu extends MovieClip
 	{
-		static public var MCM_UI_VERSION:uint = 2;
+		static public var MCM_UI_VERSION:uint = 3;
 		
 		public var MainMenu:MovieClip;
 		public var configPanel_mc:mcm.ConfigPanel;
@@ -70,6 +70,8 @@ package mcm
 		static public var MCM_POSITIONER_CONFIRM_MODE:uint = 5;
 		
 		static public var mcmLoaded:Boolean = false;
+		
+		private var queuedEntries: Array = new Array();
 		
 		public function MCM_Menu()
 		{
@@ -395,7 +397,7 @@ package mcm
 		
 		public function checkEntriesByRequest(obj:Object):void
 		{
-			var filterFlagControl:uint = 2147483647;// uint.MAX_VALUE;
+			var filterFlagControl:uint = 1;// uint.MAX_VALUE;
 			for each (var control in obj)
 			{
 				if (getQualifiedClassName(control) == "Object")
@@ -410,6 +412,10 @@ package mcm
 								if (control.value == 0)
 								{
 									filterFlagControl = filterFlagControl & ~Math.pow(2, control["groupControl"]);
+								}
+								else if	(control.value == 1)
+								{
+									filterFlagControl = filterFlagControl | Math.pow(2, control["groupControl"]);
 								}
 							}
 						}
@@ -635,12 +641,12 @@ package mcm
 				{
 					populateHotkeyArray();
 					this.configPanel_mc.configList_mc.entryList = processDataObj(hotkeyManagerList, "Hotkey manager");
-					this.configPanel_mc.configList_mc.filterer.itemFilter = 2147483647;// uint.MAX_VALUE;
+					this.configPanel_mc.configList_mc.filterer.itemFilter = 1;// uint.MAX_VALUE;
 				}
 				else
 				{
 					this.configPanel_mc.configList_mc.entryList = new Array();
-					this.configPanel_mc.configList_mc.filterer.itemFilter = 2147483647;// uint.MAX_VALUE;
+					this.configPanel_mc.configList_mc.filterer.itemFilter = 1;// uint.MAX_VALUE;
 					GlobalFunc.SetText(this.configPanel_mc.hint_tf, " ", true);
 				}
 				this.configPanel_mc.configList_mc.InvalidateData();
@@ -660,6 +666,7 @@ package mcm
 					else
 					{
 						this.HelpPanel_mc.HelpList_mc.filterer.modName = this.HelpPanel_mc.HelpList_mc.selectedEntry.modName;
+						this.HelpPanel_mc.HelpList_mc.InvalidateData();
 					}
 				}
 				else
@@ -691,6 +698,7 @@ package mcm
 		
 		function tryToSelectRightPanel():void
 		{
+			this.configPanel_mc.configList_mc.InvalidateData();
 			this.configPanel_mc.configList_mc.selectedIndex = -1;
 			this.configPanel_mc.configList_mc.moveSelectionDown();
 			if (this.configPanel_mc.configList_mc.selectedIndex != -1)
@@ -791,6 +799,11 @@ package mcm
 			var reqsstatus:Array = new Array();
 			var mcmstatus:Boolean = true;
 			var modName:String = dataObj["modName"];
+			var ownerModName:String = "";
+			if (dataObj["ownerModName"]) 
+			{
+				ownerModName = dataObj["ownerModName"];
+			}
 			var displayName:String;
 			if (dataObj["displayName"])
 			{
@@ -852,23 +865,46 @@ package mcm
 				{
 					temparray.push({"text": Translator("$MCM_WRONG_VERSION") + " " + String(GetVersionCode()) + " (" + Translator("$MCM_REQUIRED") + " " + dataObj["minMcmVersion"] + ")", "align": "center", "type": "text"});
 				}
-				this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(temparray, dataObj["modName"]), text: displayName, modName: dataObj["modName"], filterFlag: 1, pageSelected: false, reqsStatus: 1});
+				this.HelpPanel_mc.HelpList_mc.entryList.push({
+					dataobj: processDataObj(temparray, dataObj["modName"]), 
+					text: displayName, 
+					modName: dataObj["modName"], 
+					filterFlag: 1, 
+					pageSelected: false, 
+					reqsStatus: 1,
+					numPages: 0
+				});
 				this.HelpPanel_mc.HelpList_mc.InvalidateData();
 				checkModsLoad();
 				return;
 			}
-			if (dataObj["content"])
+			if (ownerModName == "") 
 			{
-				this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(dataObj["content"], dataObj["modName"]), text: displayName, modName: dataObj["modName"], filterFlag: 1, pageSelected: false
-				
-				});
+				if (dataObj["content"])
+				{
+					this.HelpPanel_mc.HelpList_mc.entryList.push({
+						dataobj: processDataObj(dataObj["content"], dataObj["modName"]), 
+						text: displayName, 
+						modName: dataObj["modName"], 
+						filterFlag: 1, 
+						pageSelected: false,
+						numPages: 0
+					});
+				}
+				else
+				{
+					this.HelpPanel_mc.HelpList_mc.entryList.push({
+						dataobj: null, 
+						text: displayName, 
+						modName: dataObj["modName"], 
+						filterFlag: 1, 
+						pageSelected: false,
+						numPages: 0					
+					});
+				}
 			}
-			else
-			{
-				this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: null, text: displayName, modName: dataObj["modName"], filterFlag: 1, pageSelected: false
-				
-				});
-			}
+			var numPages: int = 0;
+			var loadedModPos: int = -1;
 			for (var i in dataObj["pages"])
 			{
 				var checkreqsarray:Array = checkreqs(dataObj["pages"][i]);
@@ -880,13 +916,91 @@ package mcm
 						{
 							checkreqsarray.push({"text": dataObj["pages"][i].messageIfMissingReqs, "align": "center", "type": "text"});
 						}
-						this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(checkreqsarray, dataObj["modName"]), text: dataObj["pages"][i]["pageDisplayName"], modName: dataObj["modName"], ownerModName: dataObj["modName"], filterFlag: 2, pageSelected: false});
+						if (ownerModName == "") 
+						{
+							this.HelpPanel_mc.HelpList_mc.entryList.push({
+								dataobj: processDataObj(checkreqsarray, dataObj["modName"]), 
+								text: dataObj["pages"][i]["pageDisplayName"], 
+								modName: dataObj["modName"], 
+								ownerModName: dataObj["modName"], 
+								filterFlag: 2, 
+								pageSelected: false
+							});
+							numPages += 1;
+						}
+						else 
+						{	
+							loadedModPos = getIndexByModName(this.HelpPanel_mc.HelpList_mc.entryList, ownerModName);
+							if (loadedModPos == -1) 
+							{
+								this.queuedEntries.push({
+									dataobj: processDataObj(checkreqsarray, dataObj["modName"]), 
+									text: dataObj["pages"][i]["pageDisplayName"], 
+									modName: dataObj["modName"], 
+									ownerModName: ownerModName, 
+									filterFlag: 2, 
+									pageSelected: false
+								});
+							}
+							else 
+							{
+								this.HelpPanel_mc.HelpList_mc.entryList.push({
+									dataobj: processDataObj(checkreqsarray, dataObj["modName"]), 
+									text: dataObj["pages"][i]["pageDisplayName"], 
+									modName: dataObj["modName"], 
+									ownerModName: ownerModName, 
+									filterFlag: 2, 
+									pageSelected: false
+								});
+								HelpPanel_mc.HelpList_mc.entryList[loadedModPos].numPages += 1;
+							}	
+						}
 					}
 				}
 				else
 				{
-					this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(dataObj["pages"][i]["content"], dataObj["modName"]), text: dataObj["pages"][i]["pageDisplayName"], modName: dataObj["modName"], ownerModName: dataObj["modName"], filterFlag: 2, pageSelected: false});
+					if (ownerModName == "") 
+					{
+						this.HelpPanel_mc.HelpList_mc.entryList.push({
+							dataobj: processDataObj(dataObj["pages"][i]["content"], dataObj["modName"]), 
+							text: dataObj["pages"][i]["pageDisplayName"], 
+							modName: dataObj["modName"], 
+							ownerModName: dataObj["modName"], 
+							filterFlag: 2, 
+							pageSelected: false
+						});
+						numPages += 1;
+					}
+					else 
+					{
+						loadedModPos = getIndexByModName(this.HelpPanel_mc.HelpList_mc.entryList, ownerModName);
+						if (loadedModPos == -1) 
+						{
+							this.queuedEntries.push({
+								dataobj: processDataObj(dataObj["pages"][i]["content"], dataObj["modName"]), 
+								text: dataObj["pages"][i]["pageDisplayName"], 
+								modName: dataObj["modName"], 
+								ownerModName: ownerModName, 
+								filterFlag: 2, 
+								pageSelected: false
+							});
+						}
+						else 
+						{
+							this.HelpPanel_mc.HelpList_mc.entryList.splice(loadedModPos+HelpPanel_mc.HelpList_mc.entryList[loadedModPos].numPages+1,0,{
+								dataobj: processDataObj(dataObj["pages"][i]["content"], dataObj["modName"]), 
+								text: dataObj["pages"][i]["pageDisplayName"], 
+								modName: dataObj["modName"], 
+								ownerModName: ownerModName, 
+								filterFlag: 2, 
+								pageSelected: false
+							});
+							HelpPanel_mc.HelpList_mc.entryList[loadedModPos].numPages += 1;
+						}
+					}
+					
 				}
+				this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.entryList.length - numPages - 1].numPages = numPages;
 			}
 			
 			this.HelpPanel_mc.HelpList_mc.InvalidateData();
@@ -895,6 +1009,15 @@ package mcm
 			//this.HelpPanel_mc.HelpList_mc.selectedIndex = 0;
 			//onListItemPress(null);
 		
+		}
+		
+		function getIndexByModName(array:Array, search:String):int {
+			for (var i:int = 0; i < array.length; i++) {
+				if (array[i].modName == search) {
+					return i;
+				}
+			}
+			return -1;
 		}
 		
 		private function checkreqs(dataObj:Object):Array
@@ -961,7 +1084,7 @@ package mcm
 		
 		private function processDataObj(dataObj:Object, modName:String = "MCM"):Object
 		{
-			var filterFlagControl:uint = 2147483647;// uint.MAX_VALUE;
+			var filterFlagControl:uint = 1;// uint.MAX_VALUE;
 			var tempObj:Object = dataObj;
 			for (var num in tempObj)
 			{
@@ -980,6 +1103,10 @@ package mcm
 							{
 								filterFlagControl = filterFlagControl & ~Math.pow(2, tempObj[num]["groupControl"]);
 							}
+								else if	(tempObj[num].value == 1)
+								{
+									filterFlagControl = filterFlagControl | Math.pow(2, tempObj[num]["groupControl"]);
+								}
 						}
 					}
 					if (tempObj[num]["valueOptions"]["clipSource"])
@@ -1112,6 +1239,15 @@ package mcm
 							for (var k in tempObj[num]["groupCondition"]["AND"])
 							{
 								tempObj[num].filterFlag += Math.pow(2, int(tempObj[num]["groupCondition"]["AND"][k]));
+							}
+						}
+						else if (tempObj[num]["groupCondition"]["ONLY"])
+						{
+							tempObj[num].filterOperator = "ONLY";
+							tempObj[num].filterFlag = 0;
+							for (var n in tempObj[num]["groupCondition"]["ONLY"])
+							{
+								tempObj[num].filterFlag += Math.pow(2, int(tempObj[num]["groupCondition"]["ONLY"][n]));
 							}
 						}
 						else if (tempObj[num]["groupCondition"]["OR"])
@@ -1389,6 +1525,23 @@ package mcm
 		
 		private function onAllModsLoad():void
 		{
+			if (queuedEntries.length > 0) 
+			{
+				for (var i:int = 0; i < queuedEntries.length; i++) 
+				{
+					var ownerModName: String = queuedEntries[i].ownerModName;
+					var loadedModPos: int = getIndexByModName(this.HelpPanel_mc.HelpList_mc.entryList, ownerModName);
+					if (loadedModPos == -1) 
+					{
+						//owner mod not loaded
+					}
+					else 
+					{
+						this.HelpPanel_mc.HelpList_mc.entryList.splice(loadedModPos+HelpPanel_mc.HelpList_mc.entryList[loadedModPos].numPages+1,0,queuedEntries[i]);
+						HelpPanel_mc.HelpList_mc.entryList[loadedModPos].numPages += 1;
+					}
+				}
+			}
 			trace(modsCount + "/" + modsNum + " mod configs loaded");
 			this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: createMCMConfigObject(), text: "$MCM_SETTINGS",
 				modName: "MCM", filterFlag: 1, pageSelected: false});

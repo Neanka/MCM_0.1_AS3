@@ -107,6 +107,9 @@
 				} else if (param1.filterOperator == "OR") 
 				{
 					return param1 != null && (!param1.hasOwnProperty("filterFlag") || (param1.filterFlag & this.iItemFilter) != 0) && this.checktext(param1);
+				} else if (param1.filterOperator == "ONLY") 
+				{
+					return param1 != null && (!param1.hasOwnProperty("filterFlag") || (param1.filterFlag == (this.iItemFilter & ~1))) && this.checktext(param1);
 				}
 			} else 
 			{
