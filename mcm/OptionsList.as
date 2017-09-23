@@ -51,9 +51,14 @@ package mcm
 		public function onValueChange(_arg_1:Event)
 		{
 			EntriesA[_arg_1.target.itemIndex].value = _arg_1.target.value;
+			
 			if (_arg_1.target.movieType == mcm.SettingsOptionItem.MOVIETYPE_DD_FILES)
 			{
-				EntriesA[_arg_1.target.itemIndex].valueString = _arg_1.target.OptionItem.options[_arg_1.target.value];
+				EntriesA[_arg_1.target.itemIndex].valueString = _arg_1.target.valueString;
+			}
+			if (_arg_1.target.movieType == mcm.SettingsOptionItem.MOVIETYPE_TEXTINPUT_STRING)
+			{
+				EntriesA[_arg_1.target.itemIndex].valueString = _arg_1.target.OptionItem.valueString;
 			}
 			if (_arg_1.target.movieType == mcm.SettingsOptionItem.MOVIETYPE_KEYINPUT)
 			{
@@ -472,6 +477,14 @@ package mcm
 					if (_arg_2.valueOptions != undefined && _arg_2.valueOptions.clipSource != undefined)
 					{
 						_local_3.SetOptionPositioner(_arg_2.valueOptions.clipSource,_arg_2._x,_arg_2._y,_arg_2._scalex,_arg_2._scaley,_arg_2._rotation,_arg_2._alpha);
+					}
+					if (_arg_2.valueString != undefined)
+					{
+						_local_3.valueString = _arg_2.valueString;
+					}
+					if (_arg_2.valueOptions != undefined && _arg_2.valueOptions.precision != undefined)
+					{
+						_local_3.setFloatPrecision(_arg_2.valueOptions.precision);
 					}
 					_local_3.ID = _arg_2.ID;
 					_local_3.value = _arg_2.value;

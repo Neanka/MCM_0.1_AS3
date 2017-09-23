@@ -60,6 +60,10 @@ package mcm
 
         private function onClick(_arg_1:MouseEvent)
         {
+			if (MCM_Menu.iMode == MCM_Menu.MCM_TEXTINPUT_MODE) 
+			{
+				return;
+			}
             this.Toggle();
             _arg_1.stopPropagation();
         }

@@ -36,6 +36,9 @@ package mcm
 		public static const MOVIETYPE_HOTKEY:int = 10;
 		public static const MOVIETYPE_DD_FILES:int = 11;
 		public static const MOVIETYPE_POSITIONER:int = 12;
+		public static const MOVIETYPE_TEXTINPUT_INT:int = 13;
+		public static const MOVIETYPE_TEXTINPUT_FLOAT:int = 14;
+		public static const MOVIETYPE_TEXTINPUT_STRING:int = 15;
 		
 		private var OptionItem:MovieClip;
 		private var uiMovieType:uint;
@@ -55,6 +58,7 @@ package mcm
 			addEventListener(mcm.Option_DropDown.VALUE_CHANGE, this.onValueChange);
 			addEventListener(mcm.Option_ButtonMapping.VALUE_CHANGE, this.onValueChange);
 			addEventListener(mcm.Option_pos.VALUE_CHANGE, this.onValueChange);
+			addEventListener(mcm.Option_textinput.VALUE_CHANGE, this.onValueChange);
 			Extensions.enabled = true;
 			TextFieldEx.setTextAutoSize(textField, "shrink");
 		}
@@ -105,6 +109,15 @@ package mcm
 				break;
 			case MOVIETYPE_POSITIONER: 
 				this.OptionItem = new mcm.Option_pos();
+				break;
+			case MOVIETYPE_TEXTINPUT_INT: 
+				this.OptionItem = new Option_textinput();
+				break;
+			case MOVIETYPE_TEXTINPUT_FLOAT: 
+				this.OptionItem = new Option_textinput();
+				break;
+			case MOVIETYPE_TEXTINPUT_STRING: 
+				this.OptionItem = new Option_textinput();
 				break;
 			default: 
 				this.OptionItem = new MovieClip();
@@ -174,12 +187,30 @@ package mcm
 			case MOVIETYPE_DD_FILES: 
 				_local_1 = (this.OptionItem as mcm.Option_DropDown).index;
 				break;
+			case MOVIETYPE_TEXTINPUT_INT: 
+			case MOVIETYPE_TEXTINPUT_FLOAT: 
+				_local_1 = (this.OptionItem as mcm.Option_textinput).value;
+				break;
 			default: 
 				_local_1 = 0;
 				break;
 			}
 			;
 			return (_local_1);
+		}
+		
+		public function get valueString():String
+		{
+			var _local_1:String;
+			switch (this.uiMovieType)
+			{
+			case MOVIETYPE_TEXTINPUT_STRING: 
+				_local_1 = (this.OptionItem as mcm.Option_textinput).valueString;
+				break;
+			default: 
+				_local_1 = "";
+				break;
+			}
 		}
 		
 		public function set value(_arg_1:Number)
@@ -199,11 +230,33 @@ package mcm
 			case MOVIETYPE_DD_FILES: 
 				(this.OptionItem as mcm.Option_DropDown).index = _arg_1;
 				return;
+			case MOVIETYPE_TEXTINPUT_INT: 
+				(this.OptionItem as mcm.Option_textinput).type = mcm.Option_textinput.TYPE_INT;
+				(this.OptionItem as mcm.Option_textinput).value = _arg_1;				
+				return;
+			case MOVIETYPE_TEXTINPUT_FLOAT: 
+				(this.OptionItem as mcm.Option_textinput).type = mcm.Option_textinput.TYPE_FLOAT;
+				(this.OptionItem as mcm.Option_textinput).value = _arg_1;				
+				return;
 			default:
 				
 				break;
 			}
 			;
+		}
+		
+		public function set valueString(_arg_1:String)
+		{
+			switch (this.uiMovieType)
+			{
+			case MOVIETYPE_TEXTINPUT_STRING: 
+				(this.OptionItem as mcm.Option_textinput).type = mcm.Option_textinput.TYPE_STRING;
+				(this.OptionItem as mcm.Option_textinput).valueString = _arg_1;				
+				return;
+			default:
+				
+				break;
+			}
 		}
 		
 		public function SetOptionKeyInput(_arg_1:Array, arg2:int, arg3:String, arg4:String)
@@ -263,6 +316,11 @@ package mcm
 			(this.OptionItem as mcm.Option_pos)._rotation = _rotation;
 			(this.OptionItem as mcm.Option_pos)._alpha = _alpha;
 			(this.OptionItem as mcm.Option_pos).value = 0;
+		}
+		
+		public function setFloatPrecision(precision: Number):void 
+		{
+			(this.OptionItem as mcm.Option_textinput).precision = precision;
 		}
 		
 		override public function SetEntryText(_arg_1:Object, _arg_2:String)
@@ -333,6 +391,14 @@ package mcm
 						tempMc.height = 400;
 						tempMc.scaleX = tempMc.scaleY;
 					}
+					if (_arg_1.height)
+					{
+						this.border.height = _arg_1.height;
+					}
+					else
+					{
+						this.border.height = ORIG_BORDER_HEIGHT;
+					}
 					if (_arg_1.width)
 					{
 						tempMc.x = (690 - _arg_1.width) / 2 + 10;
@@ -342,14 +408,6 @@ package mcm
 						tempMc.x = (690 - tempMc.width) / 2 + 10;
 					}
 					this.OptionItem.addChild(tempMc);
-					if (_arg_1.height)
-					{
-						this.border.height = _arg_1.height;
-					}
-					else
-					{
-						this.border.height = ORIG_BORDER_HEIGHT;
-					}
 				}
 				catch (err:Error)
 				{
@@ -421,6 +479,11 @@ package mcm
 					return;
 				case MOVIETYPE_HOTKEY: 
 					(this.OptionItem as mcm.Option_ButtonMapping).onItemPressed();
+					return;
+				case MOVIETYPE_TEXTINPUT_STRING: 
+				case MOVIETYPE_TEXTINPUT_INT: 
+				case MOVIETYPE_TEXTINPUT_FLOAT: 
+					(this.OptionItem as mcm.Option_textinput).onItemPressed();
 					return;
 				}
 				;

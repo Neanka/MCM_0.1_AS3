@@ -28,7 +28,7 @@ package mcm
 	 */
 	public class MCM_Menu extends MovieClip
 	{
-		static public var MCM_UI_VERSION:uint = 3;
+		static public var MCM_UI_VERSION:uint = 4;
 		
 		public var MainMenu:MovieClip;
 		public var configPanel_mc:mcm.ConfigPanel;
@@ -68,10 +68,12 @@ package mcm
 		static public var MCM_DD_MODE:uint = 3;
 		static public var MCM_POSITIONER_MODE:uint = 4;
 		static public var MCM_POSITIONER_CONFIRM_MODE:uint = 5;
+		static public var MCM_TEXTINPUT_MODE:uint = 6;
 		
 		static public var mcmLoaded:Boolean = false;
 		
 		private var queuedEntries: Array = new Array();
+		private var def_w_count: int = 0;					//def_w
 		
 		public function MCM_Menu()
 		{
@@ -92,7 +94,9 @@ package mcm
 			addEventListener(BSScrollingList1.SELECTION_CHANGE, selectionchanged);
 			addEventListener(BSScrollingList1.ITEM_PRESS, this.onListItemPress);
 			addEventListener(mcm.Option_ButtonMapping.START_INPUT, this.StartInput);
-			addEventListener(mcm.Option_ButtonMapping.END_INPUT, this.EndInput);			
+			addEventListener(mcm.Option_ButtonMapping.END_INPUT, this.EndInput);
+			addEventListener(mcm.Option_textinput.START_INPUT, this.StartInput);
+			addEventListener(mcm.Option_textinput.END_INPUT, this.EndInput);	
 			POS_WIN.addEventListener(BSScrollingList1.LIST_ITEMS_CREATED, listcreated);
 			POS_WIN.addEventListener(BSScrollingList1.ITEM_PRESS, this.onListItemPress);
 			
@@ -131,7 +135,7 @@ package mcm
 		{
 			switch (iMode)
 			{
-			case MCM_MAIN_MODE:				
+			case MCM_MAIN_MODE:
 				this.ConfirmButton.ButtonVisible = false;
 				this.ResetButton.ButtonVisible = false;
 				this.CancelButton.ButtonText = "$BACK";
@@ -157,7 +161,6 @@ package mcm
 				this.BackButton.ButtonVisible = false;
 				break;
 			case MCM_DD_MODE:
-				
 				this.ConfirmButton.ButtonVisible = false;
 				this.CancelButton.ButtonText = "$BACK";
 				this.CancelButton.ButtonVisible = true;
@@ -188,8 +191,13 @@ package mcm
 				this.POS_Rot_Button.ButtonVisible = false;
 				this.POS_Alpha_Button.ButtonVisible = false;
 				break;
-				
-				
+			case MCM_TEXTINPUT_MODE: 
+				this.ConfirmButton.ButtonVisible = false;
+				this.CancelButton.ButtonText = "$CANCEL";
+				this.CancelButton.ButtonVisible = true;
+				this.BackButton.ButtonVisible = true;
+				this.BackButton.ButtonText = "$MCM_CLEAR"; // TODO: need translation
+				break;
 			default: 
 			}
 		}
@@ -203,7 +211,7 @@ package mcm
 			SetButtons();
 		}
 		
-		private function onKeyUpHandler(e:KeyboardEvent):void
+		/*private function onKeyUpHandler(e:KeyboardEvent):void
 		{
 			switch (e.keyCode)
 			{
@@ -212,7 +220,7 @@ package mcm
 				break;
 			default: 
 			}
-		}
+		}*/
 		
 		public function onQuitPressed():void
 		{
@@ -265,6 +273,9 @@ package mcm
 			case MCM_REMAP_MODE: 
 				(bmForInput as mcm.Option_ButtonMapping).onEscPressed();
 				break;
+			case MCM_TEXTINPUT_MODE: 
+				(bmForInput as mcm.Option_textinput).onEscPressed();
+				break;
 			case MCM_DD_MODE: 
 				this.configPanel_mc.DD_popup_mc.Close(true);
 				this.configPanel_mc.configList_mc.UpdateList();
@@ -298,6 +309,9 @@ package mcm
 				break;
 			case MCM_REMAP_MODE: 
 				(bmForInput as mcm.Option_ButtonMapping).onTabPressed();
+				break;
+			case MCM_TEXTINPUT_MODE: 
+				(bmForInput as mcm.Option_textinput).onTabPressed();
 				break;
 			default: 
 			}
@@ -803,6 +817,10 @@ package mcm
 			if (dataObj["ownerModName"]) 
 			{
 				ownerModName = dataObj["ownerModName"];
+				if (ownerModName == "def_w_core") 			//def_w
+				{											//def_w
+					def_w_count += 1;						//def_w
+				}											//def_w
 			}
 			var displayName:String;
 			if (dataObj["displayName"])
@@ -1173,6 +1191,15 @@ package mcm
 				case "text": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_TEXT;
 					break;
+				case "textinputInt": 
+					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_TEXTINPUT_INT;
+					break;
+				case "textinputFloat": 
+					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_TEXTINPUT_FLOAT;
+					break;
+				case "textinput": 
+					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_TEXTINPUT_STRING;
+					break;
 				case "positioner": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_POSITIONER;
 					break;
@@ -1525,6 +1552,12 @@ package mcm
 		
 		private function onAllModsLoad():void
 		{
+			//def_w
+			if (def_w_count>0) 
+			{
+				this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: createDefWidgetsEntry(), text: "DEF Widgets", modName: "def_w_core", filterFlag: 1, pageSelected: false, numPages: def_w_count});
+			}
+			//def_w
 			if (queuedEntries.length > 0) 
 			{
 				for (var i:int = 0; i < queuedEntries.length; i++) 
@@ -1557,6 +1590,15 @@ package mcm
 			}
 			mcmLoaded = true;
 		}
+		
+		//def_w
+		private function createDefWidgetsEntry():Object 
+		{
+			var temparray:Array = new Array();
+			temparray.push({"type": "text", "text": "<font size=\"40\"><p align = \"center\">DEF Widgets</p></font>", "html": true});
+			return processDataObj(temparray);
+		}
+		//def_w
 		
 		private function createMCMConfigObject():Object
 		{
@@ -1623,7 +1665,7 @@ package mcm
 			}
 			else if (bmForInput)
 			{
-				bmForInput.ProcessKeyEvent(keyCode, isDown);
+				bmForInput.ProcessKeyEvent(keyCode,isDown);
 			}
 			else
 			{
@@ -1646,7 +1688,7 @@ package mcm
 		
 		public function ProcessUserEvent(controlName:String, isDown:Boolean, deviceType:int):void
 		{
-			//log("User event! controlName: " + controlName + " isDown: " + isDown);
+			//log("User event! controlName: " + controlName + " isDown: " + isDown+ " deviceType: " + deviceType);
 			if (!isDown && deviceType == 2)
 			{
 				switch (controlName)
@@ -1814,7 +1856,7 @@ package mcm
 		public static function RoundDecimal(aNumber:Number, aPrecision:int = 2) : String
 		{
 			var i: int = Math.pow(10, aPrecision);
-			var str: String = String(Math.round(aNumber*100)/100);
+			var str: String = String(Math.round(aNumber*i)/i);
 			var idx:int = str.lastIndexOf('.');
 			if (idx == -1) return str;
 			return str.substring(0, idx + aPrecision + 1);

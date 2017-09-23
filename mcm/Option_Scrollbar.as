@@ -146,6 +146,10 @@ package mcm
 
         private function onThumbMouseDown(_arg_1:MouseEvent)
         {
+			if (MCM_Menu.iMode == MCM_Menu.MCM_TEXTINPUT_MODE) 
+			{
+				return;
+			}
 			this._isDragging = true;
             this.Thumb_mc.startDrag(false, new Rectangle(3, this.Thumb_mc.y, (this.fMaxThumbX - this.fMinThumbX)+3, 0));
             stage.addEventListener(MouseEvent.MOUSE_UP, this.onThumbMouseUp);

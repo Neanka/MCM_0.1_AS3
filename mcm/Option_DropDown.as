@@ -135,6 +135,10 @@
 		
 		private function onClick(_arg_1:MouseEvent)
 		{
+			if (MCM_Menu.iMode == MCM_Menu.MCM_TEXTINPUT_MODE) 
+			{
+				return;
+			}
 			//if ((_arg_1.target == this.LeftCatcher_mc) && (this.index > 0))
 			//{
 			//    this.Decrement();

@@ -1,35 +1,15 @@
 dont place text or image with non standart entry height after 15th entry from end. need to tune calculate max scroll positin for bsscrollinglist1
-sometimes maxscrollposition calculated wrong after page change
+sometimes maxscrollposition calculated wrong after page change - done
 
-TODO: tune left panel width
-TODO:  add json parsing error warnings
+TODO:  add json parsing error warnings for keybinds
 TODO: Make dropdown wider
 TODO conditions for pages - semi done
 
 TODO link dropdown/stepper entries with conditions
 
-TODO figured out how to implement secondary button
+TODO figured out how to implement secondary button click
 
-	NEED TRANSLATIONS
 
-,
-    {
-	  "id": "sConfigFile:Main",
-      "type": "dropdownFiles",
-	  "text": "dropdownFiles control!",
-      "valueOptions": {
-	    "path": "Data/Interface/DEF_CONF",
-	    "mask": "DEF_HUD*.xml",
-        "sourceType": "ModSettingString"
-      },
-      "action": {
-        "type": "CallGlobalFunction",
-        "script": "Debug",
-        "function": "MessageBox",
-        "params": ["Loading {value}!"]
-      }
-    }
-	
 	
 	
 	changelog ui v2
@@ -53,3 +33,72 @@ TODO figured out how to implement secondary button
 	fix left panel scrolling bugs
 	added "ONLY" operator for conditions
 	add optional field into header "ownerModName":
+		
+		
+		
+	changelog ui v4
+	add textinput, textinputInt, textinputFloat controls
+		need translation: $MCM_CLEAR
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+    {
+	  "id": "sConfigFile:Main",
+      "type": "dropdownFiles",
+	  "text": "dropdownFiles control!",
+      "valueOptions": {
+	    "path": "Data/Interface/DEF_CONF",
+	    "mask": "DEF_HUD*.xml",
+        "sourceType": "ModSettingString"
+      },
+      "action": {
+        "type": "CallGlobalFunction",
+        "script": "Debug",
+        "function": "MessageBox",
+        "params": ["Loading {value}!"]
+      }
+    }
+		
+		
+	        {
+		  "text": "textinput",
+          "type": "textinput",
+          "valueOptions": {
+            "sourceType": "PropertyValueString",
+              "sourceForm": "DEF_WIDGETS_SURVIVAL1.esp|F99",
+              "propertyName": "PropertyName"
+          }
+        },
+        {
+		  "text": "textinputInt",
+          "type": "textinputInt",
+		  "refreshMenu": true,
+          "valueOptions": {
+            "sourceType": "PropertyValueInt",
+              "sourceForm": "DEF_WIDGETS_SURVIVAL1.esp|F99",
+              "propertyName": "_conf_icon"
+          }
+        },
+        {
+		  "text": "textinputFloat",
+          "type": "textinputFloat",
+		  "refreshMenu": true,
+          "valueOptions": {
+			"precision": 3,
+            "sourceType": "PropertyValueFloat",
+              "sourceForm": "DEF_WIDGETS_SURVIVAL1.esp|F99",
+              "propertyName": "_y"
+          }
+        },
