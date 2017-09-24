@@ -496,7 +496,20 @@ package mcm
 				loadLibs(); //TODO find best place to call
 				try
 				{
-					var jsonsArray:Array = mcmCodeObj.GetConfigList(true);
+					var jsonsArray: Array = mcmCodeObj.GetConfigList(true);
+					var orderArray: Array = mcmCodeObj.GetModSettingString("MCM", "sOrder:Main").split(",");
+					var newJsonsArray: Array = new Array();
+					//if (orderArray.length>0) 
+					//{
+						var iCounter: int = 1000;
+						for each (var name in jsonsArray) 
+						{
+							var iIndex: int = orderArray.indexOf(truncName(name));
+							newJsonsArray.push({"name": name, "index": (iIndex >-1)?iIndex:iCounter});
+							iCounter++;
+						}
+						newJsonsArray.sortOn("index");
+					//}
 					modsNum = jsonsArray.length;
 					if (modsNum == 0)
 					{
@@ -506,9 +519,9 @@ package mcm
 					}
 					else
 					{
-						for (var i in jsonsArray)
+						for (var i in newJsonsArray)
 						{
-							JSONLoader("../../" + jsonsArray[i]);
+							JSONLoader("../../" + newJsonsArray[i].name);
 						}
 					}
 						//trace("JSON LOADED");
@@ -649,7 +662,14 @@ package mcm
 				{
 					this.configPanel_mc.configList_mc.entryList = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj;
 					this.configPanel_mc.configList_mc.filterer.itemFilter = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj["filterFlagControl"];
-					stage.getChildAt(0).f4se.SendExternalEvent("OnMCMMenuOpen");
+					try 
+					{
+						stage.getChildAt(0).f4se.SendExternalEvent("OnMCMMenuOpen");
+					}
+					catch (err:Error)
+					{
+						trace("failed to send OnMCMMenuOpen event");
+					}
 				}
 				else if (this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].hotkeyManager)
 				{
@@ -669,10 +689,24 @@ package mcm
 				{
 					if (this.HelpPanel_mc.HelpList_mc.selectedEntry.modName != oldModNameForEvent) 
 					{
-						stage.getChildAt(0).f4se.SendExternalEvent("OnMCMMenuClose|" + oldModNameForEvent);
+						try 
+						{
+							stage.getChildAt(0).f4se.SendExternalEvent("OnMCMMenuClose|" + oldModNameForEvent);
+						}
+						catch (err:Error)
+						{
+							trace("failed to send OnMCMMenuClose| event");
+						}
 						oldModNameForEvent = this.HelpPanel_mc.HelpList_mc.selectedEntry.modName;
 					}
-					stage.getChildAt(0).f4se.SendExternalEvent("OnMCMMenuOpen|" + this.HelpPanel_mc.HelpList_mc.selectedEntry.modName);
+					try 
+					{
+						stage.getChildAt(0).f4se.SendExternalEvent("OnMCMMenuOpen|" + this.HelpPanel_mc.HelpList_mc.selectedEntry.modName);
+					}
+					catch (err:Error)
+					{
+						trace("failed to send OnMCMMenuOpen| event");
+					}
 					if (this.HelpPanel_mc.HelpList_mc.filterer.modName == this.HelpPanel_mc.HelpList_mc.selectedEntry.modName)
 					{
 						tryToSelectRightPanel();
@@ -736,8 +770,8 @@ package mcm
 		
 		private function onSWFLoaded(event:Event):void
 		{
-			var path:String = event.target.url;
-			if (Extensions.isScaleform)  // no need for game but need for testing in IDE
+			var path:String = truncName(event.target.url);
+			/*if (Extensions.isScaleform)  // no need for game but need for testing in IDE
 			{
 				path = path.substring(0, path.lastIndexOf("\\"));
 				path = path.substring(path.lastIndexOf("\\") + 1);
@@ -746,7 +780,7 @@ package mcm
 			{
 				path = path.substring(0, path.lastIndexOf("/"));
 				path = path.substring(path.lastIndexOf("/") + 1);
-			}
+			}*/
 			swfsobject[path] = (event.target as LoaderInfo).loader;
 		}
 		
@@ -770,6 +804,21 @@ package mcm
 			trace(errorEvent.text);
 		}
 		
+		private function truncName(astr: String):String
+		{
+			if (Extensions.isScaleform)  // no need for game but need for testing in IDE
+			{
+				astr = astr.substring(0, astr.lastIndexOf("\\"));
+				astr = astr.substring(astr.lastIndexOf("\\") + 1);
+			}
+			else
+			{
+				astr = astr.substring(0, astr.lastIndexOf("/"));
+				astr = astr.substring(astr.lastIndexOf("/") + 1);
+			}
+			return astr;
+		}
+		
 		private function decodeJSON(e:Event):void
 		{	
 			try 
@@ -780,7 +829,8 @@ package mcm
 			{
 				trace("\nERROR PARSE JSON\n" + (e.target as MyURLLoader).url + "\n" + err.message+"\n");
 				var errModName: String = (e.target as MyURLLoader).url; 
-				if (Extensions.isScaleform)  // no need for game but need for testing in IDE
+				errModName = truncName(errModName);
+				/*if (Extensions.isScaleform)  // no need for game but need for testing in IDE
 				{
 					errModName = errModName.substring(0, errModName.lastIndexOf("\\"));
 					errModName = errModName.substring(errModName.lastIndexOf("\\") + 1);
@@ -790,6 +840,7 @@ package mcm
 					errModName = errModName.substring(0, errModName.lastIndexOf("/"));
 					errModName = errModName.substring(errModName.lastIndexOf("/") + 1);
 				}
+				*/
 				trace(errModName);
 				var errarray:Array = new Array();
 				errarray.push({"type": "spacer"});
