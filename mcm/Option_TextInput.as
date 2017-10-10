@@ -197,7 +197,8 @@
 			//textArea.addEventListener(FocusEvent.FOCUS_OUT, focusOutHandler);
 			try
 			{
-				MCM_Menu.instance.mcmCodeObj.AllowTextInput(true);
+				//MCM_Menu.instance.mcmCodeObj.AllowTextInput(true);
+				stage.getChildAt(0).f4se.AllowTextInput(true);
 			}
 			catch (e:Error)
 			{
@@ -272,7 +273,8 @@
 			stage.focus = MCM_Menu.instance.configPanel_mc.configList_mc;
 			try
 			{
-				MCM_Menu.instance.mcmCodeObj.AllowTextInput(false);
+				//MCM_Menu.instance.mcmCodeObj.AllowTextInput(false);
+				stage.getChildAt(0).f4se.AllowTextInput(false);
 			}
 			catch (e:Error)
 			{
