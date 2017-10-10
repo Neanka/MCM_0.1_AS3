@@ -38,6 +38,10 @@ TODO figured out how to implement secondary button click
 		
 	changelog ui v4
 	add textinput, textinputInt, textinputFloat controls
+	simple mods order:
+	[Main]
+	sOrder=MCM_Demo
+
 		need translation: $MCM_CLEAR
 		
 		

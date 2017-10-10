@@ -1658,6 +1658,8 @@ package mcm
 			});
 			temparray.push({"id": "iPosition:Main", "type": "slider", "text": "$MCM_MENU_POSITION",
 				"valueOptions": {"min": 1, "max": 8, "step": 1, "sourceType": "ModSettingInt"}});
+			temparray.push({"id": "sOrder:Main", "type": "textinput", "text": "$MCM_MENU_MODS_ORDER",
+				"valueOptions": {"sourceType": "ModSettingString"}});
 			return processDataObj(temparray);
 		}
 		
