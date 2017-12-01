@@ -42,11 +42,11 @@ package mcm
 			this.bAllowValueOverwrite = _arg_1;
 		}
 		
-		override protected function GetEntryHeight(_arg_1:Number):Number
-		{
-			var _local_2:MovieClip = GetClipByIndex(0);
-			return (_local_2.height);
-		}
+		//override protected function GetEntryHeight(_arg_1:Number):Number
+		//{
+		//	var _local_2:MovieClip = GetClipByIndex(0);
+		//	return (_local_2.height);
+		//}
 		
 		public function onValueChange(_arg_1:Event)
 		{

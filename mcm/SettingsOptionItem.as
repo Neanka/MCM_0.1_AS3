@@ -371,7 +371,7 @@ package mcm
 					GlobalFunc.SetText((this.OptionItem as mcm.Option_Text).textArea, _arg_1.text, false);
 				}
 				(this.OptionItem as mcm.Option_Text).textArea.height = (this.OptionItem as mcm.Option_Text).textArea.textHeight + 4;
-				
+				trace("MOVIETYPE_TEXT", this.height);
 				return;
 				break;
 			case MOVIETYPE_IMAGE: 

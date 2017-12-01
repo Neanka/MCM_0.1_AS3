@@ -506,9 +506,11 @@ package mcm
 						{
 							var iIndex: int = orderArray.indexOf(truncName(name));
 							newJsonsArray.push({"name": name, "index": (iIndex >-1)?iIndex:iCounter});
+							//trace("name ", name, "index ", iIndex, "counter ", iCounter);
 							iCounter++;
 						}
-						newJsonsArray.sortOn("index");
+						newJsonsArray.sortOn("index",Array.NUMERIC);
+						//traceObj(newJsonsArray);
 					//}
 					modsNum = jsonsArray.length;
 					if (modsNum == 0)

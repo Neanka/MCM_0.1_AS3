@@ -908,13 +908,14 @@
 				faccumHeight = this.GetEntryHeight(imaxIndex);
 				iLastPageTopIndex = imaxIndex;
 				inumItemsShown = 1;
-				while (((((!((iLastPageTopIndex == int.MAX_VALUE))) && ((faccumHeight < this.fListHeight)))) && ((inumItemsShown < this.uiNumListItems))))
+				while (((!(iLastPageTopIndex == int.MAX_VALUE)) && (faccumHeight < this.fListHeight)) && (inumItemsShown < this.uiNumListItems))
 				{
 					prevTopIndex = iLastPageTopIndex;
 					iLastPageTopIndex = this._filterer.GetPrevFilterMatch(iLastPageTopIndex);
 					if (iLastPageTopIndex != int.MAX_VALUE)
 					{
 						faccumHeight = (faccumHeight + (this.GetEntryHeight(iLastPageTopIndex) + this.fVerticalSpacing));
+						trace(this.EntriesA[iLastPageTopIndex].text+"    EntryHeight ", this.GetEntryHeight(iLastPageTopIndex));
 						if (faccumHeight < this.fListHeight)
 						{
 							inumItemsShown++;
@@ -923,11 +924,8 @@
 						{
 							iLastPageTopIndex = prevTopIndex;
 						}
-						;
 					}
-					;
 				}
-				;
 				if (iLastPageTopIndex == int.MAX_VALUE)
 				{
 					this.iMaxScrollPosition = 0;
@@ -941,13 +939,10 @@
 						ioffset++;
 						iprevInFilterIndex = this._filterer.GetPrevFilterMatch(iprevInFilterIndex);
 					}
-					;
 					this.iMaxScrollPosition = ioffset;
 				}
-				;
 			}
-			;
-			
+		
 			if (iMaxScrollPosition == 0)
 			{
 				if (this.sa1 != null)
