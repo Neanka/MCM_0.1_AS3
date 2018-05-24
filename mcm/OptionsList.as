@@ -293,15 +293,15 @@ package mcm
 					}
 					else if (obj.search(/{i}/) == 0)
 					{
-						temparray.push(int(obj.replace(/{i}/, "")));
+						temparray.push(int(obj.replace(/{i}/, "").replace(/{value}/, params.value)));
 					}
 					else if (obj.search(/{b}/) == 0)
 					{
-						temparray.push(Boolean(obj.replace(/{b}/, "")));
+						temparray.push(Boolean(obj.replace(/{b}/, "").replace(/{value}/, params.value)));
 					}
 					else if (obj.search(/{f}/) == 0)
 					{
-						temparray.push(Number(obj.replace(/{f}/, "")));
+						temparray.push(Number(obj.replace(/{f}/, "").replace(/{value}/, params.value)));
 					}
 					else
 					{
