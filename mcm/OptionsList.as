@@ -297,7 +297,7 @@ package mcm
 					}
 					else if (obj.search(/{b}/) == 0)
 					{
-						temparray.push(Boolean(obj.replace(/{b}/, "").replace(/{value}/, params.value)));
+						temparray.push(Boolean(int(obj.replace(/{b}/, "").replace(/{value}/, params.value))));
 					}
 					else if (obj.search(/{f}/) == 0)
 					{

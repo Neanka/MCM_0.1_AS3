@@ -1157,8 +1157,93 @@ package mcm
 		{
 			var filterFlagControl:uint = 1;// uint.MAX_VALUE;
 			var tempObj:Object = dataObj;
+			var nameText: String = "";
 			for (var num in tempObj)
 			{
+				if (tempObj[num].text != null) 
+				{
+					if (tempObj[num].textFromFormName) 
+					{
+						nameText = mcmCodeObj.GetFullName(tempObj[num].text);
+						if (nameText != "") 
+						{
+							tempObj[num].text = nameText;
+						}
+					}
+					else if (tempObj[num].textFromFormDescription) 
+					{
+						nameText = mcmCodeObj.GetDescription(tempObj[num].text);
+						if (nameText != "") 
+						{
+							tempObj[num].text = nameText;
+						}
+					}
+				}
+				if (tempObj[num].help != null) 
+				{
+					if (tempObj[num].helpFromFormName) 
+					{
+						nameText = mcmCodeObj.GetFullName(tempObj[num].help);
+						if (nameText != "") 
+						{
+							tempObj[num].help = nameText;
+						}
+					}
+					else if (tempObj[num].helpFromFormDescription) 
+					{
+						nameText = mcmCodeObj.GetDescription(tempObj[num].help);
+						if (nameText != "") 
+						{
+							tempObj[num].help = nameText;
+						}
+					}
+				}
+				/*if (tempObj[num].text != null)
+				{
+					nameText = tempObj[num].text;
+					if ((nameText.search(/{GetFullName}/) == 0)) 
+					{
+						nameText = mcmCodeObj.GetFullName(nameText.replace(/{GetFullName}/, ""));
+						if (nameText != "") 
+						{
+							tempObj[num].text = nameText;
+						}
+					}
+					else if ((nameText.search(/{GetDescription}/) == 0)) 
+					{
+						nameText = mcmCodeObj.GetDescription(nameText.replace(/{GetDescription}/, ""));
+						if (nameText != "") 
+						{
+							tempObj[num].text = nameText;
+						}
+					}
+				}
+				
+				if (tempObj[num].help != null)
+				{
+					nameText = tempObj[num].help;
+					if ((nameText.search(/{GetFullName}/) == 0)) 
+					{
+						nameText = mcmCodeObj.GetFullName(nameText.replace(/{GetFullName}/, ""));
+						if (nameText != "") 
+						{
+							tempObj[num].help = nameText;
+						}
+					}
+					else if ((nameText.search(/{GetDescription}/) == 0)) 
+					{
+						nameText = mcmCodeObj.GetDescription(nameText.replace(/{GetDescription}/, ""));
+						if (nameText != "") 
+						{
+							tempObj[num].help = nameText;
+						}
+					}
+				}
+				*/
+
+
+				//tempObj[num].text = mcmCodeObj.GetFullName(tempObj[num].text);
+				
 				if (!tempObj[num].modName)
 				{
 					tempObj[num].modName = modName;
@@ -1608,7 +1693,7 @@ package mcm
 			//def_w
 			if (def_w_count>0) 
 			{
-				this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: createDefWidgetsEntry(), text: "DEF Widgets", modName: "def_w_core", filterFlag: 1, pageSelected: false, numPages: def_w_count});
+				this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: createDefWidgetsEntry(), text: "DEF Mods", modName: "def_w_core", filterFlag: 1, pageSelected: false, numPages: def_w_count});
 			}
 			//def_w
 			if (queuedEntries.length > 0) 

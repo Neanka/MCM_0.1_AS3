@@ -915,7 +915,7 @@
 					if (iLastPageTopIndex != int.MAX_VALUE)
 					{
 						faccumHeight = (faccumHeight + (this.GetEntryHeight(iLastPageTopIndex) + this.fVerticalSpacing));
-						trace(this.EntriesA[iLastPageTopIndex].text+"    EntryHeight ", this.GetEntryHeight(iLastPageTopIndex));
+						//trace(this.EntriesA[iLastPageTopIndex].text+"    EntryHeight ", this.GetEntryHeight(iLastPageTopIndex));
 						if (faccumHeight < this.fListHeight)
 						{
 							inumItemsShown++;
