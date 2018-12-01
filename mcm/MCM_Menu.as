@@ -4,6 +4,7 @@ package mcm
 	import Shared.AS3.BSButtonHintData;
 	import Shared.GlobalFunc;
 	import com.adobe.serialization.json.*;
+	import flash.display.DisplayObjectContainer;
 	import flash.display.InteractiveObject;
 	import flash.display.Loader;
 	import flash.display.LoaderInfo;
@@ -60,7 +61,7 @@ package mcm
 		private var POS_Alpha_Button:BSButtonHintData;
 		
 		private var oldModNameForEvent:String = "";
-
+		
 		static private var _iMode:uint = 0;
 		static public var MCM_MAIN_MODE:uint = 0;
 		static public var MCM_REMAP_MODE:uint = 1;
@@ -72,8 +73,10 @@ package mcm
 		
 		static public var mcmLoaded:Boolean = false;
 		
-		private var queuedEntries: Array = new Array();
-		private var def_w_count: int = 0;					//def_w
+		private var queuedEntries:Array = new Array();
+		private var def_w_count:int = 0;					//def_w
+		
+		public var sharedLists: Object = new Object();
 		
 		public function MCM_Menu()
 		{
@@ -96,7 +99,7 @@ package mcm
 			addEventListener(mcm.Option_ButtonMapping.START_INPUT, this.StartInput);
 			addEventListener(mcm.Option_ButtonMapping.END_INPUT, this.EndInput);
 			addEventListener(mcm.Option_textinput.START_INPUT, this.StartInput);
-			addEventListener(mcm.Option_textinput.END_INPUT, this.EndInput);	
+			addEventListener(mcm.Option_textinput.END_INPUT, this.EndInput);
 			POS_WIN.addEventListener(BSScrollingList1.LIST_ITEMS_CREATED, listcreated);
 			POS_WIN.addEventListener(BSScrollingList1.ITEM_PRESS, this.onListItemPress);
 			
@@ -111,7 +114,7 @@ package mcm
 			iMode = 0;
 		}
 		
-		public function onResetButtonClicked():void 
+		public function onResetButtonClicked():void
 		{
 			switch (iMode)
 			{
@@ -122,20 +125,11 @@ package mcm
 			}
 		}
 		
-		/*private function onConfigButtonPress():void
-		   {
-		   this.configPanel_mc.configList_mc.disableInput = false;
-		   this.configPanel_mc.configList_mc.disableSelection = false;
-		   this.configPanel_mc.configList_mc.entryList = MCMConfigObject;
-		   this.configPanel_mc.configList_mc.InvalidateData();
-		   tryToSelectRightPanel();
-		   }*/
-		
 		public function SetButtons():void
 		{
 			switch (iMode)
 			{
-			case MCM_MAIN_MODE:
+			case MCM_MAIN_MODE: 
 				this.ConfirmButton.ButtonVisible = false;
 				this.ResetButton.ButtonVisible = false;
 				this.CancelButton.ButtonText = "$BACK";
@@ -160,7 +154,7 @@ package mcm
 				this.CancelButton.ButtonVisible = true;
 				this.BackButton.ButtonVisible = false;
 				break;
-			case MCM_DD_MODE:
+			case MCM_DD_MODE: 
 				this.ConfirmButton.ButtonVisible = false;
 				this.CancelButton.ButtonText = "$BACK";
 				this.CancelButton.ButtonVisible = true;
@@ -174,7 +168,7 @@ package mcm
 				this.BackButton.ButtonVisible = false;
 				this.POS_Move_Button.ButtonVisible = this.POS_WIN.allowMove;
 				this.POS_ScaleX_Button.ButtonVisible = this.POS_WIN.allowScale;
-				this.POS_ScaleX_Button.ButtonText = this.POS_WIN.linkedXYscale?"$SCALE":"$MCM_SCALEX";
+				this.POS_ScaleX_Button.ButtonText = this.POS_WIN.linkedXYscale ? "$SCALE" : "$MCM_SCALEX";
 				this.POS_ScaleY_Button.ButtonVisible = this.POS_WIN.allowScale && !this.POS_WIN.linkedXYscale;
 				this.POS_Rot_Button.ButtonVisible = this.POS_WIN.allowRot;
 				this.POS_Alpha_Button.ButtonVisible = this.POS_WIN.allowAlpha;
@@ -205,22 +199,10 @@ package mcm
 		private function onAddedToStage(e:Event):void
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
-			//stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUpHandler);
 			this.ButtonHintBar_mc = MainMenu.ButtonHintBar_mc;
 			MainMenu["BethesdaLogo_mc"].addChild(POS_WIN);
 			SetButtons();
 		}
-		
-		/*private function onKeyUpHandler(e:KeyboardEvent):void
-		{
-			switch (e.keyCode)
-			{
-			case Keyboard.ESCAPE: 
-				onCancelPress();
-				break;
-			default: 
-			}
-		}*/
 		
 		public function onQuitPressed():void
 		{
@@ -237,7 +219,7 @@ package mcm
 				this.configPanel_mc.configList_mc.UpdateList();
 				break;
 			case MCM_POSITIONER_MODE: 
-				if (this.POS_WIN.dataChanged) 
+				if (this.POS_WIN.dataChanged)
 				{
 					POS_WIN.CONFIRM_POP.Open();
 				}
@@ -281,7 +263,7 @@ package mcm
 				this.configPanel_mc.configList_mc.UpdateList();
 				break;
 			case MCM_POSITIONER_MODE: 
-				if (this.POS_WIN.dataChanged) 
+				if (this.POS_WIN.dataChanged)
 				{
 					POS_WIN.CONFIRM_POP.Open();
 				}
@@ -321,7 +303,7 @@ package mcm
 		{
 			switch (iMode)
 			{
-			default:
+			default: 
 			}
 		}
 		
@@ -336,7 +318,7 @@ package mcm
 			this.standardButtonHintDataV.push(this.POS_Rot_Button);
 			this.standardButtonHintDataV.push(this.POS_Alpha_Button);
 			//this.standardButtonHintDataV.push(this.ConfirmButton);
-			this.standardButtonHintDataV.push(this.ResetButton);			
+			this.standardButtonHintDataV.push(this.ResetButton);
 			this.standardButtonHintDataV.push(this.BackButton);
 			this.standardButtonHintDataV.push(this.CancelButton);
 			
@@ -427,7 +409,7 @@ package mcm
 								{
 									filterFlagControl = filterFlagControl & ~Math.pow(2, control["groupControl"]);
 								}
-								else if	(control.value == 1)
+								else if (control.value == 1)
 								{
 									filterFlagControl = filterFlagControl | Math.pow(2, control["groupControl"]);
 								}
@@ -496,21 +478,21 @@ package mcm
 				loadLibs(); //TODO find best place to call
 				try
 				{
-					var jsonsArray: Array = mcmCodeObj.GetConfigList(true);
-					var orderArray: Array = mcmCodeObj.GetModSettingString("MCM", "sOrder:Main").split(",");
-					var newJsonsArray: Array = new Array();
+					var jsonsArray:Array = mcmCodeObj.GetConfigList(true);
+					var orderArray:Array = mcmCodeObj.GetModSettingString("MCM", "sOrder:Main").split(",");
+					var newJsonsArray:Array = new Array();
 					//if (orderArray.length>0) 
 					//{
-						var iCounter: int = 1000;
-						for each (var name in jsonsArray) 
-						{
-							var iIndex: int = orderArray.indexOf(truncName(name));
-							newJsonsArray.push({"name": name, "index": (iIndex >-1)?iIndex:iCounter});
-							//trace("name ", name, "index ", iIndex, "counter ", iCounter);
-							iCounter++;
-						}
-						newJsonsArray.sortOn("index",Array.NUMERIC);
-						//traceObj(newJsonsArray);
+					var iCounter:int = 1000;
+					for each (var name in jsonsArray)
+					{
+						var iIndex:int = orderArray.indexOf(truncName(name));
+						newJsonsArray.push({"name": name, "index": (iIndex > -1) ? iIndex : iCounter});
+						//trace("name ", name, "index ", iIndex, "counter ", iCounter);
+						iCounter++;
+					}
+					newJsonsArray.sortOn("index", Array.NUMERIC);
+					//traceObj(newJsonsArray);
 					//}
 					modsNum = jsonsArray.length;
 					if (modsNum == 0)
@@ -664,7 +646,7 @@ package mcm
 				{
 					this.configPanel_mc.configList_mc.entryList = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj;
 					this.configPanel_mc.configList_mc.filterer.itemFilter = this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.selectedIndex].dataobj["filterFlagControl"];
-					try 
+					try
 					{
 						stage.getChildAt(0).f4se.SendExternalEvent("OnMCMMenuOpen");
 					}
@@ -689,9 +671,9 @@ package mcm
 				
 				if (this.HelpPanel_mc.HelpList_mc.selectedEntry.filterFlag == 1)
 				{
-					if (this.HelpPanel_mc.HelpList_mc.selectedEntry.modName != oldModNameForEvent) 
+					if (this.HelpPanel_mc.HelpList_mc.selectedEntry.modName != oldModNameForEvent)
 					{
-						try 
+						try
 						{
 							stage.getChildAt(0).f4se.SendExternalEvent("OnMCMMenuClose|" + oldModNameForEvent);
 						}
@@ -701,7 +683,7 @@ package mcm
 						}
 						oldModNameForEvent = this.HelpPanel_mc.HelpList_mc.selectedEntry.modName;
 					}
-					try 
+					try
 					{
 						stage.getChildAt(0).f4se.SendExternalEvent("OnMCMMenuOpen|" + this.HelpPanel_mc.HelpList_mc.selectedEntry.modName);
 					}
@@ -774,16 +756,25 @@ package mcm
 		{
 			var path:String = truncName(event.target.url);
 			/*if (Extensions.isScaleform)  // no need for game but need for testing in IDE
-			{
-				path = path.substring(0, path.lastIndexOf("\\"));
-				path = path.substring(path.lastIndexOf("\\") + 1);
-			}
-			else
-			{
-				path = path.substring(0, path.lastIndexOf("/"));
-				path = path.substring(path.lastIndexOf("/") + 1);
-			}*/
+			   {
+			   path = path.substring(0, path.lastIndexOf("\\"));
+			   path = path.substring(path.lastIndexOf("\\") + 1);
+			   }
+			   else
+			   {
+			   path = path.substring(0, path.lastIndexOf("/"));
+			   path = path.substring(path.lastIndexOf("/") + 1);
+			   }*/
 			swfsobject[path] = (event.target as LoaderInfo).loader;
+			try
+			{
+				(event.target as LoaderInfo).loader.content.onLibLoaded(mcmCodeObj, stage.getChildAt(0).f4se);
+			}
+			catch (err:Error)
+			{
+				trace("onLibLoaded function not found in loaded lib", path);
+			}
+		
 		}
 		
 		public function getMcFromLib(libname:String, classname:String):MovieClip
@@ -806,7 +797,7 @@ package mcm
 			trace(errorEvent.text);
 		}
 		
-		private function truncName(astr: String):String
+		private function truncName(astr:String):String
 		{
 			if (Extensions.isScaleform)  // no need for game but need for testing in IDE
 			{
@@ -822,27 +813,27 @@ package mcm
 		}
 		
 		private function decodeJSON(e:Event):void
-		{	
-			try 
+		{
+			try
 			{
 				var dataObj:Object = com.adobe.serialization.json.JSON.decode(e.target.data) as Object;
 			}
 			catch (err:Error)
 			{
-				trace("\nERROR PARSE JSON\n" + (e.target as MyURLLoader).url + "\n" + err.message+"\n");
-				var errModName: String = (e.target as MyURLLoader).url; 
+				trace("\nERROR PARSE JSON\n" + (e.target as MyURLLoader).url + "\n" + err.message + "\n");
+				var errModName:String = (e.target as MyURLLoader).url;
 				errModName = truncName(errModName);
 				/*if (Extensions.isScaleform)  // no need for game but need for testing in IDE
-				{
-					errModName = errModName.substring(0, errModName.lastIndexOf("\\"));
-					errModName = errModName.substring(errModName.lastIndexOf("\\") + 1);
-				}
-				else
-				{
-					errModName = errModName.substring(0, errModName.lastIndexOf("/"));
-					errModName = errModName.substring(errModName.lastIndexOf("/") + 1);
-				}
-				*/
+				   {
+				   errModName = errModName.substring(0, errModName.lastIndexOf("\\"));
+				   errModName = errModName.substring(errModName.lastIndexOf("\\") + 1);
+				   }
+				   else
+				   {
+				   errModName = errModName.substring(0, errModName.lastIndexOf("/"));
+				   errModName = errModName.substring(errModName.lastIndexOf("/") + 1);
+				   }
+				 */
 				trace(errModName);
 				var errarray:Array = new Array();
 				errarray.push({"type": "spacer"});
@@ -850,24 +841,22 @@ package mcm
 				errarray.push({"type": "spacer"});
 				errarray.push({"text": Translator("$MCM_MENU_LOAD_ERROR"), "align": "center", "type": "text"});
 				errarray.push({"type": "spacer"});
-				this.HelpPanel_mc.HelpList_mc.entryList.push({
-					dataobj: processDataObj(errarray, errModName), 
-					text: errModName, 
-					modName: errModName, 
-					filterFlag: 1, 
-					pageSelected: false, 
-					reqsStatus: 2
-				});
+				this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(errarray, errModName), text: errModName, modName: errModName, filterFlag: 1, pageSelected: false, reqsStatus: 2});
 				
 				checkModsLoad();
 				return;
 			}
-
+			
 			var reqsstatus:Array = new Array();
 			var mcmstatus:Boolean = true;
 			var modName:String = dataObj["modName"];
 			var ownerModName:String = "";
-			if (dataObj["ownerModName"]) 
+			if (dataObj["sharedLists"]) 
+			{
+				trace(modName, "using shared libs");
+				sharedLists = dataObj["sharedLists"];
+			}
+			if (dataObj["ownerModName"])
 			{
 				ownerModName = dataObj["ownerModName"];
 				if (ownerModName == "def_w_core") 			//def_w
@@ -936,46 +925,24 @@ package mcm
 				{
 					temparray.push({"text": Translator("$MCM_WRONG_VERSION") + " " + String(GetVersionCode()) + " (" + Translator("$MCM_REQUIRED") + " " + dataObj["minMcmVersion"] + ")", "align": "center", "type": "text"});
 				}
-				this.HelpPanel_mc.HelpList_mc.entryList.push({
-					dataobj: processDataObj(temparray, dataObj["modName"]), 
-					text: displayName, 
-					modName: dataObj["modName"], 
-					filterFlag: 1, 
-					pageSelected: false, 
-					reqsStatus: 1,
-					numPages: 0
-				});
+				this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(temparray, dataObj["modName"]), text: displayName, modName: dataObj["modName"], filterFlag: 1, pageSelected: false, reqsStatus: 1, numPages: 0});
 				this.HelpPanel_mc.HelpList_mc.InvalidateData();
 				checkModsLoad();
 				return;
 			}
-			if (ownerModName == "") 
+			if (ownerModName == "")
 			{
 				if (dataObj["content"])
 				{
-					this.HelpPanel_mc.HelpList_mc.entryList.push({
-						dataobj: processDataObj(dataObj["content"], dataObj["modName"]), 
-						text: displayName, 
-						modName: dataObj["modName"], 
-						filterFlag: 1, 
-						pageSelected: false,
-						numPages: 0
-					});
+					this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(dataObj["content"], dataObj["modName"]), text: displayName, modName: dataObj["modName"], filterFlag: 1, pageSelected: false, numPages: 0});
 				}
 				else
 				{
-					this.HelpPanel_mc.HelpList_mc.entryList.push({
-						dataobj: null, 
-						text: displayName, 
-						modName: dataObj["modName"], 
-						filterFlag: 1, 
-						pageSelected: false,
-						numPages: 0					
-					});
+					this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: null, text: displayName, modName: dataObj["modName"], filterFlag: 1, pageSelected: false, numPages: 0});
 				}
 			}
-			var numPages: int = 0;
-			var loadedModPos: int = -1;
+			var numPages:int = 0;
+			var loadedModPos:int = -1;
 			for (var i in dataObj["pages"])
 			{
 				var checkreqsarray:Array = checkreqs(dataObj["pages"][i]);
@@ -987,104 +954,66 @@ package mcm
 						{
 							checkreqsarray.push({"text": dataObj["pages"][i].messageIfMissingReqs, "align": "center", "type": "text"});
 						}
-						if (ownerModName == "") 
+						if (ownerModName == "")
 						{
-							this.HelpPanel_mc.HelpList_mc.entryList.push({
-								dataobj: processDataObj(checkreqsarray, dataObj["modName"]), 
-								text: dataObj["pages"][i]["pageDisplayName"], 
-								modName: dataObj["modName"], 
-								ownerModName: dataObj["modName"], 
-								filterFlag: 2, 
-								pageSelected: false
-							});
+							this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(checkreqsarray, dataObj["modName"]), text: dataObj["pages"][i]["pageDisplayName"], modName: dataObj["modName"], ownerModName: dataObj["modName"], filterFlag: 2, pageSelected: false});
 							numPages += 1;
 						}
-						else 
-						{	
+						else
+						{
 							loadedModPos = getIndexByModName(this.HelpPanel_mc.HelpList_mc.entryList, ownerModName);
-							if (loadedModPos == -1) 
+							if (loadedModPos == -1)
 							{
-								this.queuedEntries.push({
-									dataobj: processDataObj(checkreqsarray, dataObj["modName"]), 
-									text: dataObj["pages"][i]["pageDisplayName"], 
-									modName: dataObj["modName"], 
-									ownerModName: ownerModName, 
-									filterFlag: 2, 
-									pageSelected: false
-								});
+								this.queuedEntries.push({dataobj: processDataObj(checkreqsarray, dataObj["modName"]), text: dataObj["pages"][i]["pageDisplayName"], modName: dataObj["modName"], ownerModName: ownerModName, filterFlag: 2, pageSelected: false});
 							}
-							else 
+							else
 							{
-								this.HelpPanel_mc.HelpList_mc.entryList.push({
-									dataobj: processDataObj(checkreqsarray, dataObj["modName"]), 
-									text: dataObj["pages"][i]["pageDisplayName"], 
-									modName: dataObj["modName"], 
-									ownerModName: ownerModName, 
-									filterFlag: 2, 
-									pageSelected: false
-								});
+								this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(checkreqsarray, dataObj["modName"]), text: dataObj["pages"][i]["pageDisplayName"], modName: dataObj["modName"], ownerModName: ownerModName, filterFlag: 2, pageSelected: false});
 								HelpPanel_mc.HelpList_mc.entryList[loadedModPos].numPages += 1;
-							}	
+							}
 						}
 					}
 				}
 				else
 				{
-					if (ownerModName == "") 
+					if (ownerModName == "")
 					{
-						this.HelpPanel_mc.HelpList_mc.entryList.push({
-							dataobj: processDataObj(dataObj["pages"][i]["content"], dataObj["modName"]), 
-							text: dataObj["pages"][i]["pageDisplayName"], 
-							modName: dataObj["modName"], 
-							ownerModName: dataObj["modName"], 
-							filterFlag: 2, 
-							pageSelected: false
-						});
+						this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: processDataObj(dataObj["pages"][i]["content"], dataObj["modName"]), text: dataObj["pages"][i]["pageDisplayName"], modName: dataObj["modName"], ownerModName: dataObj["modName"], filterFlag: 2, pageSelected: false});
 						numPages += 1;
 					}
-					else 
+					else
 					{
 						loadedModPos = getIndexByModName(this.HelpPanel_mc.HelpList_mc.entryList, ownerModName);
-						if (loadedModPos == -1) 
+						if (loadedModPos == -1)
 						{
-							this.queuedEntries.push({
-								dataobj: processDataObj(dataObj["pages"][i]["content"], dataObj["modName"]), 
-								text: dataObj["pages"][i]["pageDisplayName"], 
-								modName: dataObj["modName"], 
-								ownerModName: ownerModName, 
-								filterFlag: 2, 
-								pageSelected: false
-							});
+							this.queuedEntries.push({dataobj: processDataObj(dataObj["pages"][i]["content"], dataObj["modName"]), text: dataObj["pages"][i]["pageDisplayName"], modName: dataObj["modName"], ownerModName: ownerModName, filterFlag: 2, pageSelected: false});
 						}
-						else 
+						else
 						{
-							this.HelpPanel_mc.HelpList_mc.entryList.splice(loadedModPos+HelpPanel_mc.HelpList_mc.entryList[loadedModPos].numPages+1,0,{
-								dataobj: processDataObj(dataObj["pages"][i]["content"], dataObj["modName"]), 
-								text: dataObj["pages"][i]["pageDisplayName"], 
-								modName: dataObj["modName"], 
-								ownerModName: ownerModName, 
-								filterFlag: 2, 
-								pageSelected: false
-							});
+							this.HelpPanel_mc.HelpList_mc.entryList.splice(loadedModPos + HelpPanel_mc.HelpList_mc.entryList[loadedModPos].numPages + 1, 0, {dataobj: processDataObj(dataObj["pages"][i]["content"], dataObj["modName"]), text: dataObj["pages"][i]["pageDisplayName"], modName: dataObj["modName"], ownerModName: ownerModName, filterFlag: 2, pageSelected: false});
 							HelpPanel_mc.HelpList_mc.entryList[loadedModPos].numPages += 1;
 						}
 					}
 					
 				}
-				this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.entryList.length - numPages - 1].numPages = numPages;
+				if (ownerModName != "def_w_core") 
+				{
+					this.HelpPanel_mc.HelpList_mc.entryList[this.HelpPanel_mc.HelpList_mc.entryList.length - numPages - 1].numPages = numPages;
+				}
 			}
-			
 			this.HelpPanel_mc.HelpList_mc.InvalidateData();
 			checkModsLoad();
-		
 			//this.HelpPanel_mc.HelpList_mc.selectedIndex = 0;
 			//onListItemPress(null);
 		
 		}
 		
-		function getIndexByModName(array:Array, search:String):int {
-			for (var i:int = 0; i < array.length; i++) {
-				if (array[i].modName == search) {
+		function getIndexByModName(array:Array, search:String):int
+		{
+			for (var i:int = 0; i < array.length; i++)
+			{
+				if (array[i].modName == search)
+				{
 					return i;
 				}
 			}
@@ -1157,91 +1086,106 @@ package mcm
 		{
 			var filterFlagControl:uint = 1;// uint.MAX_VALUE;
 			var tempObj:Object = dataObj;
-			var nameText: String = "";
+			var nameText:String = "";
 			for (var num in tempObj)
 			{
-				if (tempObj[num].text != null) 
+				if (tempObj[num].text != null)
 				{
-					if (tempObj[num].textFromFormName) 
+					if (tempObj[num].textFromFormName)
 					{
 						nameText = mcmCodeObj.GetFullName(tempObj[num].text);
-						if (nameText != "") 
+						if (nameText != "")
 						{
 							tempObj[num].text = nameText;
 						}
 					}
-					else if (tempObj[num].textFromFormDescription) 
+					else if (tempObj[num].textFromFormDescription)
 					{
 						nameText = mcmCodeObj.GetDescription(tempObj[num].text);
-						if (nameText != "") 
+						if (nameText != "")
 						{
 							tempObj[num].text = nameText;
 						}
 					}
 				}
-				if (tempObj[num].help != null) 
+				if (tempObj[num].textFromStringProperty) 
 				{
-					if (tempObj[num].helpFromFormName) 
-					{
-						nameText = mcmCodeObj.GetFullName(tempObj[num].help);
-						if (nameText != "") 
-						{
-							tempObj[num].help = nameText;
-						}
-					}
-					else if (tempObj[num].helpFromFormDescription) 
-					{
-						nameText = mcmCodeObj.GetDescription(tempObj[num].help);
-						if (nameText != "") 
-						{
-							tempObj[num].help = nameText;
-						}
-					}
+					tempObj[num].text = mcmCodeObj.GetPropertyValueEx(tempObj[num].textFromStringProperty.form, tempObj[num].textFromStringProperty.scriptName, tempObj[num].textFromStringProperty.propertyName);
 				}
-				/*if (tempObj[num].text != null)
+				else if (tempObj[num].textFromStringArrayProperty) 
 				{
-					nameText = tempObj[num].text;
-					if ((nameText.search(/{GetFullName}/) == 0)) 
-					{
-						nameText = mcmCodeObj.GetFullName(nameText.replace(/{GetFullName}/, ""));
-						if (nameText != "") 
-						{
-							tempObj[num].text = nameText;
-						}
-					}
-					else if ((nameText.search(/{GetDescription}/) == 0)) 
-					{
-						nameText = mcmCodeObj.GetDescription(nameText.replace(/{GetDescription}/, ""));
-						if (nameText != "") 
-						{
-							tempObj[num].text = nameText;
-						}
-					}
+					tempObj[num].text = mcmCodeObj.GetPropertyValueEx(tempObj[num].textFromStringArrayProperty.form, tempObj[num].textFromStringArrayProperty.scriptName, tempObj[num].textFromStringArrayProperty.propertyName)[tempObj[num].textFromStringArrayProperty.index];
 				}
-				
 				if (tempObj[num].help != null)
 				{
-					nameText = tempObj[num].help;
-					if ((nameText.search(/{GetFullName}/) == 0)) 
+					if (tempObj[num].helpFromFormName)
 					{
-						nameText = mcmCodeObj.GetFullName(nameText.replace(/{GetFullName}/, ""));
-						if (nameText != "") 
+						nameText = mcmCodeObj.GetFullName(tempObj[num].help);
+						if (nameText != "")
 						{
 							tempObj[num].help = nameText;
 						}
 					}
-					else if ((nameText.search(/{GetDescription}/) == 0)) 
+					else if (tempObj[num].helpFromFormDescription)
 					{
-						nameText = mcmCodeObj.GetDescription(nameText.replace(/{GetDescription}/, ""));
-						if (nameText != "") 
+						nameText = mcmCodeObj.GetDescription(tempObj[num].help);
+						if (nameText != "")
 						{
 							tempObj[num].help = nameText;
 						}
 					}
 				}
-				*/
-
-
+				if (tempObj[num].helpFromStringProperty) 
+				{
+					tempObj[num].help = mcmCodeObj.GetPropertyValueEx(tempObj[num].helpFromStringProperty.form, tempObj[num].helpFromStringProperty.scriptName, tempObj[num].helpFromStringProperty.propertyName);
+				}
+				else if (tempObj[num].helpFromStringArrayProperty) 
+				{
+					tempObj[num].help = mcmCodeObj.GetPropertyValueEx(tempObj[num].helpFromStringArrayProperty.form, tempObj[num].helpFromStringArrayProperty.scriptName, tempObj[num].helpFromStringArrayProperty.propertyName)[tempObj[num].helpFromStringArrayProperty.index];
+				}
+				/*if (tempObj[num].text != null)
+				   {
+				   nameText = tempObj[num].text;
+				   if ((nameText.search(/{GetFullName}/) == 0))
+				   {
+				   nameText = mcmCodeObj.GetFullName(nameText.replace(/{GetFullName}/, ""));
+				   if (nameText != "")
+				   {
+				   tempObj[num].text = nameText;
+				   }
+				   }
+				   else if ((nameText.search(/{GetDescription}/) == 0))
+				   {
+				   nameText = mcmCodeObj.GetDescription(nameText.replace(/{GetDescription}/, ""));
+				   if (nameText != "")
+				   {
+				   tempObj[num].text = nameText;
+				   }
+				   }
+				   }
+				
+				   if (tempObj[num].help != null)
+				   {
+				   nameText = tempObj[num].help;
+				   if ((nameText.search(/{GetFullName}/) == 0))
+				   {
+				   nameText = mcmCodeObj.GetFullName(nameText.replace(/{GetFullName}/, ""));
+				   if (nameText != "")
+				   {
+				   tempObj[num].help = nameText;
+				   }
+				   }
+				   else if ((nameText.search(/{GetDescription}/) == 0))
+				   {
+				   nameText = mcmCodeObj.GetDescription(nameText.replace(/{GetDescription}/, ""));
+				   if (nameText != "")
+				   {
+				   tempObj[num].help = nameText;
+				   }
+				   }
+				   }
+				 */
+				
 				//tempObj[num].text = mcmCodeObj.GetFullName(tempObj[num].text);
 				
 				if (!tempObj[num].modName)
@@ -1259,10 +1203,10 @@ package mcm
 							{
 								filterFlagControl = filterFlagControl & ~Math.pow(2, tempObj[num]["groupControl"]);
 							}
-								else if	(tempObj[num].value == 1)
-								{
-									filterFlagControl = filterFlagControl | Math.pow(2, tempObj[num]["groupControl"]);
-								}
+							else if (tempObj[num].value == 1)
+							{
+								filterFlagControl = filterFlagControl | Math.pow(2, tempObj[num]["groupControl"]);
+							}
 						}
 					}
 					if (tempObj[num]["valueOptions"]["clipSource"])
@@ -1282,7 +1226,22 @@ package mcm
 					break;
 				case "stepper": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_STEPPER;
-					tempObj[num].options = tempObj[num]["valueOptions"]["options"];
+					if (tempObj[num]["valueOptions"]["sharedOptions"]) 
+					{
+						tempObj[num].options = sharedLists[tempObj[num]["valueOptions"]["sharedOptions"]];
+					}
+					else if (tempObj[num].valueOptions.listFromForm) 
+					{
+						tempObj[num].options = mcmCodeObj.GetListFromForm(tempObj[num].valueOptions.listFromForm);
+					}
+					else if (tempObj[num].valueOptions.listFromProperty) 
+					{
+						tempObj[num].options = mcmCodeObj.GetPropertyValueEx(tempObj[num].valueOptions.listFromProperty.form, tempObj[num].valueOptions.listFromProperty.scriptName, tempObj[num].valueOptions.listFromProperty.propertyName);
+					}
+					else
+					{
+						tempObj[num].options = tempObj[num]["valueOptions"]["options"];
+					}
 					break;
 				case "slider": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_SCROLLBAR;
@@ -1298,7 +1257,22 @@ package mcm
 					break;
 				case "dropdown": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_DROPDOWN;
-					tempObj[num].options = tempObj[num]["valueOptions"]["options"];
+					if (tempObj[num]["valueOptions"]["sharedOptions"]) 
+					{
+						tempObj[num].options = sharedLists[tempObj[num]["valueOptions"]["sharedOptions"]];
+					}
+					else if (tempObj[num].valueOptions.listFromForm) 
+					{
+						tempObj[num].options = mcmCodeObj.GetListFromForm(tempObj[num].valueOptions.listFromForm);
+					}
+					else if (tempObj[num].valueOptions.listFromProperty) 
+					{
+						tempObj[num].options = mcmCodeObj.GetPropertyValueEx(tempObj[num].valueOptions.listFromProperty.form, tempObj[num].valueOptions.listFromProperty.scriptName, tempObj[num].valueOptions.listFromProperty.propertyName);
+					}
+					else 
+					{
+						tempObj[num].options = tempObj[num]["valueOptions"]["options"];
+					}
 					break;
 				case "dropdownFiles": 
 					tempObj[num].movieType = mcm.SettingsOptionItem.MOVIETYPE_DD_FILES;
@@ -1497,16 +1471,23 @@ package mcm
 			}
 		}
 		
-		private function readFloatValue(object:Object, modName: String):Number
+		private function readFloatValue(object:Object, modName:String):Number
 		{
 			var val:* = int.MAX_VALUE;
 			switch (object.sourceType)
 			{
 			case "PropertyValueFloat": 
 			case "PropertyValueInt": 
-				val = mcmCodeObj.GetPropertyValue(object.sourceForm, object.propertyName);
+				if (object.scriptName)
+				{
+					val = mcmCodeObj.GetPropertyValueEx(object.sourceForm, object.scriptName, object.propertyName);
+				}
+				else
+				{
+					val = mcmCodeObj.GetPropertyValue(object.sourceForm, object.propertyName);
+				}
 				break;
-
+			
 			case "ModSettingInt": 
 				val = mcmCodeObj.GetModSettingInt(modName, object.id);
 				break;
@@ -1518,7 +1499,7 @@ package mcm
 				break;
 			default: 
 			}
-			return GlobalFunc.RoundDecimal(val,2)
+			return GlobalFunc.RoundDecimal(val, 2)
 		}
 		
 		public function processPositionerWrite(control:Object):void
@@ -1549,26 +1530,40 @@ package mcm
 			}
 		}
 		
-		private function writeFloatValue(control:Object, modName: String, val: Number):void
+		private function writeFloatValue(control:Object, modName:String, val:Number):void
 		{
-			switch (control.sourceType) 
+			switch (control.sourceType)
 			{
-				case "PropertyValueFloat":
+			case "PropertyValueFloat": 
+				if (control.scriptName)
+				{
+					mcmCodeObj.SetPropertyValueEx(control.sourceForm, control.scriptName, control.propertyName, val);
+				}
+				else
+				{
 					mcmCodeObj.SetPropertyValue(control.sourceForm, control.propertyName, val);
+				}
 				break;
-				case "PropertyValueInt":
+			case "PropertyValueInt": 
+				if (control.scriptName)
+				{
+					mcmCodeObj.SetPropertyValueEx(control.sourceForm, control.scriptName, control.propertyName, int(val));
+				}
+				else
+				{
 					mcmCodeObj.SetPropertyValue(control.sourceForm, control.propertyName, int(val));
+				}
 				break;
-				case "ModSettingInt":
-					mcmCodeObj.SetModSettingInt(modName, control.id, int(val));
+			case "ModSettingInt": 
+				mcmCodeObj.SetModSettingInt(modName, control.id, int(val));
 				break;
-				case "ModSettingFloat":
-					mcmCodeObj.SetModSettingFloat(modName, control.id, val);
+			case "ModSettingFloat": 
+				mcmCodeObj.SetModSettingFloat(modName, control.id, val);
 				break;
-				case "GlobalValue":
-					mcmCodeObj.SetGlobalValue(control.sourceForm, val);
+			case "GlobalValue": 
+				mcmCodeObj.SetGlobalValue(control.sourceForm, val);
 				break;
-				default:
+			default: 
 			}
 		}
 		
@@ -1634,7 +1629,14 @@ package mcm
 			case "PropertyValueBool": 
 				try
 				{
-					control.value = mcmCodeObj.GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]) ? 1 : 0;
+					if (control["valueOptions"]["scriptName"])
+					{
+						control.value = mcmCodeObj.GetPropertyValueEx(control["valueOptions"]["sourceForm"], control["valueOptions"]["scriptName"], control["valueOptions"]["propertyName"]) ? 1 : 0;
+					}
+					else
+					{
+						control.value = mcmCodeObj.GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]) ? 1 : 0;
+					}
 				}
 				catch (e:Error)
 				{
@@ -1645,7 +1647,14 @@ package mcm
 			case "PropertyValueString": 
 				try
 				{
-					control.valueString = mcmCodeObj.GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]);
+					if (control["valueOptions"]["scriptName"])
+					{
+						control.valueString = mcmCodeObj.GetPropertyValueEx(control["valueOptions"]["sourceForm"], control["valueOptions"]["scriptName"], control["valueOptions"]["propertyName"]);
+					}
+					else
+					{
+						control.valueString = mcmCodeObj.GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]);
+					}
 				}
 				catch (e:Error)
 				{
@@ -1656,7 +1665,15 @@ package mcm
 			case "PropertyValueInt": 
 				try
 				{
-					control.value = mcmCodeObj.GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]);
+					if (control["valueOptions"]["scriptName"])
+					{
+						control.value = mcmCodeObj.GetPropertyValueEx(control["valueOptions"]["sourceForm"], control["valueOptions"]["scriptName"], control["valueOptions"]["propertyName"]);
+					}
+					else
+					{
+						control.value = mcmCodeObj.GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]);
+					}
+					
 				}
 				catch (e:Error)
 				{
@@ -1667,7 +1684,14 @@ package mcm
 			case "PropertyValueFloat": 
 				try
 				{
-					control.value = mcmCodeObj.GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]);
+					if (control["valueOptions"]["scriptName"])
+					{
+						control.value = mcmCodeObj.GetPropertyValueEx(control["valueOptions"]["sourceForm"], control["valueOptions"]["scriptName"], control["valueOptions"]["propertyName"]);
+					}
+					else
+					{
+						control.value = mcmCodeObj.GetPropertyValue(control["valueOptions"]["sourceForm"], control["valueOptions"]["propertyName"]);
+					}
 				}
 				catch (e:Error)
 				{
@@ -1691,31 +1715,30 @@ package mcm
 		private function onAllModsLoad():void
 		{
 			//def_w
-			if (def_w_count>0) 
+			if (def_w_count > 0)
 			{
 				this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: createDefWidgetsEntry(), text: "DEF Mods", modName: "def_w_core", filterFlag: 1, pageSelected: false, numPages: def_w_count});
 			}
 			//def_w
-			if (queuedEntries.length > 0) 
+			if (queuedEntries.length > 0)
 			{
-				for (var i:int = 0; i < queuedEntries.length; i++) 
+				for (var i:int = 0; i < queuedEntries.length; i++)
 				{
-					var ownerModName: String = queuedEntries[i].ownerModName;
-					var loadedModPos: int = getIndexByModName(this.HelpPanel_mc.HelpList_mc.entryList, ownerModName);
-					if (loadedModPos == -1) 
+					var ownerModName:String = queuedEntries[i].ownerModName;
+					var loadedModPos:int = getIndexByModName(this.HelpPanel_mc.HelpList_mc.entryList, ownerModName);
+					if (loadedModPos == -1)
 					{
 						//owner mod not loaded
 					}
-					else 
+					else
 					{
-						this.HelpPanel_mc.HelpList_mc.entryList.splice(loadedModPos+HelpPanel_mc.HelpList_mc.entryList[loadedModPos].numPages+1,0,queuedEntries[i]);
+						this.HelpPanel_mc.HelpList_mc.entryList.splice(loadedModPos + HelpPanel_mc.HelpList_mc.entryList[loadedModPos].numPages + 1, 0, queuedEntries[i]);
 						HelpPanel_mc.HelpList_mc.entryList[loadedModPos].numPages += 1;
 					}
 				}
 			}
 			trace(modsCount + "/" + modsNum + " mod configs loaded");
-			this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: createMCMConfigObject(), text: "$MCM_SETTINGS",
-				modName: "MCM", filterFlag: 1, pageSelected: false});
+			this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: createMCMConfigObject(), text: "$MCM_SETTINGS", modName: "MCM", filterFlag: 1, pageSelected: false});
 			this.MCMConfigObject = createMCMConfigObject();
 			this.HelpPanel_mc.HelpList_mc.entryList.push({dataobj: null, text: "$MCM_HOTKEY_MANAGER", modName: "Hotkey manager", hotkeyManager: true, filterFlag: 1, pageSelected: false});
 			this.HelpPanel_mc.HelpList_mc.InvalidateData();
@@ -1730,23 +1753,21 @@ package mcm
 		}
 		
 		//def_w
-		private function createDefWidgetsEntry():Object 
+		private function createDefWidgetsEntry():Object
 		{
 			var temparray:Array = new Array();
 			temparray.push({"type": "text", "text": "<font size=\"40\"><p align = \"center\">DEF Widgets</p></font>", "html": true});
 			return processDataObj(temparray);
 		}
+		
 		//def_w
 		
 		private function createMCMConfigObject():Object
 		{
 			var temparray:Array = new Array();
-			temparray.push({"type": "section", "text": "$MCM_SETTINGS"
-			});
-			temparray.push({"id": "iPosition:Main", "type": "slider", "text": "$MCM_MENU_POSITION",
-				"valueOptions": {"min": 1, "max": 8, "step": 1, "sourceType": "ModSettingInt"}});
-			temparray.push({"id": "sOrder:Main", "type": "textinput", "text": "$MCM_MENU_MODS_ORDER",
-				"valueOptions": {"sourceType": "ModSettingString"}});
+			temparray.push({"type": "section", "text": "$MCM_SETTINGS"});
+			temparray.push({"id": "iPosition:Main", "type": "slider", "text": "$MCM_MENU_POSITION", "valueOptions": {"min": 1, "max": 8, "step": 1, "sourceType": "ModSettingInt"}});
+			temparray.push({"id": "sOrder:Main", "type": "textinput", "text": "$MCM_MENU_MODS_ORDER", "valueOptions": {"sourceType": "ModSettingString"}});
 			return processDataObj(temparray);
 		}
 		
@@ -1792,20 +1813,20 @@ package mcm
 		public function ProcessKeyEvent(keyCode:int, isDown:Boolean):void
 		{
 			//stage.getChildAt(0).f4se.plugins.def_plugin.papMessageBox(String(keyCode));
-			if (iMode == MCM_POSITIONER_MODE) 
+			if (iMode == MCM_POSITIONER_MODE)
 			{
-				this.POS_WIN.ProcessKeyEvent(keyCode,isDown);
+				this.POS_WIN.ProcessKeyEvent(keyCode, isDown);
 			}
-			else if (iMode == MCM_POSITIONER_CONFIRM_MODE) 
+			else if (iMode == MCM_POSITIONER_CONFIRM_MODE)
 			{
-				if (!isDown && (keyCode == Keyboard.TAB || keyCode == Keyboard.ESCAPE)) 
+				if (!isDown && (keyCode == Keyboard.TAB || keyCode == Keyboard.ESCAPE))
 				{
 					this.POS_WIN.CONFIRM_POP.Close(2);
 				}
 			}
 			else if (bmForInput)
 			{
-				bmForInput.ProcessKeyEvent(keyCode,isDown);
+				bmForInput.ProcessKeyEvent(keyCode, isDown);
 			}
 			else
 			{
@@ -1851,17 +1872,17 @@ package mcm
 				case "ResetToDefault": 
 					onResetButtonClicked();
 					break;
-				case "Up":
-					ProcessKeyEvent(Keyboard.W, false)	
+				case "Up": 
+					ProcessKeyEvent(Keyboard.W, false)
 					break;
-				case "Down":
-					ProcessKeyEvent(Keyboard.S, false)	
+				case "Down": 
+					ProcessKeyEvent(Keyboard.S, false)
 					break;
-				case "Left":
-					ProcessKeyEvent(Keyboard.A, false)	
+				case "Left": 
+					ProcessKeyEvent(Keyboard.A, false)
 					break;
-				case "Right":
-					ProcessKeyEvent(Keyboard.D, false)	
+				case "Right": 
+					ProcessKeyEvent(Keyboard.D, false)
 					break;
 				default: 
 				}
@@ -1870,17 +1891,17 @@ package mcm
 		
 		}
 		
-		public function RTriggerPressed():void 
+		public function RTriggerPressed():void
 		{
-			if (iMode == MCM_POSITIONER_MODE) 
+			if (iMode == MCM_POSITIONER_MODE)
 			{
 				POS_WIN.ProcessKeyEvent(Keyboard.E, false)
 			}
 		}
 		
-		public function LTriggerPressed():void 
+		public function LTriggerPressed():void
 		{
-			if (iMode == MCM_POSITIONER_MODE) 
+			if (iMode == MCM_POSITIONER_MODE)
 			{
 				POS_WIN.ProcessKeyEvent(Keyboard.Q, false)
 			}
@@ -1888,35 +1909,35 @@ package mcm
 		
 		private function LShoulderPressed()
 		{ //used for LShoulder switchToLeft
-			if (iMode == MCM_MAIN_MODE) 
+			if (iMode == MCM_MAIN_MODE)
 			{
-			stage.focus = this.HelpPanel_mc.HelpList_mc;
-			SetButtons();
+				stage.focus = this.HelpPanel_mc.HelpList_mc;
+				SetButtons();
 			}
-			else if (iMode == MCM_POSITIONER_MODE) 
+			else if (iMode == MCM_POSITIONER_MODE)
 			{
-				POS_WIN.fscalex( -1);
-				if (!POS_WIN.linkedXYscale) 
+				POS_WIN.fscalex(-1);
+				if (!POS_WIN.linkedXYscale)
 				{
-					POS_WIN.fscaley( -1);
+					POS_WIN.fscaley(-1);
 				}
 			}
 		}
 		
 		private function RShoulderPressed()
 		{ //used for RShoulder switchToRight
-			if (iMode == MCM_MAIN_MODE) 
+			if (iMode == MCM_MAIN_MODE)
 			{
-			stage.focus = this.configPanel_mc.configList_mc;
-			this.configPanel_mc.configList_mc.selectedIndex = -1;
-			this.configPanel_mc.configList_mc.moveSelectionDown();
-			this.HelpPanel_mc.HelpList_mc.selectedIndex = selectedPage;
-			SetButtons();
+				stage.focus = this.configPanel_mc.configList_mc;
+				this.configPanel_mc.configList_mc.selectedIndex = -1;
+				this.configPanel_mc.configList_mc.moveSelectionDown();
+				this.HelpPanel_mc.HelpList_mc.selectedIndex = selectedPage;
+				SetButtons();
 			}
-			else if (iMode == MCM_POSITIONER_MODE) 
+			else if (iMode == MCM_POSITIONER_MODE)
 			{
 				POS_WIN.fscalex(1);
-				if (!POS_WIN.linkedXYscale) 
+				if (!POS_WIN.linkedXYscale)
 				{
 					POS_WIN.fscaley(1);
 				}
@@ -1946,6 +1967,31 @@ package mcm
 				else
 				{
 					trace(id + " = " + value);
+				}
+			}
+		}
+		
+		public static function traceDisplayObject(dOC:DisplayObjectContainer, recursionLevel:int = 0)
+		{
+			var numCh = dOC.numChildren;
+			for (var i = 0; i < numCh; i++)
+			{
+				var child = dOC.getChildAt(i);
+				var indentation:String = "";
+				for (var j:int = 0; j < recursionLevel; j++)
+				{
+					indentation += "----";
+				}
+				trace(indentation + "[" + i + "] " + child.name + " Alpha: " + child.alpha + " Visible: " + child.visible + " " + child);
+				
+				if (getQualifiedClassName(child) == "Object")
+				{
+					traceObj(child);
+				}
+				
+				if (child is DisplayObjectContainer && child.numChildren > 0)
+				{
+					traceDisplayObject(child, recursionLevel + 1);
 				}
 			}
 		}
@@ -1993,10 +2039,10 @@ package mcm
 			return str;
 		}
 		
-		public static function RoundDecimal(aNumber:Number, aPrecision:int = 2) : String
+		public static function RoundDecimal(aNumber:Number, aPrecision:int = 2):String
 		{
-			var i: int = Math.pow(10, aPrecision);
-			var str: String = String(Math.round(aNumber*i)/i);
+			var i:int = Math.pow(10, aPrecision);
+			var str:String = String(Math.round(aNumber * i) / i);
 			var idx:int = str.lastIndexOf('.');
 			if (idx == -1) return str;
 			return str.substring(0, idx + aPrecision + 1);

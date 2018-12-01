@@ -31,14 +31,6 @@ package mcm
 				textField.x = 10;
 				textField.width = 238;
 			}
-			//if (_arg_1.hasOwnProperty("numPages")){ //for debug
-			//	textField.text = textField.text + " " + String(_arg_1.numPages);
-			//}
-			/*if (_arg_1.hasOwnProperty("pageSelected"))
-			   {
-			   this.textField.textColor = ((_arg_1.pageSelected) ? 0 : 0xFFFFFF);
-			   this.modBg.alpha = ((_arg_1.pageSelected) ? 1 : 0);
-			   }*/
 			
 			if (_arg_1.hasOwnProperty("pageSelected"))
 			{
@@ -71,15 +63,6 @@ package mcm
 				this.border.alpha = (this.selected) ? 0.5 : 0;
 			}
 		
-			//this.border.alpha = 0;			
-		/*var _local_3:ColorTransform;
-		   _local_3 = this.page_marker_mc.transform.colorTransform;
-		   _local_3.redOffset = ((this.selected) ? -255 : 0);
-		   _local_3.greenOffset = ((this.selected) ? -255 : 0);
-		   _local_3.blueOffset = ((this.selected) ? -255 : 0);
-		   this.page_marker_mc.transform.colorTransform = _local_3;
-		   this.page_tree_marker_mc.transform.colorTransform = _local_3;
-		   this.page_last_tree_marker_mc.transform.colorTransform = _local_3;	*/
 		}
 	}
 

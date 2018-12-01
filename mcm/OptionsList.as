@@ -178,7 +178,14 @@ package mcm
 						valueType = "String";
 						try
 						{
-							parent.parent.mcmCodeObj.SetPropertyValue(EntriesA[_arg_1.target.itemIndex].valueOptions.sourceForm, EntriesA[_arg_1.target.itemIndex].valueOptions.propertyName, EntriesA[_arg_1.target.itemIndex].valueString);
+							if (EntriesA[_arg_1.target.itemIndex].valueOptions.scriptName) 
+							{
+								parent.parent.mcmCodeObj.SetPropertyValueEx(EntriesA[_arg_1.target.itemIndex].valueOptions.sourceForm, EntriesA[_arg_1.target.itemIndex].valueOptions.scriptName, EntriesA[_arg_1.target.itemIndex].valueOptions.propertyName, EntriesA[_arg_1.target.itemIndex].valueString);
+							}
+							else 
+							{
+								parent.parent.mcmCodeObj.SetPropertyValue(EntriesA[_arg_1.target.itemIndex].valueOptions.sourceForm, EntriesA[_arg_1.target.itemIndex].valueOptions.propertyName, EntriesA[_arg_1.target.itemIndex].valueString);
+							}
 						}
 						catch (e:Error)
 						{
@@ -189,7 +196,14 @@ package mcm
 						valueType = "int";
 						try
 						{
-							parent.parent.mcmCodeObj.SetPropertyValue(EntriesA[_arg_1.target.itemIndex].valueOptions.sourceForm, EntriesA[_arg_1.target.itemIndex].valueOptions.propertyName, int(EntriesA[_arg_1.target.itemIndex].value));
+							if (EntriesA[_arg_1.target.itemIndex].valueOptions.scriptName) 
+							{
+								parent.parent.mcmCodeObj.SetPropertyValueEx(EntriesA[_arg_1.target.itemIndex].valueOptions.sourceForm, EntriesA[_arg_1.target.itemIndex].valueOptions.scriptName, EntriesA[_arg_1.target.itemIndex].valueOptions.propertyName, int(EntriesA[_arg_1.target.itemIndex].value));
+							}
+							else 
+							{
+								parent.parent.mcmCodeObj.SetPropertyValue(EntriesA[_arg_1.target.itemIndex].valueOptions.sourceForm, EntriesA[_arg_1.target.itemIndex].valueOptions.propertyName, int(EntriesA[_arg_1.target.itemIndex].value));
+							}
 						}
 						catch (e:Error)
 						{
@@ -200,7 +214,14 @@ package mcm
 						valueType = "Number";
 						try
 						{
-							parent.parent.mcmCodeObj.SetPropertyValue(EntriesA[_arg_1.target.itemIndex].valueOptions.sourceForm, EntriesA[_arg_1.target.itemIndex].valueOptions.propertyName, Number(EntriesA[_arg_1.target.itemIndex].value));
+							if (EntriesA[_arg_1.target.itemIndex].valueOptions.scriptName) 
+							{
+								parent.parent.mcmCodeObj.SetPropertyValueEx(EntriesA[_arg_1.target.itemIndex].valueOptions.sourceForm, EntriesA[_arg_1.target.itemIndex].valueOptions.scriptName, EntriesA[_arg_1.target.itemIndex].valueOptions.propertyName, Number(EntriesA[_arg_1.target.itemIndex].value));
+							}
+							else 
+							{
+								parent.parent.mcmCodeObj.SetPropertyValue(EntriesA[_arg_1.target.itemIndex].valueOptions.sourceForm, EntriesA[_arg_1.target.itemIndex].valueOptions.propertyName, Number(EntriesA[_arg_1.target.itemIndex].value));
+							}
 						}
 						catch (e:Error)
 						{
@@ -211,7 +232,14 @@ package mcm
 						valueType = "Boolean";
 						try
 						{
-							parent.parent.mcmCodeObj.SetPropertyValue(EntriesA[_arg_1.target.itemIndex].valueOptions.sourceForm, EntriesA[_arg_1.target.itemIndex].valueOptions.propertyName, Boolean(EntriesA[_arg_1.target.itemIndex].value));
+							if (EntriesA[_arg_1.target.itemIndex].valueOptions.scriptName) 
+							{
+								parent.parent.mcmCodeObj.SetPropertyValueEx(EntriesA[_arg_1.target.itemIndex].valueOptions.sourceForm, EntriesA[_arg_1.target.itemIndex].valueOptions.scriptName, EntriesA[_arg_1.target.itemIndex].valueOptions.propertyName, Boolean(EntriesA[_arg_1.target.itemIndex].value));
+							}
+							else 
+							{
+								parent.parent.mcmCodeObj.SetPropertyValue(EntriesA[_arg_1.target.itemIndex].valueOptions.sourceForm, EntriesA[_arg_1.target.itemIndex].valueOptions.propertyName, Boolean(EntriesA[_arg_1.target.itemIndex].value));
+							}
 						}
 						catch (e:Error)
 						{
@@ -241,7 +269,14 @@ package mcm
 				switch (EntriesA[_arg_1.target.itemIndex].action.type)
 				{
 				case "CallFunction": 
-					cqf(EntriesA[_arg_1.target.itemIndex].action.form, EntriesA[_arg_1.target.itemIndex].action["function"], parseParams(EntriesA[_arg_1.target.itemIndex], valueType));
+					if (EntriesA[_arg_1.target.itemIndex].action.scriptName) 
+					{
+						cqf(EntriesA[_arg_1.target.itemIndex].action.form, EntriesA[_arg_1.target.itemIndex].action.scriptName, EntriesA[_arg_1.target.itemIndex].action["function"], parseParams(EntriesA[_arg_1.target.itemIndex], valueType));
+					}
+					else 
+					{
+						cqf(EntriesA[_arg_1.target.itemIndex].action.form, "", EntriesA[_arg_1.target.itemIndex].action["function"], parseParams(EntriesA[_arg_1.target.itemIndex], valueType));
+					}
 					break;
 				case "CallGlobalFunction": 
 					cgf(EntriesA[_arg_1.target.itemIndex].action.script, EntriesA[_arg_1.target.itemIndex].action["function"], parseParams(EntriesA[_arg_1.target.itemIndex], valueType));
@@ -363,7 +398,14 @@ package mcm
 			switch (EntriesA[_arg_1.target.itemIndex].action.type)
 			{
 			case "CallFunction": 
-				cqf(EntriesA[_arg_1.target.itemIndex].action.form, EntriesA[_arg_1.target.itemIndex].action["function"], parseButtonParams(EntriesA[_arg_1.target.itemIndex].action.params));
+				if (EntriesA[_arg_1.target.itemIndex].action.scriptName) 
+				{
+					cqf(EntriesA[_arg_1.target.itemIndex].action.form, EntriesA[_arg_1.target.itemIndex].action.scriptName, EntriesA[_arg_1.target.itemIndex].action["function"], parseButtonParams(EntriesA[_arg_1.target.itemIndex].action.params));
+				}
+				else 
+				{
+					cqf(EntriesA[_arg_1.target.itemIndex].action.form, "", EntriesA[_arg_1.target.itemIndex].action["function"], parseButtonParams(EntriesA[_arg_1.target.itemIndex].action.params));
+				}
 				break;
 			case "CallGlobalFunction": 
 				cgf(EntriesA[_arg_1.target.itemIndex].action.script, EntriesA[_arg_1.target.itemIndex].action["function"], parseButtonParams(EntriesA[_arg_1.target.itemIndex].action.params));
@@ -377,10 +419,11 @@ package mcm
 			}
 		}
 		
-		public function cqf(aQuest:String, aFunc:String, aArgs:Array = null):void
+		public function cqf(aQuest:String, aScript:String, aFunc:String, aArgs:Array = null):void
 		{
 			var tempArgs:Array = new Array();
 			tempArgs.push(aQuest);
+			tempArgs.push(aScript);
 			tempArgs.push(aFunc);
 			tempArgs = tempArgs.concat(aArgs)
 			try
