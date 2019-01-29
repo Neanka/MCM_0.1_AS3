@@ -642,7 +642,6 @@ package mcm
 			{
 				if (this.selectedIndex < (this.EntriesA.length - 1))
 				{
-					
 					var i:int = this.selectedIndex;
 					while (i < this.EntriesA.length - 1)
 					{

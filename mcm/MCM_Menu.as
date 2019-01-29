@@ -73,6 +73,7 @@ package mcm
 		
 		static public var mcmLoaded:Boolean = false;
 		
+		
 		private var queuedEntries:Array = new Array();
 		private var def_w_count:int = 0;					//def_w
 		
@@ -209,6 +210,7 @@ package mcm
 			switch (iMode)
 			{
 			case MCM_MAIN_MODE: 
+				this.visible = false;
 				stage.getChildAt(0)["Menu_mc"].EndState();
 				break;
 			case MCM_CONFLICT_MODE: 
@@ -400,6 +402,14 @@ package mcm
 				{
 					if (control["valueOptions"])
 					{
+						if (control.valueOptions.listFromForm) 
+						{
+							control.options = mcmCodeObj.GetListFromForm(control.valueOptions.listFromForm);
+						}
+						else if (control.valueOptions.listFromProperty) 
+						{
+							control.options = mcmCodeObj.GetPropertyValueEx(control.valueOptions.listFromProperty.form, control.valueOptions.listFromProperty.scriptName, control.valueOptions.listFromProperty.propertyName);
+						}
 						if (control["valueOptions"]["sourceType"])
 						{
 							readValue(control);
@@ -475,6 +485,7 @@ package mcm
 			case "HelpList_mc": 
 				this.HelpPanel_mc.HelpList_mc.filterer.filterType = ListFiltererEx.FILTER_TYPE_LEFTPANEL;
 				this.HelpPanel_mc.HelpList_mc.filterer.itemFilter = 1;
+				this.HelpPanel_mc.HelpList_mc.filterer.modName = "MCM";
 				loadLibs(); //TODO find best place to call
 				try
 				{
@@ -520,6 +531,7 @@ package mcm
 				
 				break;
 			case "configList_mc": 
+				this.configPanel_mc.configList_mc.sa1.transform.colorTransform = MCM_Main.tintCT;
 				this.configPanel_mc.configList_mc.InvalidateData();
 				loadWelcomePage();
 				this.configPanel_mc.configList_mc.disableInput = true;
@@ -624,6 +636,10 @@ package mcm
 		{
 			if (_arg_1.target == this.configPanel_mc.configList_mc)
 			{
+				//if (stage.focus != this.configPanel_mc.configList_mc)
+				//{
+				//	stage.focus = this.configPanel_mc.configList_mc;
+				//}
 				(this.configPanel_mc.configList_mc as mcm.OptionsList).onListItemPressed();
 			}
 			else if (_arg_1.target == this.configPanel_mc.DD_popup_mc.DD_popup_list_mc)
@@ -660,6 +676,7 @@ package mcm
 					populateHotkeyArray();
 					this.configPanel_mc.configList_mc.entryList = processDataObj(hotkeyManagerList, "Hotkey manager");
 					this.configPanel_mc.configList_mc.filterer.itemFilter = 1;// uint.MAX_VALUE;
+					tryToSelectRightPanel();
 				}
 				else
 				{
@@ -668,7 +685,6 @@ package mcm
 					GlobalFunc.SetText(this.configPanel_mc.hint_tf, " ", true);
 				}
 				this.configPanel_mc.configList_mc.InvalidateData();
-				
 				if (this.HelpPanel_mc.HelpList_mc.selectedEntry.filterFlag == 1)
 				{
 					if (this.HelpPanel_mc.HelpList_mc.selectedEntry.modName != oldModNameForEvent)
@@ -699,6 +715,11 @@ package mcm
 					{
 						this.HelpPanel_mc.HelpList_mc.filterer.modName = this.HelpPanel_mc.HelpList_mc.selectedEntry.modName;
 						this.HelpPanel_mc.HelpList_mc.InvalidateData();
+					}
+					if (!(this.HelpPanel_mc.HelpList_mc.selectedEntry.numPages>0)) 
+					{
+						this.configPanel_mc.configList_mc.disableSelection = false;
+						tryToSelectRightPanel();
 					}
 				}
 				else
@@ -1091,6 +1112,7 @@ package mcm
 			{
 				if (tempObj[num].text != null)
 				{
+					tempObj[num].text = tempObj[num].text.replace(/\$\$tintCT/g, MCM_Main.tintCThex);
 					if (tempObj[num].textFromFormName)
 					{
 						nameText = mcmCodeObj.GetFullName(tempObj[num].text);
@@ -1953,7 +1975,7 @@ package mcm
 		// =========== UTILITIES ===========
 		// *********************************
 		
-		private function traceObj(obj:Object):void
+		public static function traceObj(obj:Object):void
 		{
 			for (var id:String in obj)
 			{
@@ -1996,9 +2018,9 @@ package mcm
 			}
 		}
 		
-		private function log(str:String):void
+		private function log(str:String, ... rest):void
 		{
-			trace("[MCM_Menu] " + str);
+			trace("[MCM_Menu] ", str, rest);
 		}
 		
 		private function GetVersionCode():String

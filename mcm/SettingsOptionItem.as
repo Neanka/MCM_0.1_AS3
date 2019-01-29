@@ -79,6 +79,7 @@ package mcm
 			;
 			this.textField.x = 20;
 			//this.height = 28;
+			
 			switch (this.uiMovieType)
 			{
 			case MOVIETYPE_SCROLLBAR: 
@@ -325,6 +326,14 @@ package mcm
 		
 		override public function SetEntryText(_arg_1:Object, _arg_2:String)
 		{
+			if (_arg_1.hasOwnProperty("noTint"))
+			{
+				this.transform.colorTransform = MCM_Main.ct_white;
+			}
+			else 
+			{
+				this.transform.colorTransform = MCM_Main.tintCT;
+			}
 			var _local_3:ColorTransform;
 			//TextFieldEx.setTextAutoSize(textField, "fit");
 			super.SetEntryText(_arg_1, _arg_2);

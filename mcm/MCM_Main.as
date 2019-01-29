@@ -2,9 +2,11 @@
 {
 	
 	import flash.display.MovieClip;
+	import flash.display.Shape;
 	import flash.events.Event;
 	import flash.events.FocusEvent;
 	import flash.events.TimerEvent;
+	import flash.geom.ColorTransform;
 	import flash.geom.Point;
 	import flash.utils.Timer;
 	import flash.utils.getQualifiedClassName;
@@ -18,6 +20,9 @@
 		public var mcmMenu:MCM_Menu = new mcm.MCM_Menu();
 		private var mcmCodeObj:Object = new Object();
 		private var MCMCloseDelayTimer:Timer;
+		static public var tintCT: ColorTransform;
+		static public var ct_white: ColorTransform;
+		static public var tintCThex: String;
 		
 		public function MCM_Main()
 		{
@@ -91,8 +96,9 @@
 			//traceObj(MainMenu["MainPanel_mc"].List_mc.entryList);
 			
 			log("Successfully injected into MainMenu.");
-			
-
+			tintCT = MainMenu.BackgroundAndBrackets_mc.DLCPanelBrackets_mc.transform.colorTransform;
+			ct_white = MainMenu.transform.colorTransform;
+			tintCThex = RGBtoHEX(255 * tintCT.redMultiplier, 255 * tintCT.greenMultiplier, 255 * tintCT.blueMultiplier);
 		}
 		
 		private function focusInHandler(event:FocusEvent):void
@@ -135,10 +141,39 @@
 				
 				// Prepare target surface
 				MainMenu.BackgroundAndBrackets_mc.DLCPanelBrackets_mc.getChildAt(0).visible = false;	// Hide existing brackets
-				MainMenu.BackgroundAndBrackets_mc.DLCPanelBrackets_mc.addChild(mcmMenu);				// Auto-tint
+				
+				if (!MainMenu.contains(mcmMenu))
+				{
+					MainMenu.addChildAt(mcmMenu, MainMenu.numChildren);				// Auto-tint
+					mcmMenu.HelpPanel_mc.transform.colorTransform = tintCT;
+					mcmMenu.configPanel_mc.hotkey_conflict_mc.transform.colorTransform = tintCT;
+					mcmMenu.configPanel_mc.HelpPanelBrackets_mc.transform.colorTransform = tintCT;
+					mcmMenu.configPanel_mc.HelpPanelBackground_mc.transform.colorTransform = tintCT;
+					mcmMenu.configPanel_mc.hint_tf.transform.colorTransform = tintCT;
+					mcmMenu.configPanel_mc.DD_popup_mc.transform.colorTransform = tintCT;
+				}
+				else 
+				{
+					mcmMenu.visible = true;
+				}			
+				
+				
+				var triangle:Shape = new Shape(); 
+				triangle.graphics.beginFill(0x000000,0); 
+				triangle.graphics.moveTo(stage.stageWidth, 0); 
+				triangle.graphics.lineTo(stage.stageWidth, stage.stageHeight); 
+				triangle.graphics.lineTo(0, stage.stageHeight); 
+				triangle.graphics.lineTo(0, 0); 
+				MainMenu.BackgroundAndBrackets_mc.DLCPanelBrackets_mc.addChild(triangle);
+				mcmMenu.x = 122.4;
+				mcmMenu.y = 39.6;
+				
+				
 				MainMenu.BackgroundAndBrackets_mc.DLCPanelBrackets_mc.x = -335;
 				MainMenu.BackgroundAndBrackets_mc.DLCPanelBrackets_mc.y = -250;
 				MainMenu.BackgroundAndBrackets_mc.DLCPanelBrackets_mc.visible = true;
+				
+				//globalCoords = mcmMenu.localToGlobal(new Point(0, 0));		
 				
 				// Prepare config panel background
 				var globalCoords:Point = mcmMenu.configPanel_mc.localToGlobal(new Point(0, 0));
@@ -256,6 +291,12 @@
 		private function log(str:String):void
 		{
 			trace("[MCM] " + str);
+		}
+		
+		private function RGBtoHEX(r, g, b) { 
+			var s = (r << 16 | g << 8 | b).toString(16); 
+			while(s.length < 6) s="0"+s;
+			return "#"+s;
 		}
 	
 	}
